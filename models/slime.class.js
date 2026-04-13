@@ -1,0 +1,3 @@
+class Slime extends MovableObject {
+    
+}
