@@ -14,7 +14,6 @@ export default class Slime extends MovableObject {
         super();
         this.loadImage("img/enemies/blue_slime/walk1.png");
         this.x = Math.random() * 350 + 350;
-        console.log("Slime x position:", this.x);
         this.y = 280;
         this.width = 50;
         this.height = 130;

@@ -1,10 +1,11 @@
 export default class MovableObject {
-    x = 50;
-    y = 270;
+    x = 100;
+    y = 263;
     height = 150;
     width = 140;
     speed = 0.15;
     imgCache = {};
+    otherDirection = false;
 
     loadImage(path) {
         this.img = new Image();
@@ -17,6 +18,12 @@ loadImages(arr) {
         img.src = path;
         this.imgCache[path] = img;
     });
+}
+
+moveRight() {
+    setInterval(() => {
+        this.x += this.speed;
+    }, 1000 / 60);
 }
 
 moveLeft() {

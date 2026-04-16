@@ -1,4 +1,5 @@
 import World from "../models/world.class.js";
+import level1 from "../levels/level1.js";
 
 let canvas;
 let world;
@@ -7,12 +8,11 @@ function init() {
   canvas = document.getElementById("canvas");
   canvas.width = 720;
   canvas.height = 480;
-  world = new World(canvas);
+  world = new World(canvas, level1);
 }
 
 window.addEventListener("load", init);
 window.addEventListener("keydown", (e) => {
-  console.log(e);
   switch (e.code) {
     case "ArrowRight":
       world.keyboard.RIGHT = true;
