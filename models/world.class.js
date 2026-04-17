@@ -162,7 +162,7 @@ export default class World {
 
         baseTiles.forEach(tile => {
             const isGrassTile = tile.img.src.includes("grass");
-            const stepX = isGrassTile ? tile.width - 25 : tile.width;
+            const stepX = isGrassTile ? tile.width - 0 : tile.width;
 
             if (this.shouldKeepSingleTile(tile)) {
                 filledTiles.push(tile);

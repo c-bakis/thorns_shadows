@@ -49,6 +49,7 @@ export default class Character extends MovableObject {
     this.loadImages(this.IMAGES_JUMPING);
 
     this.animate();
+    this.applyGravity();
   }
 
   animate() {
@@ -75,11 +76,11 @@ export default class Character extends MovableObject {
   }
 
   moveCharacter() {
-    if (this.world.keyboard.RIGHT) {
+    if (this.world.keyboard.RIGHT && this.x < this.world.level.levelEndX) {
       this.x += this.speed;
       this.otherDirection = false;
     }
-    if (this.world.keyboard.LEFT) {
+    if (this.world.keyboard.LEFT && this.x >= 80 ) {
       this.x -= this.speed;
         this.otherDirection = true;
     }

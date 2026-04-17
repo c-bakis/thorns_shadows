@@ -1,8 +1,9 @@
 import Level from "../models/level.class.js";
 
 const level1 = new Level({
-  spawn: { x: 100, y: 263 },
+  spawn: { x: 100, y: 253 },
   cameraDeadZone: 150,
+  levelEndX: 3700,
   enemies: [
     { type: "slime" },
     { type: "slime" },
@@ -15,11 +16,10 @@ const level1 = new Level({
     { type: "background", imagePath: "img/backgrounds/f2.png", parallaxFactor: 0.85 },
   ],
   tiles: [
-    { imagePath: "img/tiles/ground.png", x: 0, y: 440, width: 200, height: 50 },
-    { imagePath: "img/tiles/ground.png", x: 0, y: 420, width: 200, height: 50 },
-    { imagePath: "img/tiles/grass.png", x: -25, y: 390, width: 230, height: 52 },
-    { imagePath: "img/tiles/floating_ground.png", x: 2010, y: 420, width: 160, height: 50 },
-    { imagePath: "img/tiles/small_spikes.png", x: 2002, y: 380, width: 140, height: 50 },
+    { imagePath: "img/tiles/black_ground.png", x: 0, y: 440, width: 100, height: 50 },
+    { imagePath: "img/tiles/small-grass.png", x: 0, y: 390, width: 48, height: 55 },
+    { imagePath: "img/tiles/stone-ground.png", x: 0, y: 435, width: 210, height: 42 },
+    { imagePath: "img/tiles/small_spikes2.png", x: 2053, y: 380, width: 121, height: 63 },
     { imagePath: "img/tiles/floating_grass.png", x: 1880, y: 280, width: 160, height: 50 },
     { imagePath: "img/tiles/floating_grass.png", x: 2060, y: 200, width: 160, height: 50 },
   ],

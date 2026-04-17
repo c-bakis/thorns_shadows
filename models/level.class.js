@@ -6,6 +6,7 @@ export default class Level {
     stones;
     cameraDeadZone;
     spawn;
+    levelEndX;
 
     constructor({
         enemies = [],
@@ -15,6 +16,7 @@ export default class Level {
         stones = [],
         cameraDeadZone = 150,
         spawn = { x: 100, y: 263 },
+        levelEndX = 1000,
     } = {}) {
         this.enemies = enemies;
         this.backgroundLayers = backgroundLayers;
@@ -23,5 +25,6 @@ export default class Level {
         this.stones = stones;
         this.cameraDeadZone = cameraDeadZone;
         this.spawn = spawn;
+        this.levelEndX = levelEndX;
     }
 }
