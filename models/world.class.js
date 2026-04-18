@@ -14,6 +14,8 @@ export default class World {
   camera_x = 0;
   cameraDeadZone = 150;
   cameraAnchorX = 0;
+  hitCooldownMs = 500;
+  lastHitAt = 0;
   level;
 
   constructor(canvas, level) {
@@ -41,6 +43,45 @@ export default class World {
     this.draw();
   }
 
+  checkCollisions() {
+    const now = Date.now();
+
+    this.enemies.forEach((enemy) => {
+      const hasCollisionMethod =
+        typeof this.character?.isCollidingWith === "function";
+      const isColliding = hasCollisionMethod
+        ? this.character.isCollidingWith(enemy)
+        : this.isCollidingAABB(this.character, enemy);
+
+        this.checkDemageOnCollision(enemy, isColliding, now);
+    });
+  }
+
+    checkDemageOnCollision(enemy, isColliding, now) {
+      if (isColliding) {
+        const previousLastHitAt = this.lastHitAt;
+        const timeSinceLastHit = now - previousLastHitAt;
+        const canTakeDamage = timeSinceLastHit >= this.hitCooldownMs;
+        const damage = Number.isFinite(enemy?.damage) ? enemy.damage : 10;
+        const energyBefore = this.character.energy;
+
+        if (canTakeDamage) {
+          this.character.energy = Math.max(0, this.character.energy - damage);
+          this.lastHitAt = now;
+        }
+      }
+    }
+
+
+  isCollidingAABB(a, b) {
+    return (
+      a.x < b.x + b.width &&
+      a.x + a.width > b.x &&
+      a.y < b.y + b.height &&
+      a.y + a.height > b.y
+    );
+  }
+
   draw() {
     this.ctx.clearRect(0, 0, this.ctx.canvas.width, this.ctx.canvas.height);
 
@@ -52,6 +93,7 @@ export default class World {
     this.addObjToMap(this.tileset);
     this.addToMap(this.character);
     this.addObjToMap(this.enemies);
+    this.checkCollisions();
     this.ctx.translate(-this.camera_x, 0);
     requestAnimationFrame(() => this.draw());
   }

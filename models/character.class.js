@@ -25,10 +25,9 @@ export default class Character extends MovableObject {
   ];
 
   IMAGES_DYING = [
-    "img/character/wizard/Death1.png",
-    "img/character/wizard/Death2.png",
-    "img/character/wizard/Death3.png",
-    "img/character/wizard/Death4.png",
+    "img/character/wizard/dead1.png",
+    "img/character/wizard/dead2.png",
+    "img/character/wizard/dead3.png",
   ];
 
   IMAGES_HURT = [
@@ -40,6 +39,9 @@ export default class Character extends MovableObject {
 
   currentImg = 0;
   animationCounter = 0;
+  deathFrameIndex = 0;
+  deathAnimationCounter = 0;
+  deathAnimationFinished = false;
 
   constructor() {
     super();
@@ -47,6 +49,7 @@ export default class Character extends MovableObject {
     this.loadImages(this.IMAGES_RUNNING);
     this.loadImages(this.IMAGES_WALKING);
     this.loadImages(this.IMAGES_JUMPING);
+    this.loadImages(this.IMAGES_DYING);
 
     this.animate();
     this.applyGravity();
@@ -65,6 +68,11 @@ export default class Character extends MovableObject {
   }
 
   getCharacterState(isMovingHorizontally, isJumpPressed, isAirborne) {
+      if (this.energy <= 0) {
+        this.speedY = 0;
+        return;
+      }
+
       if (!isAirborne && isJumpPressed) {
         this.jump(25);
       }
@@ -83,13 +91,35 @@ export default class Character extends MovableObject {
   }
 
   getAnimationState(isMovingHorizontally, isJumpPressed, isAirborne) {
-      if (this.isAboveGround()) {
+      if (this.energy <= 0) {
+        this.playDeathAnimationOnce(10);
+      } else if (this.isAboveGround()) {
         this.initiateAnimation(10, this.IMAGES_JUMPING);
       } else if (isMovingHorizontally) {
         this.initiateAnimation(6, this.IMAGES_RUNNING);
       } else {
         this.stopAnimation();
       }
+  }
+
+  playDeathAnimationOnce(speed) {
+    if (this.deathAnimationFinished) {
+      this.img.src = this.IMAGES_DYING[this.IMAGES_DYING.length - 1];
+      return;
+    }
+
+    this.deathAnimationCounter++;
+    if (this.deathAnimationCounter % speed !== 0) {
+      return;
+    }
+
+    this.img.src = this.IMAGES_DYING[this.deathFrameIndex];
+    this.deathFrameIndex++;
+
+    if (this.deathFrameIndex >= this.IMAGES_DYING.length) {
+      this.deathAnimationFinished = true;
+      this.speedY = 0;
+    }
   }
 
   moveCharacter() {
@@ -100,4 +130,5 @@ export default class Character extends MovableObject {
       this.moveLeft();
     }
   }
+
 }

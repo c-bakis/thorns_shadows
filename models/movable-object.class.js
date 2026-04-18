@@ -6,8 +6,10 @@ export default class MovableObject {
   speed = 0.15;
   speedY = 0;
   acceleration = 2.5;
+  energy = 100;
   imgCache = {};
   otherDirection = false;
+  isDefeated = false;
 
   loadImage(path) {
     this.img = new Image();
@@ -84,6 +86,16 @@ export default class MovableObject {
     }, 1000 / 25);
   }
 
+  isCollidingWith(object) {
+    return (
+      this.x < object.x + object.width &&
+      this.x + this.width > object.x &&
+      this.y < object.y + object.height &&
+      this.y + this.height > object.y
+    );
+  }
+
+
   isAboveGround() {
     return this.y < 320;
   }
@@ -95,6 +107,14 @@ export default class MovableObject {
 
   jump(speedY) {
     this.speedY = speedY;
+  }
+
+  isDefeated() {
+    if (this.energy === 0) {
+      this.isDefeated = true;
+      this.stopAnimation();
+      this.initiateAnimation(10, this.IMAGES_DYING);
+    }
   }
 
   constructor() {}

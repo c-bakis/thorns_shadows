@@ -1,25 +1,26 @@
 import MovableObject from "./movable-object.class.js";
 
 export default class Slime extends MovableObject {
+    damage = 10;
 
     IMAGES_WALKING = [
-        "img/enemies/blue_slime/Walk1.png",
-        "img/enemies/blue_slime/Walk2.png",
-        "img/enemies/blue_slime/Walk3.png",
-        "img/enemies/blue_slime/Walk4.png",
-        "img/enemies/blue_slime/Walk5.png",
-        "img/enemies/blue_slime/Walk6.png",
-        "img/enemies/blue_slime/Walk7.png",
-        "img/enemies/blue_slime/Walk8.png",
+        "img/enemies/blue_slime/walk1.png",
+        "img/enemies/blue_slime/walk2.png",
+        "img/enemies/blue_slime/walk3.png",
+        "img/enemies/blue_slime/walk4.png",
+        "img/enemies/blue_slime/walk5.png",
+        "img/enemies/blue_slime/walk6.png",
+        "img/enemies/blue_slime/walk7.png",
+        "img/enemies/blue_slime/walk8.png",
     ];
 
     currentImg = 0;
-  animationCounter = 0;
+    animationCounter = 0;
 
     
     constructor() {
         super();
-        this.loadImage("img/enemies/blue_slime/Walk1.png");
+        this.loadImage("img/enemies/blue_slime/walk1.png");
         this.x = Math.random() * 350 + 350;
         this.y = 370;
         this.width = 50;
