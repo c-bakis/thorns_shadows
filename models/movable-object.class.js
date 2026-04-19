@@ -2,6 +2,8 @@ export default class MovableObject {
   x = 100;
   y = 230;
   groundY = 230;
+  defaultGroundY = 230;
+  previousY = 230;
   height = 180;
   width = 150;
   hitboxOffsetX = 0;
@@ -75,7 +77,7 @@ export default class MovableObject {
 
   drawBoundingBox(ctx) {
     const shouldDrawBoundingBox =
-      this.constructor?.name === "Character" || this.constructor?.name === "Slime";
+      this.constructor?.name === "Character" || this.constructor?.name === "Slime" || this.constructor?.name === "Tileset";
 
     if (shouldDrawBoundingBox) {
       const hitbox = this.getHitbox();
@@ -127,6 +129,8 @@ export default class MovableObject {
 
   applyGravity() {
     setInterval(() => {
+      this.previousY = this.y;
+
       if (this.isAboveGround() || this.speedY > 0) {
         this.y -= this.speedY;
         this.speedY -= this.acceleration;

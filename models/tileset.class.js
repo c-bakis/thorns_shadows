@@ -9,5 +9,9 @@ export default class Tileset extends MovableObject {
         this.y = y;
         this.width = w;
         this.height = h;
+        this.hitboxOffsetX = 0;
+        this.hitboxOffsetY = 0;
+        this.hitboxWidth = w;
+        this.hitboxHeight = h;
     }
 }

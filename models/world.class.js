@@ -36,6 +36,8 @@ export default class World {
     if (typeof level?.spawn?.y === "number") {
       this.character.y = level.spawn.y;
       this.character.groundY = level.spawn.y;
+      this.character.defaultGroundY = level.spawn.y;
+      this.character.previousY = level.spawn.y;
     }
     this.character.world = this;
     this.cameraAnchorX = this.character.x;
@@ -75,18 +77,109 @@ export default class World {
 
 
   isCollidingAABB(a, b) {
-    const boxA = typeof a?.getHitbox === "function"
-      ? a.getHitbox()
-      : { x: a.x, y: a.y, width: a.width, height: a.height };
-    const boxB = typeof b?.getHitbox === "function"
-      ? b.getHitbox()
-      : { x: b.x, y: b.y, width: b.width, height: b.height };
+    const boxA = this.getObjectBox(a);
+    const boxB = this.getObjectBox(b);
 
     return (
       boxA.x < boxB.x + boxB.width &&
       boxA.x + boxA.width > boxB.x &&
       boxA.y < boxB.y + boxB.height &&
       boxA.y + boxA.height > boxB.y
+    );
+  }
+
+  getObjectBox(object) {
+    return typeof object?.getHitbox === "function"
+      ? object.getHitbox()
+      : { x: object.x, y: object.y, width: object.width, height: object.height };
+  }
+
+  resolvePlatformGround() {
+    const actor = this.character;
+    if (!actor || typeof actor.getHitbox !== "function") {
+      return;
+    }
+
+    actor.groundY = actor.defaultGroundY ?? actor.groundY;
+
+    const actorHitbox = actor.getHitbox();
+    const actorPreviousBottom = this.getActorPreviousBottom(actor);
+    const actorCurrentBottom = actorHitbox.y + actorHitbox.height;
+    const bestPlatform = this.findBestFloatingPlatform(
+      actor,
+      actorHitbox,
+      actorPreviousBottom,
+      actorCurrentBottom,
+    );
+
+    if (!bestPlatform) {
+      return;
+    }
+
+    const platformGroundY = this.getPlatformGroundY(actor, bestPlatform);
+
+    actor.groundY = platformGroundY;
+    if (actor.y > platformGroundY) {
+      actor.resetPositionY(platformGroundY);
+    }
+  }
+
+  getActorPreviousBottom(actor) {
+    return (
+      (actor.previousY ?? actor.y) +
+      (actor.hitboxOffsetY ?? 0) +
+      (actor.hitboxHeight ?? actor.height)
+    );
+  }
+
+  findBestFloatingPlatform(actor, actorHitbox, actorPreviousBottom, actorCurrentBottom) {
+    const floatingPlatforms = this.tileset.filter((tile) => this.isFloatingTile(tile));
+
+    return floatingPlatforms.reduce((best, platform) => {
+      const platformBox = this.getObjectBox(platform);
+
+      if (!this.isHorizontalOverlap(actorHitbox, platformBox)) {
+        return best;
+      }
+
+      const landsNow = this.isLandingOnPlatform(actor, actorPreviousBottom, actorCurrentBottom, platformBox);
+      const standsNow = this.isStandingOnPlatform(actorCurrentBottom, platformBox);
+      if (!landsNow && !standsNow) {
+        return best;
+      }
+
+      if (!best || platformBox.y < best.y) {
+        return platformBox;
+      }
+
+      return best;
+    }, null);
+  }
+
+  isHorizontalOverlap(actorHitbox, platformBox) {
+    return (
+      actorHitbox.x < platformBox.x + platformBox.width &&
+      actorHitbox.x + actorHitbox.width > platformBox.x
+    );
+  }
+
+  isLandingOnPlatform(actor, actorPreviousBottom, actorCurrentBottom, platformBox) {
+    return (
+      actor.speedY <= 0 &&
+      actorPreviousBottom <= platformBox.y &&
+      actorCurrentBottom >= platformBox.y
+    );
+  }
+
+  isStandingOnPlatform(actorCurrentBottom, platformBox) {
+    return Math.abs(actorCurrentBottom - platformBox.y) <= 6;
+  }
+
+  getPlatformGroundY(actor, platformBox) {
+    return (
+      platformBox.y -
+      (actor.hitboxOffsetY ?? 0) -
+      (actor.hitboxHeight ?? actor.height)
     );
   }
 
@@ -97,6 +190,7 @@ export default class World {
 
     this.ctx.translate(this.camera_x, 0);
 
+    this.resolvePlatformGround();
     this.addRepeatingBackgroundsToMap(this.backgroundObjects);
     this.addObjToMap(this.tileset);
     this.addToMap(this.character);
