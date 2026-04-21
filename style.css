@@ -1,4 +1,8 @@
 body {
+    background-image: url('./img/backgrounds/forest.jpg');
+    background-size: cover;
+    background-position: center;
+    backdrop-filter: contrast(0.9) grayscale(0.2) blur(1px);
     display: flex;
     justify-content: center;
     align-items: center;

@@ -2,11 +2,13 @@ import Tileset from "./tileset.class.js";
 import Character from "./character.class.js";
 import Keyboard from "./keyboard.class.js";
 import LevelBuilder from "./level-builder.class.js";
+import StatusBar from "./status-bar.class.js";
 
 export default class World {
   backgroundObjects = [];
   tileset = [];
   enemies = [];
+  statusBar = new StatusBar();
   character = new Character();
   canvas;
   ctx;
@@ -14,8 +16,6 @@ export default class World {
   camera_x = 0;
   cameraDeadZone = 150;
   cameraAnchorX = 0;
-  hitCooldownMs = 500;
-  lastHitAt = 0;
   level;
 
   constructor(canvas, level) {
@@ -56,24 +56,23 @@ export default class World {
         ? this.character.isCollidingWith(enemy)
         : this.isCollidingAABB(this.character, enemy);
 
-        this.checkDemageOnCollision(enemy, isColliding, now);
+      this.checkDemageOnCollision(enemy, isColliding, now);
     });
   }
 
-    checkDemageOnCollision(enemy, isColliding, now) {
-      if (isColliding) {
-        const previousLastHitAt = this.lastHitAt;
-        const timeSinceLastHit = now - previousLastHitAt;
-        const canTakeDamage = timeSinceLastHit >= this.hitCooldownMs;
-        const damage = Number.isFinite(enemy?.damage) ? enemy.damage : 10;
-        const energyBefore = this.character.energy;
-
-        if (canTakeDamage) {
-          this.character.energy = Math.max(0, this.character.energy - damage);
-          this.lastHitAt = now;
-        }
-      }
+  checkDemageOnCollision(enemy, isColliding, now) {
+    if (!isColliding) {
+      return;
     }
+
+    const damage = Number.isFinite(enemy?.damage) ? enemy.damage : 10;
+    const enemyBox = this.getObjectBox(enemy);
+    const enemyCenterX = enemyBox.x + enemyBox.width / 2;
+    const didTakeDamage = this.character.takeDamage(damage, now, enemyCenterX);
+    if (didTakeDamage) {
+      this.statusBar.setPercentage(this.character.energy, "health");
+    }
+  }
 
 
   isCollidingAABB(a, b) {
@@ -197,6 +196,7 @@ export default class World {
     this.addObjToMap(this.enemies);
     this.checkCollisions();
     this.ctx.translate(-this.camera_x, 0);
+    this.statusBar.draw(this.ctx);
     requestAnimationFrame(() => this.draw());
   }
 

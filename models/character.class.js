@@ -112,16 +112,18 @@ export default class Character extends MovableObject {
   animate() {
     setInterval(() => {
       const isJumpPressed = this.world.keyboard.SPACE || this.world.keyboard.UP;
-      const isMovingHorizontally = this.world.keyboard.RIGHT || this.world.keyboard.LEFT;
       const isAirborne = this.isAboveGround();
+      const isHurt = this.isHurt();
+      const previousX = this.x;
 
-      this.getCharacterState(isMovingHorizontally, isJumpPressed, isAirborne);
-      this.getAnimationState(isMovingHorizontally, isJumpPressed, isAirborne);
+      this.getCharacterState(isJumpPressed, isAirborne, isHurt);
+      const isMovingHorizontally = this.x !== previousX;
+      this.getAnimationState(isMovingHorizontally, isAirborne, isHurt);
 
     }, 1000 / 60);
   }
 
-  getCharacterState(isMovingHorizontally, isJumpPressed, isAirborne) {
+  getCharacterState(isJumpPressed, isAirborne, isHurt) {
       if (this.energy <= 0) {
         this.speedY = 0;
         return;
@@ -139,14 +141,17 @@ export default class Character extends MovableObject {
           this.resetPositionY(this.groundY);
       }
 
-      if (isMovingHorizontally) {
+      if (this.world.keyboard.RIGHT || this.world.keyboard.LEFT) {
         this.moveCharacter();
       }
   }
 
-  getAnimationState(isMovingHorizontally, isJumpPressed, isAirborne) {
+  getAnimationState(isMovingHorizontally, isAirborne, isHurt) {
       if (this.energy <= 0) {
         this.playDeathAnimationOnce(10);
+      } else if (isHurt) {
+        this.switchAnimation("HURT");
+        this.advanceSpriteAnimation(10, false);
       } else if (this.isAboveGround()) {
         this.switchAnimation("JUMP");
         this.advanceSpriteAnimation(8);

@@ -1,4 +1,6 @@
-export default class MovableObject {
+import DrawableObject from "./drawableObject.class.js";
+
+export default class MovableObject extends DrawableObject {
   x = 100;
   y = 230;
   groundY = 230;
@@ -14,22 +16,12 @@ export default class MovableObject {
   speedY = 0;
   acceleration = 2.5;
   energy = 100;
+  lastHitAt = 0;
+  hurtDuration = 1000;
+  knockbackDistance = 18;
   imgCache = {};
   otherDirection = false;
   isDefeated = false;
-
-  loadImage(path) {
-    this.img = new Image();
-    this.img.src = path;
-  }
-
-  loadImages(arr) {
-    arr.forEach((path) => {
-      const img = new Image();
-      img.src = path;
-      this.imgCache[path] = img;
-    });
-  }
 
   stopAnimation() {
     this.animationCounter = 0;
@@ -42,36 +34,6 @@ export default class MovableObject {
 
     if (Array.isArray(this.IMAGES_WALKING) && this.IMAGES_WALKING.length > 0) {
       this.img.src = this.IMAGES_WALKING[0];
-    }
-  }
-
-  draw(ctx) {
-    if (this.spriteSheet && this.img) {
-      const frameWidth = this.spriteSheet.frameWidth;
-      const frameHeight = this.spriteSheet.frameHeight;
-      const frameCount = this.spriteSheet.frameCount;
-      const currentFrame = Math.max(
-        0,
-        Math.min(this.spriteSheet.currentFrame ?? 0, frameCount - 1),
-      );
-      const frameX = currentFrame * frameWidth;
-
-      ctx.drawImage(
-        this.img,
-        frameX,
-        0,
-        frameWidth,
-        frameHeight,
-        this.x,
-        this.y,
-        this.width,
-        this.height,
-      );
-      return;
-    }
-
-    if (this.img) {
-      ctx.drawImage(this.img, this.x, this.y, this.width, this.height);
     }
   }
 
@@ -161,9 +123,45 @@ export default class MovableObject {
     );
   }
 
+  takeDamage(damage = 10, now = Date.now(), sourceX = null) {
+    const timeSinceLastHit = now - this.lastHitAt;
+    const canTakeDamage = timeSinceLastHit >= this.hurtDuration;
+    if (!canTakeDamage || this.isDefeated) {
+      return false;
+    }
+
+    this.energy = Math.max(0, this.energy - damage);
+    this.lastHitAt = now;
+    this.applyKnockback(sourceX);
+    return true;
+
+  }
+
+  applyKnockback(sourceX) {
+    if (!Number.isFinite(sourceX) || !Number.isFinite(this.knockbackDistance)) {
+      return;
+    }
+
+    const thisCenterX = this.x + this.width / 2;
+    const direction = thisCenterX < sourceX ? -1 : 1;
+    const nextX = this.x + direction * this.knockbackDistance;
+
+    if (this.constructor?.name === "Character") {
+      const minX = 80;
+      const maxX = this.world?.level?.levelEndX ?? Infinity;
+      this.x = Math.max(minX, Math.min(nextX, maxX));
+      return;
+    }
+
+    this.x = nextX;
+  }
 
   isAboveGround() {
     return this.y < this.groundY;
+  }
+
+  isHurt() {
+    return Date.now() - this.lastHitAt < this.hurtDuration;
   }
 
   resetPositionY(numY) {
@@ -183,5 +181,4 @@ export default class MovableObject {
     }
   }
 
-  constructor() {}
 }
