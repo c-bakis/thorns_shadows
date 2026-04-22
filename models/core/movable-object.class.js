@@ -46,6 +46,7 @@ export default class MovableObject extends DrawableObject {
       this.constructor?.name === "Slime" ||
       this.constructor?.name === "PredatorPlant" ||
       this.constructor?.name === "Spider" ||
+      this.constructor?.name === "Wolf" ||
       this.constructor?.name === "Tileset";
 
     if (shouldDrawBoundingBox) {
@@ -211,5 +212,5 @@ export default class MovableObject extends DrawableObject {
       this.initiateAnimation(10, this.IMAGES_DYING);
     }
   }
-
 }
+    

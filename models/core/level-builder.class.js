@@ -4,6 +4,7 @@ import Tileset from "../environment/tileset.class.js";
 import Slime from "../enemies/slime.class.js";
 import PredatorPlant from "../enemies/predator-plant.class.js";
 import Spider from "../enemies/spider.class.js";
+import Wolf from "../enemies/wolf.class.js";
 import DecorationObject from "../environment/decoration-object.class.js";
 import ManaStone from "../collectables/mana-stone.class.js";
 
@@ -89,6 +90,17 @@ export default class LevelBuilder {
                     spider.platformYOffset = enemy.yOffset;
                 }
                 return spider;
+            }
+
+            if (enemy.type === "wolf") {
+                const wolf = new Wolf();
+                if (typeof enemy.x === "number") {
+                    wolf.x = enemy.x;
+                }
+                if (typeof enemy.y === "number") {
+                    wolf.y = enemy.y;
+                }
+                return wolf;
             }
 
             return null;

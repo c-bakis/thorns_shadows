@@ -15,6 +15,7 @@ const level1 = new Level({
     { type: "slime" },
     { type: "predatorPlant", x: 980, yOffset: -85 },
     { type: "spider", x: 1380, yOffset: -80 },
+    { type: "wolf", x: 3400, y: 298 },
   ],
   backgroundLayers: [
     { type: "background", imagePath: "img/backgrounds/sky.png", parallaxFactor: 0.32 },

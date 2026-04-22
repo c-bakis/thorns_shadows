@@ -1,6 +1,6 @@
-import MovableObject from "../core/movable-object.class.js";
+import Enemy from "./enemy.class.js";
 
-export default class Spider extends MovableObject {
+export default class Spider extends Enemy {
     damage = 10;
     energy = 10;
     damageWindowStartFrame = 0;

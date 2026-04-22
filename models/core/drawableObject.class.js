@@ -60,10 +60,13 @@ export default class DrawableObject {
   }
 
   resolveGridPosition(currentFrame, frameWidth, frameHeight, columns) {
+    const sourceY = Number.isFinite(this.spriteSheet.sourceY)
+      ? this.spriteSheet.sourceY
+      : (this.spriteSheet.startRow ?? 0) * frameHeight;
+
     return {
       frameX: (currentFrame % columns) * frameWidth,
-      frameY: Math.floor(currentFrame / columns) * frameHeight + (this.spriteSheet.startRow ?? 0) * frameHeight,
+      frameY: Math.floor(currentFrame / columns) * frameHeight + sourceY,
     };
   }
-
 }

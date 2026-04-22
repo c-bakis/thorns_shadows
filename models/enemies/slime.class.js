@@ -1,6 +1,6 @@
-import MovableObject from "../core/movable-object.class.js";
+import Enemy from "./enemy.class.js";
 
-export default class Slime extends MovableObject {
+export default class Slime extends Enemy {
     damage = 10;
     energy= 10;
 
