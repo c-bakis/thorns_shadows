@@ -1,11 +1,12 @@
 import MovableObject from "../core/movable-object.class.js";
-import MagicAttack from "./magig-attack.class.js";
+import CharacterCombat from "./character-combat.class.js";
+import CharacterAnimator from "./character-animator.class.js";
 
 export default class Character extends MovableObject {
   speed = 10;
   attackDamage = 5;
   comboInputWindowMs = 850;
-  mana = 40;
+  mana = 20;
   maxMana = 100;
 
   SPRITE_ANIMATIONS = {
@@ -77,15 +78,10 @@ export default class Character extends MovableObject {
   animationCounter = 0;
   activeAnimation = "WALK";
   deathAnimationFinished = false;
-  attackActive = false;
-  magicAttackActive = false;
-  pendingMagicProjectile = false;
   wasMagicAttackPressed = false;
-  currentAttackName = null;
-  queuedAttackName = null;
-  comboExpiresAt = 0;
   wasAttackPressed = false;
-  hitEnemiesThisAttack = new Set();
+  combat;
+  animator;
 
   constructor() {
     super();
@@ -98,6 +94,8 @@ export default class Character extends MovableObject {
       (config) => config.path,
     );
     this.loadImages(animationPaths);
+    this.combat = new CharacterCombat(this);
+    this.animator = new CharacterAnimator(this);
     this.switchAnimation("WALK");
 
     this.animate();
@@ -127,14 +125,14 @@ export default class Character extends MovableObject {
 
   handleInput(now) {
     if (this.isAttackPressedNow()) {
-      this.handleAttackInput(now);
+      this.combat.handleAttackInput(now);
     }
 
     if (this.isMagicAttackPressedNow()) {
-      this.handleMagicAttackInput(now);
+      this.combat.handleMagicAttackInput(now);
     }
 
-    if (!this.attackActive && !this.magicAttackActive) {
+    if (!this.combat.isBusy()) {
       this.handleMovementInput();
     }
   }
@@ -212,271 +210,58 @@ export default class Character extends MovableObject {
     return this.mana;
   }
 
-  // ─── Attack combo logic ───────────────────────────────────────────────────────
-
-  handleAttackInput(now) {
-    if (this.energy <= 0) {
-      return;
-    }
-
-    if (!this.attackActive) {
-      this.startAttack("ATTACK_1", now);
-      return;
-    }
-
-    if (now <= this.comboExpiresAt) {
-      this.queueNextComboAttack();
-    }
-  }
-
-  queueNextComboAttack() {
-    const nextAttackName = this.getNextAttackName(this.currentAttackName);
-    if (nextAttackName) {
-      this.queuedAttackName = nextAttackName;
-    }
-  }
-
-  getNextAttackName(attackName) {
-    const index = this.ATTACK_SEQUENCE.indexOf(attackName);
-    const hasNext = index !== -1 && index < this.ATTACK_SEQUENCE.length - 1;
-    return hasNext ? this.ATTACK_SEQUENCE[index + 1] : null;
-  }
-
-  startAttack(attackName, now) {
-    this.attackActive = true;
-    this.currentAttackName = attackName;
-    this.queuedAttackName = null;
-    this.comboExpiresAt = now + this.comboInputWindowMs;
-    this.hitEnemiesThisAttack.clear();
-    this.activeAnimation = null;
-    this.animationCounter = 0;
-    this.switchAnimation(attackName);
-  }
-
-  finishAttack() {
-    this.attackActive = false;
-    this.magicAttackActive = false;
-    this.pendingMagicProjectile = false;
-    this.currentAttackName = null;
-    this.queuedAttackName = null;
-    this.comboExpiresAt = 0;
-    this.hitEnemiesThisAttack.clear();
-  }
-
-  handleMagicAttackInput(now) {
-    if (this.energy <= 0 || this.mana < 20) {
-      return;
-    }
-
-    if (this.attackActive || this.magicAttackActive) {
-      return;
-    }
-
-    this.startMagicAttack("ATTACK_2", now);
-  }
-
-  startMagicAttack(attackName, now) {
-    this.magicAttackActive = true;
-    this.pendingMagicProjectile = true;
-    this.currentAttackName = attackName;
-    this.queuedAttackName = null;
-    this.comboExpiresAt = now + this.comboInputWindowMs;
-    this.hitEnemiesThisAttack.clear();
-    this.activeAnimation = null;
-    this.animationCounter = 0;
-    this.switchAnimation(attackName);
-  }
-
   // ─── Animation state machine ──────────────────────────────────────────────────
 
   updateAnimation(isMovingHorizontally, isAirborne, isHurt, now) {
-    if (this.energy <= 0) {
-      this.finishAttack();
-      this.playDeadAnimation();
-      return;
-    }
-
-    if (this.attackActive) {
-      this.playAttackAnimation(now);
-      return;
-    }
-
-    if (this.magicAttackActive) {
-      this.playAttackAnimation(now);
-      return;
-    }
-
-    if (isHurt) {
-      this.playHurtAnimation();
-      return;
-    }
-
-    if (isAirborne) {
-      this.playJumpAnimation();
-      return;
-    }
-
-    if (isMovingHorizontally) {
-      this.playRunAnimation();
-      return;
-    }
-
-    this.playIdleAnimation();
+    this.animator.updateAnimation(isMovingHorizontally, isAirborne, isHurt, now);
   }
-
-  playAttackAnimation(now) {
-    this.switchAnimation(this.currentAttackName);
-    const finished = this.advanceOneShotAnimation(5);
-    if (!finished) {
-      return;
-    }
-
-    if (this.magicAttackActive) {
-      this.releaseMagicProjectile();
-      this.finishAttack();
-      return;
-    }
-
-    if (this.queuedAttackName && now <= this.comboExpiresAt) {
-      this.startAttack(this.queuedAttackName, now);
-    } else {
-      this.finishAttack();
-    }
-  }
-
-  releaseMagicProjectile() {
-    if (!this.pendingMagicProjectile || !this.world) {
-      return;
-    }
-
-    const magicAttack = new MagicAttack(this);
-    this.world.addMagicAttack(magicAttack);
-    this.mana -= 20;
-    this.pendingMagicProjectile = false;
-  }
-
 
   playHurtAnimation() {
-    this.switchAnimation("HURT");
-    this.advanceOneShotAnimation(10);
+    this.animator.playHurtAnimation();
   }
 
   playJumpAnimation() {
-    this.switchAnimation("JUMP");
-    this.advanceLoopingAnimation(8);
+    this.animator.playJumpAnimation();
   }
 
   playRunAnimation() {
-    this.switchAnimation("RUN");
-    this.advanceLoopingAnimation(6);
+    this.animator.playRunAnimation();
   }
 
   playIdleAnimation() {
-    this.switchAnimation("WALK");
-    this.stopAnimation();
+    this.animator.playIdleAnimation();
   }
 
   playDeadAnimation() {
-    this.switchAnimation("DEAD");
-
-    if (this.deathAnimationFinished) {
-      this.spriteSheet.currentFrame = this.spriteSheet.frameCount - 1;
-      return;
-    }
-
-    const finished = this.advanceOneShotAnimation(10);
-    if (finished) {
-      this.deathAnimationFinished = true;
-      this.speedY = 0;
-    }
+    this.animator.playDeadAnimation();
   }
 
   // ─── Sprite sheet advancement ─────────────────────────────────────────────────
 
   advanceLoopingAnimation(speed) {
-    if (!this.spriteSheet) {
-      return;
-    }
-
-    this.animationCounter++;
-    if (this.animationCounter % speed !== 0) {
-      return;
-    }
-
-    this.spriteSheet.currentFrame =
-      (this.spriteSheet.currentFrame + 1) % this.spriteSheet.frameCount;
+    this.animator.advanceLoopingAnimation(speed);
   }
 
   advanceOneShotAnimation(speed) {
-    if (!this.spriteSheet) {
-      return false;
-    }
-
-    this.animationCounter++;
-    if (this.animationCounter % speed !== 0) {
-      return false;
-    }
-
-    const lastFrame = this.spriteSheet.frameCount - 1;
-    if (this.spriteSheet.currentFrame < lastFrame) {
-      this.spriteSheet.currentFrame++;
-      return false;
-    }
-
-    return true;
+    return this.animator.advanceOneShotAnimation(speed);
   }
 
   switchAnimation(name) {
-    if (this.activeAnimation === name && this.spriteSheet) {
-      return;
-    }
-
-    const config = this.SPRITE_ANIMATIONS[name];
-    if (!config) {
-      return;
-    }
-
-    this.activeAnimation = name;
-    this.animationCounter = 0;
-    this.spriteSheet = {
-      frameWidth: config.frameWidth,
-      frameHeight: config.frameHeight,
-      frameCount: config.frameCount,
-      currentFrame: 0,
-    };
-    this.img = this.imgCache[config.path];
-
-    if (!this.img) {
-      this.loadImage(config.path);
-    }
+    this.animator.switchAnimation(name);
   }
 
   // ─── Attack hit detection ─────────────────────────────────────────────────────
 
   isInAttackDamageFrame() {
-    if (!this.attackActive || !this.currentAttackName || !this.spriteSheet) {
-      return false;
-    }
-
-    const window = this.ATTACK_DAMAGE_WINDOWS[this.currentAttackName];
-    if (!window) {
-      return false;
-    }
-
-    const frameNumber = (this.spriteSheet.currentFrame ?? 0) + 1;
-    return frameNumber >= window.startFrame && frameNumber <= window.endFrame;
+    return this.combat.isInAttackDamageFrame();
   }
 
   canDealDamageToEnemy(enemy, isAttackColliding) {
-    if (!isAttackColliding || !this.isInAttackDamageFrame()) {
-      return false;
-    }
-
-    return !this.hitEnemiesThisAttack.has(enemy);
+    return this.combat.canDealDamageToEnemy(enemy, isAttackColliding);
   }
 
   registerEnemyHit(enemy) {
-    this.hitEnemiesThisAttack.add(enemy);
+    this.combat.registerEnemyHit(enemy);
   }
 
   getAttackHitbox() {
