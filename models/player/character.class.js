@@ -1,10 +1,11 @@
 import MovableObject from "../core/movable-object.class.js";
+import MagicAttack from "./magig-attack.class.js";
 
 export default class Character extends MovableObject {
   speed = 10;
   attackDamage = 5;
   comboInputWindowMs = 850;
-  mana = 20;
+  mana = 40;
   maxMana = 100;
 
   SPRITE_ANIMATIONS = {
@@ -66,11 +67,20 @@ export default class Character extends MovableObject {
 
   ATTACK_SEQUENCE = ["ATTACK_1", "ATTACK_2", "ATTACK_3"];
 
+  MAGIC_ATTACK = {
+    ATTACK_1: { startFrame: 6, endFrame: 8 }
+  };
+
+  MAGIC_ATTACK_SEQUENCE = ["ATTACK_1"];
+
   currentImg = 0;
   animationCounter = 0;
   activeAnimation = "WALK";
   deathAnimationFinished = false;
   attackActive = false;
+  magicAttackActive = false;
+  pendingMagicProjectile = false;
+  wasMagicAttackPressed = false;
   currentAttackName = null;
   queuedAttackName = null;
   comboExpiresAt = 0;
@@ -120,7 +130,11 @@ export default class Character extends MovableObject {
       this.handleAttackInput(now);
     }
 
-    if (!this.attackActive) {
+    if (this.isMagicAttackPressedNow()) {
+      this.handleMagicAttackInput(now);
+    }
+
+    if (!this.attackActive && !this.magicAttackActive) {
       this.handleMovementInput();
     }
   }
@@ -129,6 +143,13 @@ export default class Character extends MovableObject {
     const isPressed = Boolean(this.world?.keyboard?.ATTACK);
     const pressedNow = isPressed && !this.wasAttackPressed;
     this.wasAttackPressed = isPressed;
+    return pressedNow;
+  }
+
+  isMagicAttackPressedNow() {
+    const isPressed = Boolean(this.world?.keyboard?.MAGIC_ATTACK);
+    const pressedNow = isPressed && !this.wasMagicAttackPressed;
+    this.wasMagicAttackPressed = isPressed;
     return pressedNow;
   }
 
@@ -227,15 +248,43 @@ export default class Character extends MovableObject {
     this.queuedAttackName = null;
     this.comboExpiresAt = now + this.comboInputWindowMs;
     this.hitEnemiesThisAttack.clear();
+    this.activeAnimation = null;
+    this.animationCounter = 0;
     this.switchAnimation(attackName);
   }
 
   finishAttack() {
     this.attackActive = false;
+    this.magicAttackActive = false;
+    this.pendingMagicProjectile = false;
     this.currentAttackName = null;
     this.queuedAttackName = null;
     this.comboExpiresAt = 0;
     this.hitEnemiesThisAttack.clear();
+  }
+
+  handleMagicAttackInput(now) {
+    if (this.energy <= 0 || this.mana < 20) {
+      return;
+    }
+
+    if (this.attackActive || this.magicAttackActive) {
+      return;
+    }
+
+    this.startMagicAttack("ATTACK_2", now);
+  }
+
+  startMagicAttack(attackName, now) {
+    this.magicAttackActive = true;
+    this.pendingMagicProjectile = true;
+    this.currentAttackName = attackName;
+    this.queuedAttackName = null;
+    this.comboExpiresAt = now + this.comboInputWindowMs;
+    this.hitEnemiesThisAttack.clear();
+    this.activeAnimation = null;
+    this.animationCounter = 0;
+    this.switchAnimation(attackName);
   }
 
   // ─── Animation state machine ──────────────────────────────────────────────────
@@ -248,6 +297,11 @@ export default class Character extends MovableObject {
     }
 
     if (this.attackActive) {
+      this.playAttackAnimation(now);
+      return;
+    }
+
+    if (this.magicAttackActive) {
       this.playAttackAnimation(now);
       return;
     }
@@ -277,12 +331,30 @@ export default class Character extends MovableObject {
       return;
     }
 
+    if (this.magicAttackActive) {
+      this.releaseMagicProjectile();
+      this.finishAttack();
+      return;
+    }
+
     if (this.queuedAttackName && now <= this.comboExpiresAt) {
       this.startAttack(this.queuedAttackName, now);
     } else {
       this.finishAttack();
     }
   }
+
+  releaseMagicProjectile() {
+    if (!this.pendingMagicProjectile || !this.world) {
+      return;
+    }
+
+    const magicAttack = new MagicAttack(this);
+    this.world.addMagicAttack(magicAttack);
+    this.mana -= 20;
+    this.pendingMagicProjectile = false;
+  }
+
 
   playHurtAnimation() {
     this.switchAnimation("HURT");

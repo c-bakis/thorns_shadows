@@ -13,6 +13,7 @@ export default class World {
   enemies = [];
   collectables = [];
   decorations = [];
+  magicAttacks = [];
   statusBar = new StatusBar();
   character = new Character();
   canvas;
@@ -97,6 +98,8 @@ export default class World {
     this.addObjToMap(this.tileset);
     this.addObjToMap(this.decorations);
     this.addObjToMap(this.collectables);
+    this.updateMagicAttacks();
+    this.addObjToMap(this.magicAttacks);
     this.addToMap(this.character);
     this.updateEnemyPlatformLocks();
     this.addObjToMap(this.enemies);
@@ -153,6 +156,27 @@ export default class World {
 
   getBackgroundVerticalPadding() {
     return Math.max(0, this.cameraMaxUp);
+  }
+
+  updateMagicAttacks() {
+    this.magicAttacks = this.magicAttacks.filter((attack) => {
+      if (typeof attack?.update === "function") {
+        attack.update();
+      }
+
+      const levelEndX = this.level?.levelEndX ?? Infinity;
+      const isOutOnRight = attack.x > levelEndX + 120;
+      const isOutOnLeft = attack.x + attack.width < -120;
+      return !isOutOnRight && !isOutOnLeft;
+    });
+  }
+
+  addMagicAttack(attack) {
+    if (!attack) {
+      return;
+    }
+
+    this.magicAttacks.push(attack);
   }
 
   addObjToMap(objects) {

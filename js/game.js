@@ -13,7 +13,7 @@ function init() {
 
 window.addEventListener("load", init);
 window.addEventListener("keydown", (e) => {
-  if (["ArrowRight", "ArrowLeft", "ArrowUp", "ArrowDown", "Space", "KeyW", "KeyA", "KeyS", "KeyD", "KeyF"].includes(e.code)) {
+  if (["ArrowRight", "ArrowLeft", "ArrowUp", "ArrowDown", "Space", "KeyW", "KeyA", "KeyS", "KeyD", "KeyF", "KeyG"].includes(e.code)) {
     e.preventDefault();
   }
 
@@ -40,11 +40,14 @@ window.addEventListener("keydown", (e) => {
     case "KeyF":
       world.keyboard.ATTACK = true;
       break;
+      case "KeyG":
+        world.keyboard.MAGIC_ATTACK = true;
+        break;
   }
 });
 
 window.addEventListener("keyup", (e) => {
-  if (["ArrowRight", "ArrowLeft", "ArrowUp", "ArrowDown", "Space", "KeyW", "KeyA", "KeyS", "KeyD", "KeyF"].includes(e.code)) {
+  if (["ArrowRight", "ArrowLeft", "ArrowUp", "ArrowDown", "Space", "KeyW", "KeyA", "KeyS", "KeyD", "KeyF", "KeyG"].includes(e.code)) {
     e.preventDefault();
   }
 
@@ -71,5 +74,8 @@ window.addEventListener("keyup", (e) => {
     case "KeyF":
       world.keyboard.ATTACK = false;
       break;
+      case "KeyG":
+        world.keyboard.MAGIC_ATTACK = false;
+        break;
   }
 });

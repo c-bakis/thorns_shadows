@@ -5,6 +5,7 @@ export default class Keyboard {
     DOWN = false;
     SPACE = false;
     ATTACK = false;
+    MAGIC_ATTACK = false;
 
     constructor() {}
 }
