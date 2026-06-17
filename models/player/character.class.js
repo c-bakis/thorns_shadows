@@ -8,6 +8,8 @@ export default class Character extends MovableObject {
   comboInputWindowMs = 850;
   mana = 20;
   maxMana = 100;
+  experience = 0;
+  maxExperience = 100;
 
   SPRITE_ANIMATIONS = {
     WALK: {
@@ -209,6 +211,17 @@ export default class Character extends MovableObject {
     this.mana = Math.min(this.maxMana, this.mana + amount);
     return this.mana;
   }
+
+  gainExperience(amount) {
+  if (!Number.isFinite(amount)) {
+    return this.experience;
+  }
+
+  this.experience = Math.min(this.maxExperience, this.experience + amount);
+  const percentageExp = (this.experience / this.maxExperience) * 100;
+  this.world?.statusBar?.setPercentage(percentageExp, "exp");
+  return this.experience;
+}
 
   // ─── Animation state machine ──────────────────────────────────────────────────
 

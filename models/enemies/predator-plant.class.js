@@ -3,6 +3,7 @@ import Enemy from "./enemy.class.js";
 export default class PredatorPlant extends Enemy {
     damage = 10;
     energy = 10;
+    experiencePoints = 20;
     damageWindowStartFrame = 5;
     damageWindowEndFrame = 6;
     damageWindowAnimation = "ATTACK";

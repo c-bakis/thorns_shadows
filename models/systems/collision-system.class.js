@@ -202,6 +202,9 @@ export default class CollisionSystem {
     this.character.registerEnemyHit(enemy);
     if ((enemy.energy ?? 0) <= 0) {
       enemy.isDefeated = true;
+      const experiencePoints = Number.isFinite(enemy.experiencePoints)        ? enemy.experiencePoints
+        : 0;
+      this.character.gainExperience(experiencePoints);
     }
   }
 

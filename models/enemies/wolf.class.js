@@ -3,6 +3,7 @@ import Enemy from "./enemy.class.js";
 export default class Wolf extends Enemy {
     damage = 25;
     energy = 50;
+    experiencePoints = 30;
     damageWindowStartFrame = 2;
     damageWindowEndFrame = 3;
     damageWindowAnimation = "ATTACK";
@@ -53,7 +54,6 @@ export default class Wolf extends Enemy {
     activeAnimation = "WALK";
     animationCounter = 0;
 
-    
     constructor() {
         super();
         this.x = 700;
