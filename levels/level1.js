@@ -5,7 +5,10 @@ const level1 = new Level({
   cameraDeadZone: 150,
   levelEndX: 3700,
   collectables: [
+    { type: "manaStone", x: 600, y: 120},
+    { type: "manaStone", x: 2000, y: 40},
     { type: "manaStone", x: 3400, y: 40},
+    { type: "manaStone", x: 3300, y: 38},
     { type: "manaStone", x: 910, y: 42 },
     { type: "manaStone", x: 3115, y: 36 },
   ],

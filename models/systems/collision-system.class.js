@@ -162,6 +162,10 @@ export default class CollisionSystem {
         return;
       }
 
+      if (this.character.mana >= this.character.maxMana) {
+        return;
+      }
+
       if (typeof collectable?.onCollect !== "function") {
         return;
       }
