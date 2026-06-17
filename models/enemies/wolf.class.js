@@ -21,7 +21,10 @@ export default class Wolf extends Enemy {
             path: "img/enemies/wolf/wolf.png",
             frameWidth: 64,
             frameHeight: 40,
-            frameCount: 3,
+            frameCount: 4,
+            sheetFrameCount: 5,
+            startFrame: 1,
+            endFrame: 4,
             sourceY: 0,
         },
         WALK: {
@@ -72,32 +75,68 @@ export default class Wolf extends Enemy {
     }
 
     switchAnimation(name) {
-        if (this.activeAnimation === name && this.spriteSheet) {
+        if (this.shouldKeepCurrentAnimation(name)) {
             return;
         }
 
-        const config = this.SPRITE_ANIMATIONS[name];
+        const config = this.getAnimationConfig(name);
         if (!config) {
             return;
         }
 
-        this.activeAnimation = name;
-        this.animationCounter = 0;
-        this.spriteSheet = {
-            frameWidth: config.frameWidth,
-            frameHeight: config.frameHeight,
-            frameCount: config.frameCount,
-            columns: config.frameCount,
-            sourceY: config.sourceY,
-            startRow: config.startRow ?? 0,
-            layout: "row",
-            currentFrame: 0,
-        };
+        this.prepareAnimationSwitch(name);
+        this.spriteSheet = this.buildSpriteSheetConfig(config);
         this.img = this.imgCache[config.path];
 
         if (!this.img) {
             this.loadImage(config.path);
         }
+    }
+
+    shouldKeepCurrentAnimation(name) {
+        return this.activeAnimation === name && this.spriteSheet;
+    }
+
+    getAnimationConfig(name) {
+        return this.SPRITE_ANIMATIONS[name];
+    }
+
+    prepareAnimationSwitch(name) {
+        this.activeAnimation = name;
+        this.animationCounter = 0;
+    }
+
+    buildSpriteSheetConfig(config) {
+        const frameRange = this.resolveFrameRange(config);
+        const sheetFrameCount = this.resolveSheetFrameCount(config, frameRange.endFrame);
+
+        return {
+            frameWidth: config.frameWidth,
+            frameHeight: config.frameHeight,
+            frameCount: sheetFrameCount,
+            columns: sheetFrameCount,
+            sourceY: config.sourceY,
+            startRow: config.startRow ?? 0,
+            layout: "row",
+            startFrame: frameRange.startFrame,
+            endFrame: frameRange.endFrame,
+            currentFrame: frameRange.startFrame,
+        };
+    }
+
+    resolveFrameRange(config) {
+        const startFrame = Number.isFinite(config.startFrame) ? config.startFrame : 0;
+        const endFrame = Number.isFinite(config.endFrame)
+            ? config.endFrame
+            : startFrame + config.frameCount - 1;
+
+        return { startFrame, endFrame };
+    }
+
+    resolveSheetFrameCount(config, endFrame) {
+        return Number.isFinite(config.sheetFrameCount)
+            ? config.sheetFrameCount
+            : endFrame + 1;
     }
 
     getHitbox() {
@@ -126,8 +165,19 @@ export default class Wolf extends Enemy {
             return;
         }
 
-        this.spriteSheet.currentFrame =
-            (this.spriteSheet.currentFrame + 1) % this.spriteSheet.frameCount;
+        const startFrame = Number.isFinite(this.spriteSheet.startFrame)
+            ? this.spriteSheet.startFrame
+            : 0;
+        const endFrame = Number.isFinite(this.spriteSheet.endFrame)
+            ? this.spriteSheet.endFrame
+            : this.spriteSheet.frameCount - 1;
+
+        if (this.spriteSheet.currentFrame >= endFrame) {
+            this.spriteSheet.currentFrame = startFrame;
+            return;
+        }
+
+        this.spriteSheet.currentFrame++;
     }
 
     ensureSpawnAnchor() {
