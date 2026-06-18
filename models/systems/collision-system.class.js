@@ -31,7 +31,7 @@ export default class CollisionSystem {
         this.checkCollectableCollisions();
         this.checkEnemyCollisions(now);
         this.checkMagicAttackCollisions(now);
-        this.cleanupDefeatedAndCollected();
+      this.cleanupDefeatedAndCollected(now);
     }
 
   checkMagicAttackCollisions(now) {
@@ -149,8 +149,14 @@ export default class CollisionSystem {
     return this.isBoxColliding(attackHitbox, enemyBox);
   }
 
-  cleanupDefeatedAndCollected() {
-    this.world.enemies = this.enemies.filter((enemy) => !enemy?.isDefeated);
+  cleanupDefeatedAndCollected(now = Date.now()) {
+    this.world.enemies = this.enemies.filter((enemy) => {
+      if (typeof enemy?.shouldRemoveAfterDefeat === "function") {
+        return !enemy.shouldRemoveAfterDefeat(now);
+      }
+
+      return !enemy?.isDefeated;
+    });
     this.world.collectables = this.collectables.filter(
       (collectable) => !collectable?.collected,
     );

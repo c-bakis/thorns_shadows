@@ -74,71 +74,6 @@ export default class Wolf extends Enemy {
         this.animate();
     }
 
-    switchAnimation(name) {
-        if (this.shouldKeepCurrentAnimation(name)) {
-            return;
-        }
-
-        const config = this.getAnimationConfig(name);
-        if (!config) {
-            return;
-        }
-
-        this.prepareAnimationSwitch(name);
-        this.spriteSheet = this.buildSpriteSheetConfig(config);
-        this.img = this.imgCache[config.path];
-
-        if (!this.img) {
-            this.loadImage(config.path);
-        }
-    }
-
-    shouldKeepCurrentAnimation(name) {
-        return this.activeAnimation === name && this.spriteSheet;
-    }
-
-    getAnimationConfig(name) {
-        return this.SPRITE_ANIMATIONS[name];
-    }
-
-    prepareAnimationSwitch(name) {
-        this.activeAnimation = name;
-        this.animationCounter = 0;
-    }
-
-    buildSpriteSheetConfig(config) {
-        const frameRange = this.resolveFrameRange(config);
-        const sheetFrameCount = this.resolveSheetFrameCount(config, frameRange.endFrame);
-
-        return {
-            frameWidth: config.frameWidth,
-            frameHeight: config.frameHeight,
-            frameCount: sheetFrameCount,
-            columns: sheetFrameCount,
-            sourceY: config.sourceY,
-            startRow: config.startRow ?? 0,
-            layout: "row",
-            startFrame: frameRange.startFrame,
-            endFrame: frameRange.endFrame,
-            currentFrame: frameRange.startFrame,
-        };
-    }
-
-    resolveFrameRange(config) {
-        const startFrame = Number.isFinite(config.startFrame) ? config.startFrame : 0;
-        const endFrame = Number.isFinite(config.endFrame)
-            ? config.endFrame
-            : startFrame + config.frameCount - 1;
-
-        return { startFrame, endFrame };
-    }
-
-    resolveSheetFrameCount(config, endFrame) {
-        return Number.isFinite(config.sheetFrameCount)
-            ? config.sheetFrameCount
-            : endFrame + 1;
-    }
-
     getHitbox() {
         const width = this.hitboxWidth ?? this.width;
         const height = this.hitboxHeight ?? this.height;
@@ -261,6 +196,10 @@ export default class Wolf extends Enemy {
 
     animate() {
         setInterval(() => {
+            if (this.handleDefeatAnimation(14)) {
+                return;
+            }
+
             this.updateBehavior(Date.now());
             this.advanceSpriteAnimation(14);
         }, 1000 / 60);

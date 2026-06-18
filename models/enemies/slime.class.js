@@ -38,31 +38,6 @@ export default class Slime extends Enemy {
         this.animate();
     }
 
-    switchAnimation(name) {
-        if (this.activeAnimation === name && this.spriteSheet) {
-            return;
-        }
-
-        const config = this.SPRITE_ANIMATIONS[name];
-        if (!config) {
-            return;
-        }
-
-        this.activeAnimation = name;
-        this.animationCounter = 0;
-        this.spriteSheet = {
-            frameWidth: config.frameWidth,
-            frameHeight: config.frameHeight,
-            frameCount: config.frameCount,
-            currentFrame: 0,
-        };
-        this.img = this.imgCache[config.path];
-
-        if (!this.img) {
-            this.loadImage(config.path);
-        }
-    }
-
     advanceSpriteAnimation(speed) {
         if (!this.spriteSheet) {
             return;
@@ -79,6 +54,10 @@ export default class Slime extends Enemy {
 
     animate() {
         setInterval(() => {
+            if (this.handleDefeatAnimation(14)) {
+                return;
+            }
+
             this.moveLeft();
             this.switchAnimation("WALK");
             this.advanceSpriteAnimation(14);
