@@ -3,11 +3,14 @@ import Character from "../player/character.class.js";
 import Keyboard from "./keyboard.class.js";
 import LevelBuilder from "./level-builder.class.js";
 import StatusBar from "../ui/status-bar.class.js";
+import GameOver from "../ui/game-over.class.js";
+import Win from "../ui/win.class.js";
 import CollisionSystem from "../systems/collision-system.class.js";
 import BackgroundRenderer from "../systems/background-renderer.class.js";
 import PlattformGroundResolver from "../systems/plattform-ground-resolver.class.js";
 
 export default class World {
+  debugForceGameOverOnLoad = true;
   backgroundObjects = [];
   tileset = [];
   enemies = [];
@@ -72,6 +75,9 @@ export default class World {
     this.backgroundRenderer = new BackgroundRenderer(this);
     this.tileset = this.plattformGroundResolver.fillTilesAcrossGround();
     this.draw();
+    if (this.debugForceGameOverOnLoad) {
+      this.handleGameOver();
+    }
   }
 
   
@@ -247,6 +253,148 @@ export default class World {
   }
 
   playGameOverUi() {
-    
+    const gameOver = GameOver.create();
+    this.playOverlayDialog(gameOver, (action) => this.handleGameOverAction(action));
+  }
+
+  playWinUi() {
+    const win = Win.create();
+    this.playOverlayDialog(win, (action) => this.handleWinAction(action));
+  }
+
+  playOverlayDialog(dialog, onActionCallback) {
+    const uiState = { isActive: true };
+
+    const render = () => this.renderOverlayDialog(dialog, uiState);
+    this.preloadDialogImages(dialog, render);
+
+    const handlers = {
+      onMouseMove: (e) => this.handleDialogMouseMove(e, dialog, render),
+      onMouseLeave: () => this.handleDialogMouseLeave(dialog, render),
+      onMouseDown: (e) => this.handleDialogMouseDown(e, dialog, render),
+      onMouseUp: (e) => this.handleDialogMouseUp(e, dialog, render),
+      onClick: (e) => this.handleDialogClick(e, dialog, () => cleanup(), onActionCallback),
+    };
+
+    const cleanup = () => this.cleanupOverlayDialog(uiState, handlers);
+    this.bindDialogEvents(handlers);
+  }
+
+  renderOverlayDialog(dialog, uiState) {
+    if (!uiState.isActive) {
+      return;
+    }
+
+    this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
+    dialog.draw(this.ctx);
+  }
+
+  preloadDialogImages(dialog, onReady) {
+    let loaded = 0;
+    const onLoad = () => {
+      loaded += 1;
+      if (loaded >= 2) {
+        onReady();
+      }
+    };
+
+    dialog.panelImg.complete ? onLoad() : (dialog.panelImg.onload = onLoad);
+    dialog.buttonSheet.complete ? onLoad() : (dialog.buttonSheet.onload = onLoad);
+  }
+
+  bindDialogEvents(handlers) {
+    this.canvas.addEventListener("mousemove", handlers.onMouseMove);
+    this.canvas.addEventListener("mouseleave", handlers.onMouseLeave);
+    this.canvas.addEventListener("mousedown", handlers.onMouseDown);
+    this.canvas.addEventListener("mouseup", handlers.onMouseUp);
+    this.canvas.addEventListener("click", handlers.onClick);
+  }
+
+  cleanupOverlayDialog(uiState, handlers) {
+    uiState.isActive = false;
+    this.canvas.style.cursor = "default";
+    this.canvas.removeEventListener("mousemove", handlers.onMouseMove);
+    this.canvas.removeEventListener("mouseleave", handlers.onMouseLeave);
+    this.canvas.removeEventListener("mousedown", handlers.onMouseDown);
+    this.canvas.removeEventListener("mouseup", handlers.onMouseUp);
+    this.canvas.removeEventListener("click", handlers.onClick);
+  }
+
+  getCanvasMousePos(e) {
+    const rect = this.canvas.getBoundingClientRect();
+    const scaleX = this.canvas.width / rect.width;
+    const scaleY = this.canvas.height / rect.height;
+
+    return {
+      x: (e.clientX - rect.left) * scaleX,
+      y: (e.clientY - rect.top) * scaleY,
+    };
+  }
+
+  handleDialogMouseMove(e, dialog, render) {
+    const { x, y } = this.getCanvasMousePos(e);
+    const hoveredButton = dialog.getClickedButton(x, y);
+    dialog.setHoveredButton(hoveredButton?.action ?? null);
+
+    if (!hoveredButton) {
+      dialog.setPressedButton(null);
+    }
+
+    this.canvas.style.cursor = hoveredButton ? "pointer" : "default";
+    render();
+  }
+
+  handleDialogMouseLeave(dialog, render) {
+    dialog.setHoveredButton(null);
+    dialog.setPressedButton(null);
+    this.canvas.style.cursor = "default";
+    render();
+  }
+
+  handleDialogMouseDown(e, dialog, render) {
+    const { x, y } = this.getCanvasMousePos(e);
+    const pressedButton = dialog.getClickedButton(x, y);
+    dialog.setPressedButton(pressedButton?.action ?? null);
+    render();
+  }
+
+  handleDialogMouseUp(e, dialog, render) {
+    const { x, y } = this.getCanvasMousePos(e);
+    const hoveredButton = dialog.getClickedButton(x, y);
+    dialog.setHoveredButton(hoveredButton?.action ?? null);
+    dialog.setPressedButton(null);
+    render();
+  }
+
+  handleDialogClick(e, dialog, cleanup, onActionCallback) {
+    const { x, y } = this.getCanvasMousePos(e);
+    const btn = dialog.getClickedButton(x, y);
+
+    if (!btn) {
+      return;
+    }
+
+    cleanup();
+    onActionCallback(btn.action);
+  }
+
+  handleGameOverAction(action) {
+    if (action === "restart") {
+      console.log("Restart clicked");
+      // TODO: restart the game
+    } else if (action === "menu") {
+      console.log("Menu clicked");
+      // TODO: return to main menu
+    }
+  }
+
+  handleWinAction(action) {
+    if (action === "nextLevel") {
+      console.log("Next Level clicked");
+      // TODO: load next level
+    } else if (action === "menu") {
+      console.log("Menu clicked");
+      // TODO: return to main menu
+    }
   }
 }
