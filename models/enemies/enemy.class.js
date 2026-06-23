@@ -276,6 +276,7 @@ export default class Enemy extends MovableObject {
       startFrame: frameRange.startFrame,
       endFrame: frameRange.endFrame,
       currentFrame: frameRange.startFrame,
+      speed: config.speed,
     };
   }
 

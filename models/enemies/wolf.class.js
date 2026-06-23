@@ -10,7 +10,7 @@ export default class Wolf extends Enemy {
     aggroRangeX = 320;
     attackRangeX = 105;
     attackRangeY = 85;
-    attackCooldownMs = 900;
+    attackCooldownMs = 1400;
     walkSpeed = 0.65;
     runSpeed = 5;
     patrolRange = 240;
@@ -27,6 +27,7 @@ export default class Wolf extends Enemy {
             startFrame: 1,
             endFrame: 4,
             sourceY: 0,
+            speed: 20,
         },
         WALK: {
             path: "img/enemies/wolf/wolf.png",
@@ -34,6 +35,7 @@ export default class Wolf extends Enemy {
             frameHeight: 32,
             frameCount: 4,
             sourceY: 41,
+            speed: 12,
         },        
         RUN: {
             path: "img/enemies/wolf/wolf.png",
@@ -41,6 +43,7 @@ export default class Wolf extends Enemy {
             frameHeight: 32,
             frameCount: 4,
             sourceY: 73,
+            speed: 14,
         },
         ATTACK: {
             path: "img/enemies/wolf/wolf.png",
@@ -48,6 +51,7 @@ export default class Wolf extends Enemy {
             frameHeight: 32,
             frameCount: 4,
             sourceY: 105,
+            speed: 16,
         },
     };
 
@@ -90,11 +94,12 @@ export default class Wolf extends Enemy {
         };
     }
 
-    advanceSpriteAnimation(speed) {
+    advanceSpriteAnimation() {
         if (!this.spriteSheet) {
             return;
         }
 
+        const speed = this.spriteSheet.speed || 2;
         this.animationCounter++;
         if (this.animationCounter % speed !== 0) {
             return;
@@ -125,47 +130,131 @@ export default class Wolf extends Enemy {
         this.ensureSpawnAnchor();
 
         const character = this.getCharacter();
-        if (!character) {
-            this.patrol();
+        if (!this.hasBehaviorTarget(character)) {
             return;
         }
 
+        this.executeTargetBehavior(character, now);
+    }
+
+    hasBehaviorTarget(character) {
+        if (character) {
+            return true;
+        }
+
+        this.handleNoTargetBehavior();
+        return false;
+    }
+
+    executeTargetBehavior(character, now) {
         this.faceCharacter();
 
-        if (this.isCharacterInAttackRange()) {
-            this.handleAttack(now);
+        if (this.tryKeepCombatAnimationRunning()) {
             return;
         }
 
-        if (this.isCharacterNearby()) {
-            this.chaseCharacter(character);
+        if (this.tryHandleAttackBehavior(now)) {
+            return;
+        }
+
+        if (this.tryHandleChaseBehavior(character)) {
             return;
         }
 
         this.patrol();
     }
 
+    handleNoTargetBehavior() {
+        this.patrol();
+    }
+
+    tryKeepCombatAnimationRunning() {
+        if (!this.isCombatAnimationActive()) {
+            return false;
+        }
+
+        if (this.isCurrentAnimationComplete()) {
+            return false;
+        }
+
+        this.stopMovement();
+        return true;
+    }
+
+    isCombatAnimationActive() {
+        return this.activeAnimation === "ATTACK" || this.activeAnimation === "HOWL";
+    }
+
+    isCurrentAnimationComplete() {
+        if (!this.spriteSheet) {
+            return false;
+        }
+
+        return this.spriteSheet.currentFrame >= this.spriteSheet.endFrame;
+    }
+
+    tryHandleAttackBehavior(now) {
+        if (!this.isCharacterInAttackRange()) {
+            return false;
+        }
+
+        this.handleAttack(now);
+        return true;
+    }
+
+    tryHandleChaseBehavior(character) {
+        if (!this.isCharacterNearby()) {
+            return false;
+        }
+
+        this.chaseCharacter(character);
+        return true;
+    }
+
     handleAttack(now) {
-        this.speed = 0;
+        this.stopMovement();
 
-        if (this.activeAnimation === "ATTACK" && !this.canAttackCharacter(now)) {
+        if (this.tryKeepCombatAnimationRunning()) {
             return;
         }
 
-        if (this.canAttackCharacter(now)) {
-            this.markAttack(now);
-            this.switchAnimation("ATTACK");
+        if (this.tryStartAttack(now)) {
             return;
         }
 
+        this.playHowl();
+    }
+
+    tryStartAttack(now) {
+        if (!this.canAttackCharacter(now)) {
+            return false;
+        }
+
+        this.markAttack(now);
+        this.switchAnimation("ATTACK");
+        return true;
+    }
+
+    playHowl() {
         this.switchAnimation("HOWL");
     }
 
+    stopMovement() {
+        this.speed = 0;
+    }
+
     chaseCharacter(character) {
+        this.prepareRun();
+        this.moveTowardsX(character.x);
+    }
+
+    prepareRun() {
         this.speed = this.runSpeed;
         this.switchAnimation("RUN");
+    }
 
-        if (character.x < this.x) {
+    moveTowardsX(targetX) {
+        if (targetX < this.x) {
             this.moveLeft();
             return;
         }
@@ -174,18 +263,28 @@ export default class Wolf extends Enemy {
     }
 
     patrol() {
-        this.speed = this.walkSpeed;
-        this.switchAnimation("WALK");
+        this.prepareWalk();
 
         const minX = this.spawnX - this.patrolRange;
         const maxX = this.spawnX + this.patrolRange;
+        this.updatePatrolDirection(minX, maxX);
+        this.moveInPatrolDirection();
+    }
 
+    prepareWalk() {
+        this.speed = this.walkSpeed;
+        this.switchAnimation("WALK");
+    }
+
+    updatePatrolDirection(minX, maxX) {
         if (this.x <= minX) {
             this.patrolDirection = 1;
         } else if (this.x >= maxX) {
             this.patrolDirection = -1;
         }
+    }
 
+    moveInPatrolDirection() {
         if (this.patrolDirection < 0) {
             this.moveLeft();
             return;
@@ -201,7 +300,7 @@ export default class Wolf extends Enemy {
             }
 
             this.updateBehavior(Date.now());
-            this.advanceSpriteAnimation(14);
+            this.advanceSpriteAnimation();
         }, 1000 / 60);
 
     }

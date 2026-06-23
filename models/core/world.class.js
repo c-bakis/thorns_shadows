@@ -10,7 +10,7 @@ import BackgroundRenderer from "../systems/background-renderer.class.js";
 import PlattformGroundResolver from "../systems/plattform-ground-resolver.class.js";
 
 export default class World {
-  debugForceGameOverOnLoad = true;
+  // debugForceGameOverOnLoad = true;
   backgroundObjects = [];
   tileset = [];
   enemies = [];
@@ -75,9 +75,9 @@ export default class World {
     this.backgroundRenderer = new BackgroundRenderer(this);
     this.tileset = this.plattformGroundResolver.fillTilesAcrossGround();
     this.draw();
-    if (this.debugForceGameOverOnLoad) {
-      this.handleGameOver();
-    }
+    // if (this.debugForceGameOverOnLoad) {
+    //   this.handleGameOver();
+    // }
   }
 
   
