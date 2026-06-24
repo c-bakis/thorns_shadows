@@ -115,6 +115,10 @@ export default class Character extends MovableObject {
       return;
     }
 
+    if (this.world?.isGameplayFrozen?.(this)) {
+      return;
+    }
+
     const now = Date.now();
     const previousX = this.x;
 

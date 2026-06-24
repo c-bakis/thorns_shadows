@@ -63,6 +63,10 @@ export default class PredatorPlant extends Enemy {
 
     animate() {
         setInterval(() => {
+            if (this.world?.isGameplayFrozen?.(this)) {
+                return;
+            }
+
             if (this.handleDefeatAnimation(14)) {
                 return;
             }

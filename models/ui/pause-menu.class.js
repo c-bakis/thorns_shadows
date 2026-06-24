@@ -1,14 +1,14 @@
 import OverlayDialog from "./overlay-dialog.class.js";
 
 /**
- * Factory class to create a Win (victory) dialog.
- * Panel: frame 2 ("YOU WIN") from Win_loose.png
+ * Factory class to create a Pause Menu dialog.
+ * Panel: frame 2 ("PAUSE") from Win_loose.png
  */
-export default class Win {
+export default class PauseMenu {
     static create() {
         return new OverlayDialog({
-            panelSrc: { sx: 220, sy: 196, sw: 110, sh: 98 },
-            panelDst: { x: 175, y: 120, w: 350, h: 285 },
+            panelSrc: { sx: 90, sy: 0, sw: 90, sh: 176 },
+            panelDst: { x: 200, y: 100, w: 96, h: 210 },
             buttons: [
                 {
                     label: "PLAY AGAIN",

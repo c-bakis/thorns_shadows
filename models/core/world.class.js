@@ -31,6 +31,16 @@ export default class World {
   cameraAnchorY = 0;
   pause = false;
   level;
+  gameplayFreezeUntil = 0;
+  focusedScriptActor = null;
+  hasLevelWon = false;
+  pendingWinEnemy = null;
+  bossIntroState = {
+    active: false,
+    played: false,
+    actor: null,
+    endsAt: 0,
+  };
 
   constructor(canvas, level) {
     this.ctx = canvas.getContext("2d");
@@ -95,6 +105,7 @@ export default class World {
   draw() {
     this.ctx.clearRect(0, 0, this.ctx.canvas.width, this.ctx.canvas.height);
 
+    this.updateBossIntro();
     this.updateCamera();
 
     this.ctx.translate(this.camera_x, this.camera_y);
@@ -105,12 +116,18 @@ export default class World {
     this.addObjToMap(this.tileset);
     this.addObjToMap(this.decorations);
     this.addObjToMap(this.collectables);
-    this.updateMagicAttacks();
+    if (!this.isGameplayFrozen()) {
+      this.updateMagicAttacks();
+    }
     this.addObjToMap(this.magicAttacks);
     this.addToMap(this.character);
-    this.updateEnemyPlatformLocks();
+    if (!this.isGameplayFrozen()) {
+      this.updateEnemyPlatformLocks();
+    }
     this.addObjToMap(this.enemies);
-    this.collisionSystem.run(Date.now());
+    if (!this.isGameplayFrozen()) {
+      this.collisionSystem.run(Date.now());
+    }
     this.ctx.translate(-this.camera_x, -this.camera_y);
     this.statusBar.draw(this.ctx);
     if (this.pause) {
@@ -120,6 +137,11 @@ export default class World {
   }
 
   updateCamera() {
+    if (this.isBossIntroActive()) {
+      this.focusCameraOnActor(this.bossIntroState.actor);
+      return;
+    }
+
     const deltaFromAnchor = this.character.x - this.cameraAnchorX;
     const deltaYUp = this.cameraAnchorY - this.character.y;
     let nextCameraX = -this.cameraAnchorX;
@@ -140,6 +162,21 @@ export default class World {
     this.camera_y = this.clamp(nextCameraY, 0, this.cameraMaxUp);
   }
 
+  focusCameraOnActor(actor) {
+    if (!actor) {
+      return;
+    }
+
+    const actorCenterX = actor.x + actor.width / 2;
+    const actorTopY = actor.y;
+    const nextCameraX = -(actorCenterX - this.canvas.width / 2);
+    const nextCameraY = Math.max(0, this.cameraMaxUp - actorTopY + 40);
+    const bounds = this.getCameraBounds();
+
+    this.camera_x = this.clamp(nextCameraX, bounds.min, bounds.max);
+    this.camera_y = this.clamp(nextCameraY, 0, this.cameraMaxUp);
+  }
+
   getCameraBounds() {
     const max = -this.cameraAnchorX;
     const levelEndX = this.level?.levelEndX;
@@ -154,6 +191,101 @@ export default class World {
 
   clamp(value, min, max) {
     return Math.max(min, Math.min(max, value));
+  }
+
+  updateBossIntro(now = Date.now()) {
+    if (!this.level?.bossIntro) {
+      return;
+    }
+
+    if (this.bossIntroState.active) {
+      if (now >= this.bossIntroState.endsAt) {
+        this.finishBossIntro();
+      }
+      return;
+    }
+
+    if (this.bossIntroState.played) {
+      return;
+    }
+
+    const triggerX = this.level.bossIntro.triggerX;
+    if (!Number.isFinite(triggerX) || this.character.x < triggerX) {
+      return;
+    }
+
+    this.startBossIntro(now);
+  }
+
+  startBossIntro(now = Date.now()) {
+    const actor = this.findBossIntroActor();
+    if (!actor) {
+      this.bossIntroState.played = true;
+      return;
+    }
+
+    const durationMs = this.level?.bossIntro?.durationMs ?? 1800;
+    const audioPath = this.level?.bossIntro?.audioPath ?? null;
+    this.bossIntroState = {
+      active: true,
+      played: true,
+      actor,
+      endsAt: now + durationMs,
+    };
+    this.focusedScriptActor = actor;
+    this.freezeGameplay(durationMs, actor);
+    if (typeof actor.startBossIntro === "function") {
+      actor.startBossIntro(audioPath);
+    }
+  }
+
+  finishBossIntro() {
+    const actor = this.bossIntroState.actor;
+    if (typeof actor?.finishBossIntro === "function") {
+      actor.finishBossIntro();
+    }
+
+    this.bossIntroState = {
+      ...this.bossIntroState,
+      active: false,
+      actor: null,
+      endsAt: 0,
+    };
+    this.focusedScriptActor = null;
+    this.gameplayFreezeUntil = 0;
+  }
+
+  findBossIntroActor() {
+    const enemyType = this.level?.bossIntro?.enemyType;
+    if (!enemyType) {
+      return null;
+    }
+
+    return this.enemies.find((enemy) => {
+      return enemy?.constructor?.name?.toLowerCase() === enemyType.toLowerCase();
+    }) ?? null;
+  }
+
+  freezeGameplay(durationMs, actor = null, now = Date.now()) {
+    this.gameplayFreezeUntil = now + durationMs;
+    this.focusedScriptActor = actor;
+  }
+
+  isGameplayFrozen(actor = null, now = Date.now()) {
+    const isFrozen = now < this.gameplayFreezeUntil;
+    if (!isFrozen) {
+      return false;
+    }
+
+    if (actor && actor === this.focusedScriptActor) {
+      return false;
+    }
+
+    return true;
+  }
+
+  isBossIntroActive() {
+    return this.bossIntroState.active;
   }
 
   updateEnemyPlatformLocks() {
@@ -262,6 +394,39 @@ export default class World {
     this.playOverlayDialog(win, (action) => this.handleWinAction(action));
   }
 
+  handleEnemyDefeat(enemy) {
+    if (!this.isWinConditionEnemy(enemy) || this.hasLevelWon) {
+      return;
+    }
+
+    this.pendingWinEnemy = enemy;
+  }
+
+  handleEnemyRemoved(enemy) {
+    if (this.hasLevelWon) {
+      return;
+    }
+
+    const isPendingWinEnemy = this.pendingWinEnemy && enemy === this.pendingWinEnemy;
+    if (!isPendingWinEnemy && !this.isWinConditionEnemy(enemy)) {
+      return;
+    }
+
+    this.pendingWinEnemy = null;
+    this.hasLevelWon = true;
+    this.pauseGame();
+    this.playWinUi();
+  }
+
+  isWinConditionEnemy(enemy) {
+    const expectedType = this.level?.winCondition?.enemyType;
+    if (!expectedType || !enemy?.constructor?.name) {
+      return false;
+    }
+
+    return enemy.constructor.name.toLowerCase() === expectedType.toLowerCase();
+  }
+
   playOverlayDialog(dialog, onActionCallback) {
     const uiState = { isActive: true };
 
@@ -284,8 +449,6 @@ export default class World {
     if (!uiState.isActive) {
       return;
     }
-
-    this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
     dialog.draw(this.ctx);
   }
 
@@ -389,9 +552,9 @@ export default class World {
   }
 
   handleWinAction(action) {
-    if (action === "nextLevel") {
-      console.log("Next Level clicked");
-      // TODO: load next level
+    if (action === "restart") {
+      console.log("Restart clicked");
+      // TODO: restart the game
     } else if (action === "menu") {
       console.log("Menu clicked");
       // TODO: return to main menu

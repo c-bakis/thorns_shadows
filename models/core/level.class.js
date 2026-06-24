@@ -8,6 +8,8 @@ export default class Level {
     cameraDeadZone;
     spawn;
     levelEndX;
+    bossIntro;
+    winCondition;
 
     constructor({
         enemies = [],
@@ -19,6 +21,8 @@ export default class Level {
         cameraDeadZone = 150,
         spawn = { x: 100, y: 263 },
         levelEndX = 1000,
+        bossIntro = null,
+        winCondition = null,
     } = {}) {
         this.enemies = enemies;
         this.backgroundLayers = backgroundLayers;
@@ -29,5 +33,7 @@ export default class Level {
         this.cameraDeadZone = cameraDeadZone;
         this.spawn = spawn;
         this.levelEndX = levelEndX;
+        this.bossIntro = bossIntro;
+        this.winCondition = winCondition;
     }
 }

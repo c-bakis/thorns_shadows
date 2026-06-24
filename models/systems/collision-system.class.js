@@ -95,7 +95,7 @@ export default class CollisionSystem {
 
   markMagicAttackHit(attack, enemy) {
     if ((enemy.energy ?? 0) <= 0) {
-      enemy.isDefeated = true;
+      this.markEnemyDefeated(enemy);
     }
 
     attack.isConsumed = true;
@@ -152,14 +152,30 @@ export default class CollisionSystem {
   cleanupDefeatedAndCollected(now = Date.now()) {
     this.world.enemies = this.enemies.filter((enemy) => {
       if (typeof enemy?.shouldRemoveAfterDefeat === "function") {
-        return !enemy.shouldRemoveAfterDefeat(now);
+        const shouldRemove = enemy.shouldRemoveAfterDefeat(now);
+        if (shouldRemove) {
+          this.notifyEnemyRemoved(enemy);
+        }
+
+        return !shouldRemove;
       }
 
-      return !enemy?.isDefeated;
+      const shouldKeep = !enemy?.isDefeated;
+      if (!shouldKeep) {
+        this.notifyEnemyRemoved(enemy);
+      }
+
+      return shouldKeep;
     });
     this.world.collectables = this.collectables.filter(
       (collectable) => !collectable?.collected,
     );
+  }
+
+  notifyEnemyRemoved(enemy) {
+    if (typeof this.world?.handleEnemyRemoved === "function") {
+      this.world.handleEnemyRemoved(enemy);
+    }
   }
 
   checkCollectableCollisions() {
@@ -207,10 +223,26 @@ export default class CollisionSystem {
 
     this.character.registerEnemyHit(enemy);
     if ((enemy.energy ?? 0) <= 0) {
-      enemy.isDefeated = true;
-      const experiencePoints = Number.isFinite(enemy.experiencePoints)        ? enemy.experiencePoints
+      this.markEnemyDefeated(enemy, { grantExperience: true });
+    }
+  }
+
+  markEnemyDefeated(enemy, options = {}) {
+    if (!enemy || enemy.isDefeated) {
+      return;
+    }
+
+    enemy.isDefeated = true;
+
+    if (options.grantExperience) {
+      const experiencePoints = Number.isFinite(enemy.experiencePoints)
+        ? enemy.experiencePoints
         : 0;
       this.character.gainExperience(experiencePoints);
+    }
+
+    if (typeof this.world?.handleEnemyDefeat === "function") {
+      this.world.handleEnemyDefeat(enemy);
     }
   }
 

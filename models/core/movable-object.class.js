@@ -90,17 +90,29 @@ export default class MovableObject extends DrawableObject {
   }
 
   moveRight() {
+    if (this.world?.isGameplayFrozen?.(this)) {
+      return;
+    }
+
     this.x += this.speed;
     this.otherDirection = false;
   }
 
   moveLeft() {
+    if (this.world?.isGameplayFrozen?.(this)) {
+      return;
+    }
+
     this.x -= this.speed;
     this.otherDirection = true;
   }
 
   applyGravity() {
     setInterval(() => {
+      if (this.world?.isGameplayFrozen?.(this)) {
+        return;
+      }
+
       this.previousY = this.y;
 
       if (this.isAboveGround() || this.speedY > 0) {

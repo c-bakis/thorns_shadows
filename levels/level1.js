@@ -4,6 +4,15 @@ const level1 = new Level({
   spawn: { x: 100, y: 230 },
   cameraDeadZone: 150,
   levelEndX: 3700,
+  bossIntro: {
+    enemyType: "wolf",
+    triggerX: 3080,
+    durationMs: 1800,
+    audioPath: null,
+  },
+  winCondition: {
+    enemyType: "wolf",
+  },
   collectables: [
     { type: "manaStone", x: 600, y: 120},
     { type: "manaStone", x: 2000, y: 40},

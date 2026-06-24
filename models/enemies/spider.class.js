@@ -84,6 +84,10 @@ export default class Spider extends Enemy {
 
     animate() {
         setInterval(() => {
+            if (this.world?.isGameplayFrozen?.(this)) {
+                return;
+            }
+
             if (this.handleDefeatAnimation(10)) {
                 return;
             }
