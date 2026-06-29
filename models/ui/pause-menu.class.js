@@ -5,39 +5,63 @@ import OverlayDialog from "./overlay-dialog.class.js";
  * Panel: frame 2 ("PAUSE") from Win_loose.png
  */
 export default class PauseMenu {
-    static create() {
-        return new OverlayDialog({
-            panelSrc: { sx: 90, sy: 0, sw: 90, sh: 176 },
-            panelDst: { x: 280, y: 80, w: 220, h: 310 },
-            buttons: [
-                {
-                    label: "RESUME",
-                    action: "resume",
-                    x: 320, y: 145, w: 135, h: 30,
-                },
-                {
-                    label: "RESTART",
-                    action: "restart",
-                    x: 320, y: 185, w: 135, h: 30,
-                },
-                {
-                    label: "RETURN TO MENU",
-                    action: "menu",
-                    x: 320, y: 225, w: 135, h: 30,
-                },
-                {
-                    label: "MUSIC ON/OFF",
-                    action: "toggleMusic",
-                    x: 320, y: 265, w: 135, h: 30,
-                },
-                {
-                    label: "SOUND ON/OFF",
-                    action: "toggleSound",
-                    x: 320, y: 305, w: 135, h: 30,
-                },
-            ],
-            panelImg: new Image(),
-            panelImgSrc: "img/gui/Main_menu.png",
-        });
-    }
+  static create() {
+    return new OverlayDialog({
+      panelSrc: { sx: 90, sy: 0, sw: 90, sh: 176 },
+      panelDst: { x: 280, y: 80, w: 220, h: 320 },
+      buttons: [
+        {
+          label: "X",
+          action: "close",
+          x: 461, // Position des "x" im Panel
+          y: 90, // (adjustieren je nach Panel-Position)
+          w: 21, // Kleine Hit-Box um das x
+          h: 18,
+          isIconButton: true, // optional, um anders zu rendern
+        },
+        {
+          label: "RESUME",
+          action: "resume",
+          x: 320,
+          y: 145,
+          w: 135,
+          h: 30,
+        },
+        {
+          label: "RESTART",
+          action: "restart",
+          x: 320,
+          y: 185,
+          w: 135,
+          h: 30,
+        },
+        {
+          label: "RETURN TO MENU",
+          action: "menu",
+          x: 320,
+          y: 225,
+          w: 135,
+          h: 30,
+        },
+        {
+          label: "MUSIC ON/OFF",
+          action: "toggleMusic",
+          x: 320,
+          y: 265,
+          w: 135,
+          h: 30,
+        },
+        {
+          label: "SOUND ON/OFF",
+          action: "toggleSound",
+          x: 320,
+          y: 305,
+          w: 135,
+          h: 30,
+        },
+      ],
+      panelImg: new Image(),
+      panelImgSrc: "img/gui/Main_menu.png",
+    });
+  }
 }

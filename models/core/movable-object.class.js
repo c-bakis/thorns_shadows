@@ -8,10 +8,10 @@ export default class MovableObject extends DrawableObject {
   previousY = 230;
   height = 180;
   width = 150;
-  hitboxOffsetX = 0;
-  hitboxOffsetY = 0;
-  hitboxWidth = this.width;
-  hitboxHeight = this.height;
+  // hitboxOffsetX = 0;
+  // hitboxOffsetY = 0;
+  // hitboxWidth = this.width;
+  // hitboxHeight = this.height;
   speed = 0.15;
   speedY = 0;
   acceleration = 2.5;
@@ -42,38 +42,38 @@ export default class MovableObject extends DrawableObject {
     }
   }
 
-  drawBoundingBox(ctx) {
-    const shouldDrawBoundingBox =
-      this.constructor?.name === "Character" ||
-      this.constructor?.name === "Slime" ||
-      this.constructor?.name === "PredatorPlant" ||
-      this.constructor?.name === "Spider" ||
-      this.constructor?.name === "Wolf" ||
-      this.constructor?.name === "Tileset";
+  // drawBoundingBox(ctx) {
+  //   const shouldDrawBoundingBox =
+  //     this.constructor?.name === "Character" ||
+  //     this.constructor?.name === "Slime" ||
+  //     this.constructor?.name === "PredatorPlant" ||
+  //     this.constructor?.name === "Spider" ||
+  //     this.constructor?.name === "Wolf" ||
+  //     this.constructor?.name === "Tileset";
 
-    if (shouldDrawBoundingBox) {
-      const hitbox = this.getHitbox();
-      ctx.beginPath();
-      ctx.rect(hitbox.x, hitbox.y, hitbox.width, hitbox.height);
-      ctx.strokeStyle = "blue";
-      ctx.lineWidth = 5;
-      ctx.stroke();
-    }
-  }
+  //   if (shouldDrawBoundingBox) {
+  //     const hitbox = this.getHitbox();
+  //     ctx.beginPath();
+  //     ctx.rect(hitbox.x, hitbox.y, hitbox.width, hitbox.height);
+  //     ctx.strokeStyle = "blue";
+  //     ctx.lineWidth = 5;
+  //     ctx.stroke();
+  //   }
+  // }
 
-  getHitbox() {
-    const width = this.hitboxWidth ?? this.width;
-    const height = this.hitboxHeight ?? this.height;
-    const offsetX = this.hitboxOffsetX ?? 0;
-    const offsetY = this.hitboxOffsetY ?? 0;
+  // getHitbox() {
+  //   const width = this.hitboxWidth ?? this.width;
+  //   const height = this.hitboxHeight ?? this.height;
+  //   const offsetX = this.hitboxOffsetX ?? 0;
+  //   const offsetY = this.hitboxOffsetY ?? 0;
 
-    return {
-      x: this.x + offsetX,
-      y: this.y + offsetY,
-      width,
-      height,
-    };
-  }
+  //   return {
+  //     x: this.x + offsetX,
+  //     y: this.y + offsetY,
+  //     width,
+  //     height,
+  //   };
+  // }
 
   initiateAnimation(num, images) {
     this.animationCounter++;

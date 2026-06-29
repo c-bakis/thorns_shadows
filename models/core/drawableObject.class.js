@@ -3,6 +3,10 @@ export default class DrawableObject {
     y = 100;
     width = 100;
     height = 100;
+    hitboxOffsetX = 0;
+    hitboxOffsetY = 0;
+    hitboxWidth = this.width;
+    hitboxHeight = this.height;
     img;
     imgCache = {};
     currentImg = 0;
@@ -67,6 +71,39 @@ export default class DrawableObject {
     return {
       frameX: (currentFrame % columns) * frameWidth,
       frameY: Math.floor(currentFrame / columns) * frameHeight + sourceY,
+    };
+  }
+  
+  drawBoundingBox(ctx) {
+    const shouldDrawBoundingBox =
+      this.constructor?.name === "Character" ||
+      this.constructor?.name === "Slime" ||
+      this.constructor?.name === "PredatorPlant" ||
+      this.constructor?.name === "Spider" ||
+      this.constructor?.name === "Wolf" ||
+      this.constructor?.name === "Tileset";
+
+    if (shouldDrawBoundingBox) {
+      const hitbox = this.getHitbox();
+      ctx.beginPath();
+      ctx.rect(hitbox.x, hitbox.y, hitbox.width, hitbox.height);
+      ctx.strokeStyle = "blue";
+      ctx.lineWidth = 5;
+      ctx.stroke();
+    }
+  }
+
+  getHitbox() {
+    const width = this.hitboxWidth ?? this.width;
+    const height = this.hitboxHeight ?? this.height;
+    const offsetX = this.hitboxOffsetX ?? 0;
+    const offsetY = this.hitboxOffsetY ?? 0;
+
+    return {
+      x: this.x + offsetX,
+      y: this.y + offsetY,
+      width,
+      height,
     };
   }
 }
