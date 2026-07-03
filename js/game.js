@@ -1,18 +1,25 @@
 import World from "../models/core/world.class.js";
+import AudioManager from "../models/core/audio-manager.class.js";
 import level1 from "../levels/level1.js";
 
 let canvas;
 let world;
+let audioManager;
+
+function unlockAudio() {
+  audioManager?.unlock?.();
+}
 
 function init() {
   canvas = document.getElementById("canvas");
   canvas.width = 720;
   canvas.height = 480;
+  audioManager = new AudioManager();
   createWorld();
 }
 
 function createWorld() {
-  world = new World(canvas, level1);
+  world = new World(canvas, level1, audioManager);
   world.setRestartHandler(restartGame);
 }
 
@@ -30,6 +37,8 @@ function restartGame() {
 
 window.addEventListener("load", init);
 window.addEventListener("keydown", (e) => {
+  unlockAudio();
+
   if (!world) {
     return;
   }
@@ -71,6 +80,9 @@ window.addEventListener("keydown", (e) => {
       break;
   }
 });
+
+window.addEventListener("pointerdown", unlockAudio, { passive: true });
+window.addEventListener("touchstart", unlockAudio, { passive: true });
 
 window.addEventListener("keyup", (e) => {
     if (!world) {

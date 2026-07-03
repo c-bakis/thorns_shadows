@@ -10,6 +10,8 @@ export default class Level {
     levelEndX;
     bossIntro;
     winCondition;
+    audio;
+    backgroundMusic;
 
     constructor({
         enemies = [],
@@ -23,6 +25,8 @@ export default class Level {
         levelEndX = 1000,
         bossIntro = null,
         winCondition = null,
+        audio = null,
+        backgroundMusic = null,
     } = {}) {
         this.enemies = enemies;
         this.backgroundLayers = backgroundLayers;
@@ -35,5 +39,7 @@ export default class Level {
         this.levelEndX = levelEndX;
         this.bossIntro = bossIntro;
         this.winCondition = winCondition;
+        this.audio = audio;
+        this.backgroundMusic = backgroundMusic;
     }
 }

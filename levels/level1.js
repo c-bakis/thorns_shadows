@@ -2,6 +2,7 @@ import Level from "../models/core/level.class.js";
 
 const level1 = new Level({
   spawn: { x: 100, y: 230 },
+  backgroundMusic: "audio/music/sky_city.ogg",
   cameraDeadZone: 150,
   levelEndX: 3700,
   bossIntro: {
@@ -9,6 +10,9 @@ const level1 = new Level({
     triggerX: 3080,
     durationMs: 1800,
     audioPath: null,
+  },
+  audio: {
+    bgmPath: "audio/music/sky_city.ogg",
   },
   winCondition: {
     enemyType: "wolf",

@@ -39,6 +39,7 @@ export default class World {
   pendingWinEnemy = null;
   renderFrameId = null;
   restartHandler = null;
+  audioManager = null;
   cameraController;
   bossController;
   overlayController;
@@ -50,10 +51,11 @@ export default class World {
     endsAt: 0,
   };
 
-  constructor(canvas, level) {
+  constructor(canvas, level, audioManager = null) {
     this.ctx = canvas.getContext("2d");
     this.canvas = canvas;
     this.level = level;
+    this.audioManager = audioManager;
     this.keyboard = new Keyboard();
     this.cameraController = new WorldCameraController(this);
     this.bossController = new WorldBossController(this);
@@ -96,6 +98,7 @@ export default class World {
     this.plattformGroundResolver = new PlattformGroundResolver(this);
     this.backgroundRenderer = new BackgroundRenderer(this);
     this.tileset = this.plattformGroundResolver.fillTilesAcrossGround();
+    this.initializeAudio();
     this.draw();
     if (this.debugForceGameOverOnLoad) {
       this.handleGameOver();
@@ -103,6 +106,16 @@ export default class World {
         if (this.debugForcePauseOnLoad) {
       this.handlePauseToggle();
     }
+  }
+
+  initializeAudio() {
+    const bgmPath = this.level?.audio?.bgmPath ?? this.level?.backgroundMusic;
+    if (!bgmPath || !this.audioManager) {
+      return;
+    }
+
+    this.audioManager.setMusicTrack(bgmPath, { loop: true, volume: 0.35 });
+    this.audioManager.resumeMusic();
   }
 
   
@@ -203,11 +216,13 @@ export default class World {
 
   pauseGame() {
     this.pause = true;
+    this.audioManager?.pauseMusic?.();
   }
 
   resumeGame() {
     this.overlayController?.closeActiveOverlay?.();
     this.pause = false;
+    this.audioManager?.resumeMusic?.();
     this.draw();
   }
 

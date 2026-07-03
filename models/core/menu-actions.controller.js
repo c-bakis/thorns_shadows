@@ -24,10 +24,16 @@ export default class MenuActionsController {
         console.log("Menu clicked");
         break;
       case "toggleMusic":
-        console.log("Toggle Music clicked");
+        {
+          const isEnabled = this.world?.audioManager?.toggleMusic?.();
+          console.log(`Music ${isEnabled ? "on" : "off"}`);
+        }
         break;
       case "toggleSound":
-        console.log("Toggle Sound clicked");
+        {
+          const isEnabled = this.world?.audioManager?.toggleSfx?.();
+          console.log(`SFX ${isEnabled ? "on" : "off"}`);
+        }
         break;
       default:
         console.log(`Unknown action: ${action}`);
