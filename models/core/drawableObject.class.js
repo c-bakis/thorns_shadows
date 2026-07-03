@@ -10,6 +10,7 @@ export default class DrawableObject {
     img;
     imgCache = {};
     currentImg = 0;
+    intervalIds = new Set();
 
   loadImage(path) {
     this.img = new Image();
@@ -72,6 +73,17 @@ export default class DrawableObject {
       frameX: (currentFrame % columns) * frameWidth,
       frameY: Math.floor(currentFrame / columns) * frameHeight + sourceY,
     };
+  }
+
+  startInterval(callback, delay) {
+    const intervalId = setInterval(callback, delay);
+    this.intervalIds.add(intervalId);
+    return intervalId;
+  }
+
+  clearIntervals() {
+    this.intervalIds.forEach((intervalId) => clearInterval(intervalId));
+    this.intervalIds.clear();
   }
   
   drawBoundingBox(ctx) {

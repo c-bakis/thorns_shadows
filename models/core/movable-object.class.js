@@ -108,7 +108,7 @@ export default class MovableObject extends DrawableObject {
   }
 
   applyGravity() {
-    setInterval(() => {
+    this.startInterval(() => {
       if (this.world?.isGameplayFrozen?.(this)) {
         return;
       }

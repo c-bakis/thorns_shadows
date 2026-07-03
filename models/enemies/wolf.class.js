@@ -98,7 +98,7 @@ export default class Wolf extends Enemy {
     }
 
     animate() {
-        setInterval(() => {
+        this.startInterval(() => {
             if (this.world?.isBossIntroActive?.()) {
                 this.updateBossIntroAnimation();
                 return;

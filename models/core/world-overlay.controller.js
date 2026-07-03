@@ -8,7 +8,7 @@ export default class WorldOverlayController {
 
   constructor(world) {
     this.world = world;
-    this.menuActionsController = new MenuActionsController();
+    this.menuActionsController = new MenuActionsController(this.world);
   }
 
   playPauseMenuUi() {

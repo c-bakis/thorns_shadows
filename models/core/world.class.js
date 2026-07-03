@@ -37,6 +37,8 @@ export default class World {
   focusedScriptActor = null;
   hasLevelWon = false;
   pendingWinEnemy = null;
+  renderFrameId = null;
+  restartHandler = null;
   cameraController;
   bossController;
   overlayController;
@@ -206,6 +208,33 @@ export default class World {
   resumeGame() {
     this.pause = false;
     this.draw();
+  }
+
+  setRestartHandler(handler) {
+    this.restartHandler = typeof handler === "function" ? handler : null;
+  }
+
+  restart() {
+    if (typeof this.restartHandler === "function") {
+      this.restartHandler();
+    }
+  }
+
+  destroy() {
+    this.pause = true;
+    if (Number.isFinite(this.renderFrameId)) {
+      cancelAnimationFrame(this.renderFrameId);
+      this.renderFrameId = null;
+    }
+
+    const cleanupTargets = [
+      this.character,
+      ...this.enemies,
+      ...this.collectables,
+      ...this.magicAttacks,
+    ];
+
+    cleanupTargets.forEach((obj) => obj?.clearIntervals?.());
   }
 
   handleGameOver() {

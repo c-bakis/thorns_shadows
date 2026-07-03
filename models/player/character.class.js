@@ -107,7 +107,7 @@ export default class Character extends MovableObject {
   // ─── Main loop ───────────────────────────────────────────────────────────────
 
   animate() {
-    setInterval(() => this.tick(), 1000 / 60);
+    this.startInterval(() => this.tick(), 1000 / 60);
   }
 
   tick() {

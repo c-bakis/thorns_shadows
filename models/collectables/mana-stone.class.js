@@ -34,7 +34,7 @@ export default class ManaStone extends Collectable {
     }
 
     animate() {
-        setInterval(() => {
+        this.startInterval(() => {
             this.switchAnimation("DEFAULT");
             this.advanceSpriteAnimation(10);
         }, 1000 / 60);

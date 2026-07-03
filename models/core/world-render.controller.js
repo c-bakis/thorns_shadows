@@ -35,7 +35,7 @@ export default class WorldRenderController {
       return;
     }
 
-    requestAnimationFrame(() => this.draw());
+    this.world.renderFrameId = requestAnimationFrame(() => this.draw());
   }
 
   updateEnemyPlatformLocks() {

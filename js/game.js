@@ -8,7 +8,24 @@ function init() {
   canvas = document.getElementById("canvas");
   canvas.width = 720;
   canvas.height = 480;
+  createWorld();
+}
+
+function createWorld() {
   world = new World(canvas, level1);
+  world.setRestartHandler(restartGame);
+}
+
+function restartGame() {
+  if (!canvas) {
+    return;
+  }
+
+  if (world && typeof world.destroy === "function") {
+    world.destroy();
+  }
+
+  createWorld();
 }
 
 window.addEventListener("load", init);

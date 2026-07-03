@@ -53,7 +53,7 @@ export default class Slime extends Enemy {
     }
 
     animate() {
-        setInterval(() => {
+        this.startInterval(() => {
             if (this.world?.isGameplayFrozen?.(this)) {
                 return;
             }
