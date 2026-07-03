@@ -206,6 +206,7 @@ export default class World {
   }
 
   resumeGame() {
+    this.overlayController?.closeActiveOverlay?.();
     this.pause = false;
     this.draw();
   }
@@ -221,6 +222,7 @@ export default class World {
   }
 
   destroy() {
+    this.overlayController?.closeActiveOverlay?.();
     this.pause = true;
     if (Number.isFinite(this.renderFrameId)) {
       cancelAnimationFrame(this.renderFrameId);

@@ -9,6 +9,7 @@ export default class WorldOverlayController {
   constructor(world) {
     this.world = world;
     this.menuActionsController = new MenuActionsController(this.world);
+    this.activeOverlayCleanup = null;
   }
 
   playPauseMenuUi() {
@@ -27,6 +28,8 @@ export default class WorldOverlayController {
   }
 
   playOverlayDialog(dialog, onActionCallback) {
+    this.closeActiveOverlay();
+
     const uiState = { isActive: true };
     const render = () => this.renderOverlayDialog(dialog, uiState);
     this.preloadDialogImages(dialog, render);
@@ -39,8 +42,26 @@ export default class WorldOverlayController {
       onClick: (e) => this.handleDialogClick(e, dialog, () => cleanup(), onActionCallback),
     };
 
-    const cleanup = () => this.cleanupOverlayDialog(uiState, handlers);
+    const cleanup = () => {
+      this.cleanupOverlayDialog(uiState, handlers);
+      if (this.activeOverlayCleanup === cleanup) {
+        this.activeOverlayCleanup = null;
+      }
+    };
+
+    this.activeOverlayCleanup = cleanup;
     this.bindDialogEvents(handlers);
+
+    // Render once more on the next frame so the dialog stays visible
+    // even if a late world frame clears the canvas after pause.
+    requestAnimationFrame(render);
+  }
+
+  closeActiveOverlay() {
+    if (typeof this.activeOverlayCleanup === "function") {
+      this.activeOverlayCleanup();
+      this.activeOverlayCleanup = null;
+    }
   }
 
   renderOverlayDialog(dialog, uiState) {

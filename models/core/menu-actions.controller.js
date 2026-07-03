@@ -38,7 +38,7 @@ export default class MenuActionsController {
     if (action === "restart") {
       console.log("Restart clicked");
       this.world?.restart?.();
-    } else if (action === "menu") {
+    } else if (action === "menu" || action === "close") {
       console.log("Menu clicked");
       // TODO: return to main menu
     }
@@ -48,7 +48,7 @@ export default class MenuActionsController {
     if (action === "restart") {
       console.log("Restart clicked");
       this.world?.restart?.();
-    } else if (action === "menu") {
+    } else if (action === "menu" || action === "close") {
       console.log("Menu clicked");
       // TODO: return to main menu
     }
