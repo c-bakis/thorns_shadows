@@ -129,4 +129,17 @@ export default class AudioManager {
 
     return sfx;
   }
+
+  decreaseVolumeOnMenuOpen() {
+    this.musicVolume = this.music?.volume ?? 0.35;
+    if (this.music) {
+      this.music.volume = 0.25;
+    }
+  }
+
+  increaseVolumeOnMenuClose() {
+    if (this.music) {
+      this.music.volume = this.musicVolume;
+    }
+    }
 }

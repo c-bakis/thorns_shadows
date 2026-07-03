@@ -216,13 +216,13 @@ export default class World {
 
   pauseGame() {
     this.pause = true;
-    this.audioManager?.pauseMusic?.();
+    this.audioManager?.decreaseVolumeOnMenuOpen?.();
   }
 
   resumeGame() {
     this.overlayController?.closeActiveOverlay?.();
     this.pause = false;
-    this.audioManager?.resumeMusic?.();
+    this.audioManager?.increaseVolumeOnMenuClose?.();
     this.draw();
   }
 
