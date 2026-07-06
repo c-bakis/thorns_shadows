@@ -5,6 +5,7 @@ import StatusBar from "../ui/status-bar.class.js";
 import CollisionSystem from "../systems/collision-system.class.js";
 import BackgroundRenderer from "../systems/background-renderer.class.js";
 import PlattformGroundResolver from "../systems/plattform-ground-resolver.class.js";
+import GAME_AUDIO from "./game-audio.config.js";
 import WorldCameraController from "./world-camera.controller.js";
 import WorldBossController from "./world-boss.controller.js";
 import WorldOverlayController from "./world-overlay.controller.js";
@@ -115,6 +116,8 @@ export default class World {
     }
 
     this.audioManager.setMusicTrack(bgmPath, { loop: true, volume: 0.35 });
+    this.audioManager.setGameOverMusicTrack?.(GAME_AUDIO.gameOverMusicPath, { loop: true, volume: 0.5 });
+    this.audioManager.setVictoryMusicTrack?.(GAME_AUDIO.victoryMusicPath, { loop: true, volume: 0.5 });
     this.audioManager.resumeMusic();
   }
 
@@ -222,6 +225,8 @@ export default class World {
   resumeGame() {
     this.overlayController?.closeActiveOverlay?.();
     this.pause = false;
+    this.audioManager?.stopGameOverMusic?.();
+    this.audioManager?.stopVictoryMusic?.();
     this.audioManager?.increaseVolumeOnMenuClose?.();
     this.draw();
   }
@@ -239,6 +244,9 @@ export default class World {
   destroy() {
     this.overlayController?.closeActiveOverlay?.();
     this.pause = true;
+    this.audioManager?.stopGameOverMusic?.();
+    this.audioManager?.stopVictoryMusic?.();
+    this.audioManager?.stopMusic?.();
     if (Number.isFinite(this.renderFrameId)) {
       cancelAnimationFrame(this.renderFrameId);
       this.renderFrameId = null;
@@ -257,11 +265,19 @@ export default class World {
   handleGameOver() {
     console.log("Game Over");
     this.pauseGame();
+    this.audioManager?.playGameOverMusic?.();
     this.playGameOverUi();
   }
 
   playGameOverUi() {
     this.overlayController.playGameOverUi();
+  }
+
+  handleWin() {
+    console.log("Level Won");
+    this.pauseGame();
+    this.audioManager?.playVictoryMusic?.();
+    this.playWinUi();
   }
 
   playWinUi() {
@@ -288,8 +304,7 @@ export default class World {
 
     this.pendingWinEnemy = null;
     this.hasLevelWon = true;
-    this.pauseGame();
-    this.playWinUi();
+    this.handleWin();
   }
 
   isWinConditionEnemy(enemy) {

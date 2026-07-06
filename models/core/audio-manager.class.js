@@ -1,10 +1,18 @@
+import GAME_AUDIO from "./game-audio.config.js";
+
 export default class AudioManager {
   constructor({ initialMusicMuted = false, initialSfxMuted = false } = {}) {
     this.musicMuted = initialMusicMuted;
     this.sfxMuted = initialSfxMuted;
     this.music = null;
+    this.gameOverMusic = null;
+    this.victoryMusic = null;
     this.musicPath = null;
+    this.gameOverMusicPath = GAME_AUDIO.gameOverMusicPath;
+    this.victoryMusicPath = GAME_AUDIO.victoryMusicPath;
     this.musicVolume = 0.35;
+    this.gameOverMusicVolume = 0.5;
+    this.victoryMusicVolume = 0.35;
     this.unlocked = false;
     this.pendingMusicPlay = false;
   }
@@ -20,29 +28,46 @@ export default class AudioManager {
     }
   }
 
-  setMusicTrack(path, { loop = true, volume = 0.35, restart = false } = {}) {
+  configureAudioTrack({ audioKey, pathKey, path, loop, volume, restart, volumeKey }) {
     if (!path) {
-      return;
+      return null;
     }
 
-    const hasChanged = this.musicPath !== path;
-    if (!this.music || hasChanged) {
-      if (this.music) {
-        this.music.pause();
+    const hasChanged = this[pathKey] !== path;
+    if (!this[audioKey] || hasChanged) {
+      if (this[audioKey]) {
+        this[audioKey].pause();
       }
 
-      this.music = new Audio(path);
-      this.music.preload = "auto";
-      this.musicPath = path;
+      this[audioKey] = new Audio(path);
+      this[audioKey].preload = "auto";
+      this[pathKey] = path;
     }
 
-    this.music.loop = loop;
-    this.musicVolume = volume;
-    this.music.volume = volume;
-    this.music.muted = this.musicMuted;
+    this[audioKey].loop = loop;
+    this[volumeKey] = volume;
+    this[audioKey].volume = volume;
 
     if (restart) {
-      this.music.currentTime = 0;
+      this[audioKey].currentTime = 0;
+    }
+
+    return this[audioKey];
+  }
+
+  setMusicTrack(path, { loop = true, volume = 0.35, restart = false } = {}) {
+    const music = this.configureAudioTrack({
+      audioKey: "music",
+      pathKey: "musicPath",
+      path,
+      loop,
+      volume,
+      restart,
+      volumeKey: "musicVolume",
+    });
+
+    if (music) {
+      music.muted = this.musicMuted;
     }
   }
 
@@ -66,6 +91,98 @@ export default class AudioManager {
     }
 
     this.pendingMusicPlay = false;
+  }
+
+  setVictoryMusicTrack(path, { loop = true, volume = 0.35, restart = false } = {}) {
+    this.configureAudioTrack({
+      audioKey: "victoryMusic",
+      pathKey: "victoryMusicPath",
+      path,
+      loop,
+      volume,
+      restart,
+      volumeKey: "victoryMusicVolume",
+    });
+  }
+
+  setGameOverMusicTrack(path, { loop = true, volume = 0.5, restart = false } = {}) {
+    this.configureAudioTrack({
+      audioKey: "gameOverMusic",
+      pathKey: "gameOverMusicPath",
+      path,
+      loop,
+      volume,
+      restart,
+      volumeKey: "gameOverMusicVolume",
+    });
+  }
+
+  playSpecialMusic({
+    audioKey,
+    pathKey,
+    volumeKey,
+    setTrack,
+    warnLabel,
+    stopBackgroundMusic = true,
+  }) {
+    if (stopBackgroundMusic && this.music) {
+      this.pauseMusic();
+    }
+
+    if (!this[audioKey]) {
+      setTrack.call(this, this[pathKey]);
+    }
+
+    if (!this[audioKey] || this.musicMuted || !this.unlocked) {
+      return;
+    }
+
+    this[audioKey].currentTime = 0;
+    this[audioKey].volume = this[volumeKey];
+    const playPromise = this[audioKey].play();
+    if (playPromise && typeof playPromise.catch === "function") {
+      playPromise.catch((error) => {
+        console.warn(`${warnLabel} playback failed:`, this[pathKey], error);
+      });
+    }
+  }
+
+  playGameOverMusic() {
+    this.playSpecialMusic({
+      audioKey: "gameOverMusic",
+      pathKey: "gameOverMusicPath",
+      volumeKey: "gameOverMusicVolume",
+      setTrack: this.setGameOverMusicTrack,
+      warnLabel: "Game-over music",
+    });
+  }
+
+  playVictoryMusic() {
+    this.playSpecialMusic({
+      audioKey: "victoryMusic",
+      pathKey: "victoryMusicPath",
+      volumeKey: "victoryMusicVolume",
+      setTrack: this.setVictoryMusicTrack,
+      warnLabel: "Victory music",
+    });
+  }
+
+  stopGameOverMusic() {
+    if (!this.gameOverMusic) {
+      return;
+    }
+
+    this.gameOverMusic.pause();
+    this.gameOverMusic.currentTime = 0;
+  }
+
+  stopVictoryMusic() {
+    if (!this.victoryMusic) {
+      return;
+    }
+
+    this.victoryMusic.pause();
+    this.victoryMusic.currentTime = 0;
   }
 
   pauseMusic() {
@@ -141,5 +258,5 @@ export default class AudioManager {
     if (this.music) {
       this.music.volume = this.musicVolume;
     }
-    }
+  }
 }
