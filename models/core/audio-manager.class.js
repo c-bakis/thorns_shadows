@@ -10,6 +10,13 @@ export default class AudioManager {
     this.musicPath = null;
     this.gameOverMusicPath = GAME_AUDIO.gameOverMusicPath;
     this.victoryMusicPath = GAME_AUDIO.victoryMusicPath;
+    this.attackSoundPath = GAME_AUDIO.attackSoundPath;
+    this.landingHitSoundPath = GAME_AUDIO.landingHitSoundPath;
+    this.getHurtSoundPath = GAME_AUDIO.getHurtSoundPath;
+    this.fireMagicSoundPath = GAME_AUDIO.fireMagicSoundPath;
+    this.collectItemSoundPath = GAME_AUDIO.collectItemSoundPath;
+    this.wolfHowlSoundPath = GAME_AUDIO.wolfHowlSoundPath;
+    this.wolfBiteSoundPath = GAME_AUDIO.wolfBiteSoundPath;
     this.musicVolume = 0.35;
     this.gameOverMusicVolume = 0.5;
     this.victoryMusicVolume = 0.35;
@@ -230,19 +237,39 @@ export default class AudioManager {
     return !this.sfxMuted;
   }
 
-  playSfx(path, { volume = 0.7 } = {}) {
+  createSfxAudio(path, volume) {
+    const sfx = new Audio(path);
+    sfx.preload = "auto";
+    sfx.volume = volume;
+    return sfx;
+  }
+
+  safePlayAudio(audio) {
+    const playPromise = audio.play();
+    if (playPromise && typeof playPromise.catch === "function") {
+      playPromise.catch(() => null);
+    }
+  }
+
+  scheduleSfxStop(sfx, maxDurationMs) {
+    if (!Number.isFinite(maxDurationMs) || maxDurationMs <= 0) {
+      return;
+    }
+
+    setTimeout(() => {
+      sfx.pause();
+      sfx.currentTime = 0;
+    }, maxDurationMs);
+  }
+
+  playSfx(path, { volume = 0.5, maxDurationMs = null } = {}) {
     if (!path || this.sfxMuted || !this.unlocked) {
       return null;
     }
 
-    const sfx = new Audio(path);
-    sfx.preload = "auto";
-    sfx.volume = volume;
-
-    const playPromise = sfx.play();
-    if (playPromise && typeof playPromise.catch === "function") {
-      playPromise.catch(() => null);
-    }
+    const sfx = this.createSfxAudio(path, volume);
+    this.safePlayAudio(sfx);
+    this.scheduleSfxStop(sfx, maxDurationMs);
 
     return sfx;
   }

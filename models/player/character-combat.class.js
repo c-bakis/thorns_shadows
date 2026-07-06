@@ -47,6 +47,10 @@ export default class CharacterCombat {
   }
 
   startAttack(attackName, now) {
+    this.character.world?.audioManager?.playSfx?.(
+      this.character.world?.audioManager?.attackSoundPath,
+      { volume: 0.4, maxDurationMs: 650 },
+    );
     this.attackActive = true;
     this.currentAttackName = attackName;
     this.queuedAttackName = null;

@@ -201,21 +201,36 @@ export default class CollisionSystem {
     return this.isCollidingAABB(this.character, collectable);
   }
 
+  applyDamageToEnemy(enemy, damage, now) {
+
+    const sourceX = this.character.x + this.character.width / 2;
+    const didTakeDamage =
+      typeof enemy?.takeDamage === "function"
+        ? enemy.takeDamage(damage, now, sourceX)
+        : false;
+        return didTakeDamage;
+  }
+
+  playEnemyHitSfx(didTakeDamage) {
+    if(didTakeDamage) {
+      this.character.world?.audioManager?.playSfx?.(
+        this.character.world?.audioManager?.landingHitSoundPath,
+        { volume: 0.11 },
+      );
+    }
+  }
+
   checkCharacterAttackOnEnemy(enemy, isColliding, now) {
     const canAttack =
       typeof this.character?.canDealDamageToEnemy === "function";
     if (!canAttack || !this.character.canDealDamageToEnemy(enemy, isColliding)) {
       return;
     }
+    const damage = Number.isFinite(this.character?.attackDamage) 
+    ? this.character.attackDamage : 35;
+    const didTakeDamage = this.applyDamageToEnemy(enemy, damage, now);
 
-    const damage = Number.isFinite(this.character?.attackDamage)
-      ? this.character.attackDamage
-      : 35;
-    const sourceX = this.character.x + this.character.width / 2;
-    const didTakeDamage =
-      typeof enemy?.takeDamage === "function"
-        ? enemy.takeDamage(damage, now, sourceX)
-        : false;
+    this.playEnemyHitSfx(didTakeDamage);
 
     if (!didTakeDamage) {
       return;
@@ -228,9 +243,7 @@ export default class CollisionSystem {
   }
 
   markEnemyDefeated(enemy, options = {}) {
-    if (!enemy || enemy.isDefeated) {
-      return;
-    }
+    if (!enemy || enemy.isDefeated) return;
 
     enemy.isDefeated = true;
 
@@ -255,14 +268,39 @@ export default class CollisionSystem {
       return;
     }
 
-    const damage = Number.isFinite(enemy?.damage) ? enemy.damage : 10;
-    const enemyBox = this.getObjectBox(enemy);
-    const enemyCenterX = enemyBox.x + enemyBox.width / 2;
-    const didTakeDamage = this.character.takeDamage(damage, now, enemyCenterX);
-
-    if (didTakeDamage) {
-      this.statusBar.setPercentage(this.character.energy, "health");
+    const didTakeDamage = this.applyCollisionDamageToCharacter(enemy, now);
+    if (!didTakeDamage) {
+      return;
     }
+
+    this.updateCharacterHealthUi();
+    this.playCharacterHurtSfx();
+  }
+
+  applyCollisionDamageToCharacter(enemy, now) {
+    const damage = this.getEnemyCollisionDamage(enemy);
+    const enemyCenterX = this.getEnemyCenterX(enemy);
+    return this.character.takeDamage(damage, now, enemyCenterX);
+  }
+
+  getEnemyCollisionDamage(enemy) {
+    return Number.isFinite(enemy?.damage) ? enemy.damage : 10;
+  }
+
+  getEnemyCenterX(enemy) {
+    const enemyBox = this.getObjectBox(enemy);
+    return enemyBox.x + enemyBox.width / 2;
+  }
+
+  updateCharacterHealthUi() {
+    this.statusBar.setPercentage(this.character.energy, "health");
+  }
+
+  playCharacterHurtSfx() {
+    this.character.world?.audioManager?.playSfx?.(
+      this.character.world?.audioManager?.getHurtSoundPath,
+      { volume: 0.125 },
+    );
   }
 
   // Backward-compat wrapper (falls noch irgendwo der alte Name genutzt wird)
