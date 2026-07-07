@@ -1,4 +1,4 @@
-﻿import Enemy from "./enemy.class.js";
+import Enemy from "./enemy.class.js";
 import {
     applyWolfDefaults,
     getWolfAnimationPaths,
@@ -25,10 +25,6 @@ export default class Wolf extends Enemy {
         this.animate();
     }
 
-    /**
-     * Retrieves hitbox.
-     * @returns {object|null}
-     */
     getHitbox() {
         const width = this.hitboxWidth ?? this.width;
         const height = this.hitboxHeight ?? this.height;
@@ -45,10 +41,6 @@ export default class Wolf extends Enemy {
         };
     }
 
-    /**
-     * Advances sprite animation.
-     * @returns {void}
-     */
     advanceSpriteAnimation() {
         if (!this.spriteSheet) {
             return;
@@ -75,70 +67,36 @@ export default class Wolf extends Enemy {
         this.spriteSheet.currentFrame++;
     }
 
-    /**
-     * Runs ensure spawn anchor.
-     * @returns {void}
-     */
     ensureSpawnAnchor() {
         if (!Number.isFinite(this.spawnX)) {
             this.spawnX = this.x;
         }
     }
 
-    /**
-     * Updates behavior.
-     * @param {number} now
-     * @returns {void}
-     */
     updateBehavior(now) {
         updateWolfBehavior(this, now);
     }
 
-    /**
-     * Starts boss intro.
-     * @param {string} audioPath
-     * @returns {void}
-     */
-    startBossIntro(audioPath = null) {
+    startBossIntro(audioPath) {
         startWolfBossIntro(this, audioPath);
     }
 
-    /**
-     * Updates boss intro animation.
-     * @returns {void}
-     */
     updateBossIntroAnimation() {
         updateWolfBossIntroAnimation(this);
     }
 
-    /**
-     * Finishes boss intro.
-     * @returns {void}
-     */
     finishBossIntro() {
         finishWolfBossIntro(this);
     }
 
-    /**
-     * Checks whether wait for boss intro.
-     * @returns {boolean}
-     */
     shouldWaitForBossIntro() {
         return shouldWolfWaitForBossIntro(this);
     }
 
-    /**
-     * Runs hold position until boss intro.
-     * @returns {void}
-     */
     holdPositionUntilBossIntro() {
         holdWolfPositionUntilBossIntro(this);
     }
 
-    /**
-     * Runs animate.
-     * @returns {void}
-     */
     animate() {
         this.startInterval(() => {
             if (this.world?.isBossIntroActive?.()) {
