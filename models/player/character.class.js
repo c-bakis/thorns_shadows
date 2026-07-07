@@ -1,6 +1,7 @@
 ﻿import MovableObject from "../core/movable-object.class.js";
 import CharacterCombat from "./character-combat.class.js";
 import CharacterAnimator from "./character-animator.class.js";
+import CharacterMovement from "./character-movement.class.js";
 
 export default class Character extends MovableObject {
   speed = 10;
@@ -84,6 +85,7 @@ export default class Character extends MovableObject {
   wasAttackPressed = false;
   combat;
   animator;
+  movement;
 
   constructor() {
     super();
@@ -98,6 +100,7 @@ export default class Character extends MovableObject {
     this.loadImages(animationPaths);
     this.combat = new CharacterCombat(this);
     this.animator = new CharacterAnimator(this);
+    this.movement = new CharacterMovement(this);
     this.switchAnimation("WALK");
 
     this.animate();
@@ -111,7 +114,7 @@ export default class Character extends MovableObject {
    * @returns {void}
    */
   animate() {
-    this.startInterval(() => this.tick(), 1000 / 60);
+    this.movement.animate();
   }
 
   /**
@@ -119,20 +122,7 @@ export default class Character extends MovableObject {
    * @returns {void}
    */
   tick() {
-    if (!this.world?.keyboard) {
-      return;
-    }
-
-    if (this.world?.isGameplayFrozen?.(this)) {
-      return;
-    }
-
-    const now = Date.now();
-    const previousX = this.x;
-
-    this.handleInput(now);
-    const isMovingHorizontally = this.x !== previousX;
-    this.updateAnimation(isMovingHorizontally, this.isAboveGround(), this.isHurt(), now);
+    this.movement.tick();
   }
 
   // --- Input handling ---
@@ -143,17 +133,7 @@ export default class Character extends MovableObject {
    * @returns {void}
    */
   handleInput(now) {
-    if (this.isAttackPressedNow()) {
-      this.combat.handleAttackInput(now);
-    }
-
-    if (this.isMagicAttackPressedNow()) {
-      this.combat.handleMagicAttackInput(now);
-    }
-
-    if (!this.combat.isBusy()) {
-      this.handleMovementInput();
-    }
+    this.movement.handleInput(now);
   }
 
   /**
@@ -161,10 +141,7 @@ export default class Character extends MovableObject {
    * @returns {boolean}
    */
   isAttackPressedNow() {
-    const isPressed = Boolean(this.world?.keyboard?.ATTACK);
-    const pressedNow = isPressed && !this.wasAttackPressed;
-    this.wasAttackPressed = isPressed;
-    return pressedNow;
+    return this.movement.isAttackPressedNow();
   }
 
   /**
@@ -172,10 +149,7 @@ export default class Character extends MovableObject {
    * @returns {boolean}
    */
   isMagicAttackPressedNow() {
-    const isPressed = Boolean(this.world?.keyboard?.MAGIC_ATTACK);
-    const pressedNow = isPressed && !this.wasMagicAttackPressed;
-    this.wasMagicAttackPressed = isPressed;
-    return pressedNow;
+    return this.movement.isMagicAttackPressedNow();
   }
 
   /**
@@ -183,14 +157,7 @@ export default class Character extends MovableObject {
    * @returns {void}
    */
   handleMovementInput() {
-    if (this.energy <= 0) {
-      this.speedY = 0;
-      return;
-    }
-
-    this.handleJumpInput();
-    this.handleFallInput();
-    this.handleHorizontalInput();
+    this.movement.handleMovementInput();
   }
 
   /**
@@ -198,10 +165,7 @@ export default class Character extends MovableObject {
    * @returns {void}
    */
   handleJumpInput() {
-    const isJumpPressed = this.world.keyboard.SPACE || this.world.keyboard.UP;
-    if (!this.isAboveGround() && isJumpPressed) {
-      this.jump(25);
-    }
+    this.movement.handleJumpInput();
   }
 
   /**
@@ -209,15 +173,7 @@ export default class Character extends MovableObject {
    * @returns {void}
    */
   handleFallInput() {
-    if (!this.world.keyboard.DOWN) {
-      return;
-    }
-
-    if (this.isAboveGround()) {
-      this.jump(-25);
-    } else {
-      this.resetPositionY(this.groundY);
-    }
+    this.movement.handleFallInput();
   }
 
   /**
@@ -225,9 +181,7 @@ export default class Character extends MovableObject {
    * @returns {void}
    */
   handleHorizontalInput() {
-    if (this.world.keyboard.RIGHT || this.world.keyboard.LEFT) {
-      this.moveCharacter();
-    }
+    this.movement.handleHorizontalInput();
   }
 
   /**
@@ -235,17 +189,7 @@ export default class Character extends MovableObject {
    * @returns {void}
    */
   moveCharacter() {
-    const worldEndX = this.world?.level?.levelEndX ?? Infinity;
-    const maxCharacterX = worldEndX - this.width;
-
-    if (this.world.keyboard.RIGHT && this.x < maxCharacterX) {
-      this.moveRight();
-      this.x = Math.min(this.x, maxCharacterX);
-    }
-
-    if (this.world.keyboard.LEFT && this.x >= 80) {
-      this.moveLeft();
-    }
+    this.movement.moveCharacter();
   }
 
   /**
