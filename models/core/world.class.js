@@ -8,12 +8,11 @@ import PlattformGroundResolver from "../systems/plattform-ground-resolver.class.
 import GAME_AUDIO from "./game-audio.config.js";
 import WorldCameraController from "./world-camera.controller.js";
 import WorldBossController from "./world-boss.controller.js";
+import WorldFlowController from "./world-flow.controller.js";
 import WorldOverlayController from "./world-overlay.controller.js";
 import WorldRenderController from "./world-render.controller.js";
 
 export default class World {
-  // debugForceGameOverOnLoad = true;
-    // debugForcePauseOnLoad = true;
   backgroundObjects = [];
   tileset = [];
   enemies = [];
@@ -43,6 +42,7 @@ export default class World {
   audioManager = null;
   cameraController;
   bossController;
+  flowController;
   overlayController;
   renderController;
   bossIntroState = {
@@ -60,6 +60,7 @@ export default class World {
     this.keyboard = new Keyboard();
     this.cameraController = new WorldCameraController(this);
     this.bossController = new WorldBossController(this);
+    this.flowController = new WorldFlowController(this);
     this.overlayController = new WorldOverlayController(this);
     this.renderController = new WorldRenderController(this);
     const builtLevel = LevelBuilder.build(level);
@@ -101,12 +102,6 @@ export default class World {
     this.tileset = this.plattformGroundResolver.fillTilesAcrossGround();
     this.initializeAudio();
     this.draw();
-    if (this.debugForceGameOverOnLoad) {
-      this.handleGameOver();
-    }
-        if (this.debugForcePauseOnLoad) {
-      this.handlePauseToggle();
-    }
   }
 
   /**
@@ -271,7 +266,7 @@ export default class World {
   }
 
   /**
-   * Handles mirror object if needed.
+   * Handles mirrors object if needed.
     * @param {object} movableObject
     * @returns {boolean}
    */
@@ -280,16 +275,11 @@ export default class World {
   }
 
   /**
-   * Handles handle pause toggle.
+   * Handles pause toggle.
     * @returns {void}
    */
   handlePauseToggle() {
-    if (this.pause) {
-      this.resumeGame();
-    } else {
-      this.pauseGame()
-      this.playPauseMenuUi();
-    }
+    this.flowController.handlePauseToggle();
   }
 
   /**
@@ -297,9 +287,7 @@ export default class World {
     * @returns {void}
    */
   playPauseMenuUi() {
-    if (this.pause) {
-      this.overlayController.playPauseMenuUi();
-    }
+    this.flowController.playPauseMenuUi();
   }
 
   /**
@@ -307,8 +295,7 @@ export default class World {
     * @returns {void}
    */
   pauseGame() {
-    this.pause = true;
-    this.audioManager?.decreaseVolumeOnMenuOpen?.();
+    this.flowController.pauseGame();
   }
 
   /**
@@ -316,12 +303,7 @@ export default class World {
     * @returns {void}
    */
   resumeGame() {
-    this.overlayController?.closeActiveOverlay?.();
-    this.pause = false;
-    this.audioManager?.stopGameOverMusic?.();
-    this.audioManager?.stopVictoryMusic?.();
-    this.audioManager?.increaseVolumeOnMenuClose?.();
-    this.draw();
+    this.flowController.resumeGame();
   }
 
   /**
@@ -330,7 +312,7 @@ export default class World {
     * @returns {void}
    */
   setRestartHandler(handler) {
-    this.restartHandler = typeof handler === "function" ? handler : null;
+    this.flowController.setRestartHandler(handler);
   }
 
   /**
@@ -338,45 +320,23 @@ export default class World {
     * @returns {void}
    */
   restart() {
-    if (typeof this.restartHandler === "function") {
-      this.restartHandler();
-    }
+    this.flowController.restart();
   }
 
   /**
-   * Handles destroy.
+   * Destroys actual canvas for the world.
     * @returns {void}
    */
   destroy() {
-    this.overlayController?.closeActiveOverlay?.();
-    this.pause = true;
-    this.audioManager?.stopGameOverMusic?.();
-    this.audioManager?.stopVictoryMusic?.();
-    this.audioManager?.stopMusic?.();
-    if (Number.isFinite(this.renderFrameId)) {
-      cancelAnimationFrame(this.renderFrameId);
-      this.renderFrameId = null;
-    }
-
-    const cleanupTargets = [
-      this.character,
-      ...this.enemies,
-      ...this.collectables,
-      ...this.magicAttacks,
-    ];
-
-    cleanupTargets.forEach((obj) => obj?.clearIntervals?.());
+    this.flowController.destroy();
   }
 
   /**
-   * Handles handle game over.
+   * Handles game over.
     * @returns {void}
    */
   handleGameOver() {
-    console.log("Game Over");
-    this.pauseGame();
-    this.audioManager?.playGameOverMusic?.();
-    this.playGameOverUi();
+    this.flowController.handleGameOver();
   }
 
   /**
@@ -384,18 +344,15 @@ export default class World {
     * @returns {void}
    */
   playGameOverUi() {
-    this.overlayController.playGameOverUi();
+    this.flowController.playGameOverUi();
   }
 
   /**
-   * Handles handle win.
+   * Handles level win.
     * @returns {void}
    */
   handleWin() {
-    console.log("Level Won");
-    this.pauseGame();
-    this.audioManager?.playVictoryMusic?.();
-    this.playWinUi();
+    this.flowController.handleWin();
   }
 
   /**
@@ -403,53 +360,33 @@ export default class World {
     * @returns {void}
    */
   playWinUi() {
-    this.overlayController.playWinUi();
+    this.flowController.playWinUi();
   }
 
   /**
-   * Handles handle enemy defeat.
+   * Handles enemy defeat.
     * @param {object} enemy
     * @returns {void}
    */
   handleEnemyDefeat(enemy) {
-    if (!this.isWinConditionEnemy(enemy) || this.hasLevelWon) {
-      return;
-    }
-
-    this.pendingWinEnemy = enemy;
+    this.flowController.handleEnemyDefeat(enemy);
   }
 
   /**
-   * Handles handle enemy removed.
+   * Checks whether the enemy is the win condition enemy and handles level win if needed.
     * @param {object} enemy
     * @returns {void}
    */
   handleEnemyRemoved(enemy) {
-    if (this.hasLevelWon) {
-      return;
-    }
-
-    const isPendingWinEnemy = this.pendingWinEnemy && enemy === this.pendingWinEnemy;
-    if (!isPendingWinEnemy && !this.isWinConditionEnemy(enemy)) {
-      return;
-    }
-
-    this.pendingWinEnemy = null;
-    this.hasLevelWon = true;
-    this.handleWin();
+    this.flowController.handleEnemyRemoved(enemy);
   }
 
   /**
-   * Handles is win condition enemy.
+   * Handles win condition.
     * @param {object} enemy
     * @returns {boolean}
    */
   isWinConditionEnemy(enemy) {
-    const expectedType = this.level?.winCondition?.enemyType;
-    if (!expectedType || !enemy?.constructor?.name) {
-      return false;
-    }
-
-    return enemy.constructor.name.toLowerCase() === expectedType.toLowerCase();
+    return this.flowController.isWinConditionEnemy(enemy);
   }
 }
