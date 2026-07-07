@@ -25,6 +25,7 @@ export default class OverlayDialog extends DrawableObject {
     this.panelSrc = config.panelSrc; // { sx, sy, sw, sh }
     this.panelDst = config.panelDst || { x: 175, y: 120, w: 350, h: 285 };
     this.buttons = config.buttons || [];
+    this.keepOpenActions = config.keepOpenActions || [];
     this.panelImg = config.panelImg || new Image();
     this.panelImg.src = config.panelImgSrc || "img/gui/Win_loose.png";
     this.buttonSheet = new Image();

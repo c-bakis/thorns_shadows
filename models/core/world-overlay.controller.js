@@ -13,7 +13,7 @@ export default class WorldOverlayController {
   }
 
   /**
-   * Handles play pause menu ui.
+   * Creates and plays a pause menu overlay dialog.
    * @returns {void}
    */
   playPauseMenuUi() {
@@ -22,7 +22,7 @@ export default class WorldOverlayController {
   }
 
   /**
-   * Handles play game over ui.
+   * Creates and plays a game over overlay dialog.
    * @returns {void}
    */
   playGameOverUi() {
@@ -31,7 +31,7 @@ export default class WorldOverlayController {
   }
 
   /**
-   * Handles play win ui.
+   * Creates and plays a win overlay dialog.
    * @returns {void}
    */
   playWinUi() {
@@ -40,13 +40,14 @@ export default class WorldOverlayController {
   }
 
   /**
-   * Handles play overlay dialog.
+   * Handles play overlay dialog. Displays the dialog and sets
+   * up event listeners for user interaction.  
    * @param {object} dialog
    * @param {Function} onActionCallback
    * @returns {void}
    */
   playOverlayDialog(dialog, onActionCallback) {
-    this.closeActiveOverlay();
+    
 
     const uiState = { isActive: true };
     const render = () => this.renderOverlayDialog(dialog, uiState);
@@ -57,11 +58,12 @@ export default class WorldOverlayController {
       onMouseLeave: () => this.handleDialogMouseLeave(dialog, render),
       onMouseDown: (e) => this.handleDialogMouseDown(e, dialog, render),
       onMouseUp: (e) => this.handleDialogMouseUp(e, dialog, render),
-      onClick: (e) => this.handleDialogClick(e, dialog, () => cleanup(), onActionCallback),
+      onClick: (e) => this.handleDialogClick(e, dialog, render, () => cleanup(), onActionCallback),
     };
 
     /**
-     * Handles cleanup.
+     * Handles cleanup overlay dialog. Cleans up event 
+     * listeners and resets the active overlay cleanup reference.
      * @returns {void}
      */
     const cleanup = () => {
@@ -74,8 +76,6 @@ export default class WorldOverlayController {
     this.activeOverlayCleanup = cleanup;
     this.bindDialogEvents(handlers);
 
-    // Render once more on the next frame so the dialog stays visible
-    // even if a late world frame clears the canvas after pause.
     requestAnimationFrame(render);
   }
 
@@ -235,21 +235,70 @@ export default class WorldOverlayController {
   }
 
   /**
-   * Handles handle dialog click.
+   * Resolves clicked dialog button from mouse event.
    * @param {Event} e
    * @param {object} dialog
-   * @param {object} cleanup
+   * @returns {object|null}
+   */
+  getDialogButtonFromEvent(e, dialog) {
+    const { x, y } = this.getCanvasMousePos(e);
+    return dialog.getClickedButton(x, y) || null;
+  }
+
+  /**
+   * Checks whether a dialog action should keep the dialog open.
+   * @param {object} dialog
+   * @param {string} action
+   * @returns {boolean}
+   */
+  shouldKeepDialogOpen(dialog, action) {
+    const keepOpenActions = Array.isArray(dialog?.keepOpenActions)
+      ? dialog.keepOpenActions
+      : [];
+    return keepOpenActions.includes(action);
+  }
+
+  /**
+   * Executes dialog action with keep-open or cleanup flow.
+   * @param {object} dialog
+   * @param {object} button
+   * @param {Function} render
+   * @param {Function} cleanup
    * @param {Function} onActionCallback
    * @returns {void}
    */
-  handleDialogClick(e, dialog, cleanup, onActionCallback) {
-    const { x, y } = this.getCanvasMousePos(e);
-    const btn = dialog.getClickedButton(x, y);
-    if (!btn) {
+  executeDialogAction(dialog, button, render, cleanup, onActionCallback) {
+    const shouldKeepOpen = this.shouldKeepDialogOpen(dialog, button.action);
+
+    if (!shouldKeepOpen) {
+      cleanup();
+      onActionCallback(button.action);
       return;
     }
 
-    cleanup();
-    onActionCallback(btn.action);
+    // Keep dialog interactive for toggle actions: clear transient state and redraw.
+    dialog.setPressedButton(null);
+    dialog.setHoveredButton(button.action);
+    onActionCallback(button.action);
+    render();
+  }
+
+  /**
+   * Handles handle dialog click. checks if a button was 
+   * clicked and calls the onActionCallback with the button's action.
+   * @param {Event} e
+   * @param {object} dialog
+   * @param {Function} render
+   * @param {Function} cleanup
+   * @param {Function} onActionCallback
+   * @returns {void}
+   */
+  handleDialogClick(e, dialog, render, cleanup, onActionCallback) {
+    const clickedButton = this.getDialogButtonFromEvent(e, dialog);
+    if (!clickedButton) {
+      return;
+    }
+
+    this.executeDialogAction(dialog, clickedButton, render, cleanup, onActionCallback);
   }
 }

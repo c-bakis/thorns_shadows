@@ -64,6 +64,7 @@ export default class PauseMenu {
           h: 30,
         },
       ],
+      keepOpenActions: ["toggleMusic", "toggleSound"],
       panelImg: new Image(),
       panelImgSrc: "img/gui/Main_menu.png",
     });
