@@ -1,4 +1,4 @@
-import MovableObject from "../core/movable-object.class.js";
+﻿import MovableObject from "../core/movable-object.class.js";
 import CharacterCombat from "./character-combat.class.js";
 import CharacterAnimator from "./character-animator.class.js";
 
@@ -104,12 +104,20 @@ export default class Character extends MovableObject {
     this.applyGravity();
   }
 
-  // ─── Main loop ───────────────────────────────────────────────────────────────
+  // --- Main loop ---
 
+  /**
+   * Runs animate.
+   * @returns {void}
+   */
   animate() {
     this.startInterval(() => this.tick(), 1000 / 60);
   }
 
+  /**
+   * Runs tick.
+   * @returns {void}
+   */
   tick() {
     if (!this.world?.keyboard) {
       return;
@@ -127,8 +135,13 @@ export default class Character extends MovableObject {
     this.updateAnimation(isMovingHorizontally, this.isAboveGround(), this.isHurt(), now);
   }
 
-  // ─── Input handling ───────────────────────────────────────────────────────────
+  // --- Input handling ---
 
+  /**
+   * Handles input.
+   * @param {number} now
+   * @returns {void}
+   */
   handleInput(now) {
     if (this.isAttackPressedNow()) {
       this.combat.handleAttackInput(now);
@@ -143,6 +156,10 @@ export default class Character extends MovableObject {
     }
   }
 
+  /**
+   * Checks whether this object is attack pressed now.
+   * @returns {boolean}
+   */
   isAttackPressedNow() {
     const isPressed = Boolean(this.world?.keyboard?.ATTACK);
     const pressedNow = isPressed && !this.wasAttackPressed;
@@ -150,6 +167,10 @@ export default class Character extends MovableObject {
     return pressedNow;
   }
 
+  /**
+   * Checks whether this object is magic attack pressed now.
+   * @returns {boolean}
+   */
   isMagicAttackPressedNow() {
     const isPressed = Boolean(this.world?.keyboard?.MAGIC_ATTACK);
     const pressedNow = isPressed && !this.wasMagicAttackPressed;
@@ -157,6 +178,10 @@ export default class Character extends MovableObject {
     return pressedNow;
   }
 
+  /**
+   * Handles movement input.
+   * @returns {void}
+   */
   handleMovementInput() {
     if (this.energy <= 0) {
       this.speedY = 0;
@@ -168,6 +193,10 @@ export default class Character extends MovableObject {
     this.handleHorizontalInput();
   }
 
+  /**
+   * Handles jump input.
+   * @returns {void}
+   */
   handleJumpInput() {
     const isJumpPressed = this.world.keyboard.SPACE || this.world.keyboard.UP;
     if (!this.isAboveGround() && isJumpPressed) {
@@ -175,6 +204,10 @@ export default class Character extends MovableObject {
     }
   }
 
+  /**
+   * Handles fall input.
+   * @returns {void}
+   */
   handleFallInput() {
     if (!this.world.keyboard.DOWN) {
       return;
@@ -187,12 +220,20 @@ export default class Character extends MovableObject {
     }
   }
 
+  /**
+   * Handles horizontal input.
+   * @returns {void}
+   */
   handleHorizontalInput() {
     if (this.world.keyboard.RIGHT || this.world.keyboard.LEFT) {
       this.moveCharacter();
     }
   }
 
+  /**
+   * Runs move character.
+   * @returns {void}
+   */
   moveCharacter() {
     const worldEndX = this.world?.level?.levelEndX ?? Infinity;
     const maxCharacterX = worldEndX - this.width;
@@ -207,6 +248,11 @@ export default class Character extends MovableObject {
     }
   }
 
+  /**
+   * Runs increase mana.
+   * @param {object} amount
+   * @returns {void}
+   */
   increaseMana(amount) {
     if (!Number.isFinite(amount)) {
       return this.mana;
@@ -216,6 +262,11 @@ export default class Character extends MovableObject {
     return this.mana;
   }
 
+  /**
+   * Runs gain experience.
+   * @param {object} amount
+   * @returns {void}
+   */
   gainExperience(amount) {
   if (!Number.isFinite(amount)) {
     return this.experience;
@@ -227,46 +278,94 @@ export default class Character extends MovableObject {
   return this.experience;
 }
 
-  // ─── Animation state machine ──────────────────────────────────────────────────
+  // --- Animation state machine ---
 
+  /**
+   * Updates animation.
+   * @param {boolean} isMovingHorizontally
+   * @param {boolean} isAirborne
+   * @param {boolean} isHurt
+   * @param {number} now
+   * @returns {void}
+   */
   updateAnimation(isMovingHorizontally, isAirborne, isHurt, now) {
     this.animator.updateAnimation(isMovingHorizontally, isAirborne, isHurt, now);
   }
 
+  /**
+   * Plays hurt animation.
+   * @returns {void}
+   */
   playHurtAnimation() {
     this.animator.playHurtAnimation();
   }
 
+  /**
+   * Plays jump animation.
+   * @returns {void}
+   */
   playJumpAnimation() {
     this.animator.playJumpAnimation();
   }
 
+  /**
+   * Plays run animation.
+   * @returns {void}
+   */
   playRunAnimation() {
     this.animator.playRunAnimation();
   }
 
+  /**
+   * Plays idle animation.
+   * @returns {void}
+   */
   playIdleAnimation() {
     this.animator.playIdleAnimation();
   }
 
+  /**
+   * Plays dead animation.
+   * @returns {void}
+   */
   playDeadAnimation() {
     this.animator.playDeadAnimation();
   }
 
-  // ─── Sprite sheet advancement ─────────────────────────────────────────────────
+  // --- Sprite sheet advancement ---
 
+  /**
+   * Advances looping animation.
+   * @param {number} speed
+   * @returns {void}
+   */
   advanceLoopingAnimation(speed) {
     this.animator.advanceLoopingAnimation(speed);
   }
 
+  /**
+   * Advances one shot animation.
+   * @param {number} speed
+   * @returns {void}
+   */
   advanceOneShotAnimation(speed) {
     return this.animator.advanceOneShotAnimation(speed);
   }
 
+  /**
+   * Switches animation.
+   * @param {string} name
+   * @returns {void}
+   */
   switchAnimation(name) {
     this.animator.switchAnimation(name);
   }
 
+  /**
+   * Runs draw.
+   * @param {CanvasRenderingContext2D} ctx
+   * @returns {void}
+   */
   draw(ctx) {
     const now = Date.now();
 
@@ -286,20 +385,39 @@ export default class Character extends MovableObject {
     }
   }
 
-  // ─── Attack hit detection ─────────────────────────────────────────────────────
+  // --- Attack hit detection ---
 
+  /**
+   * Checks whether this object is in attack damage frame.
+   * @returns {boolean}
+   */
   isInAttackDamageFrame() {
     return this.combat.isInAttackDamageFrame();
   }
 
+  /**
+   * Checks whether this object can deal damage to enemy.
+   * @param {object} enemy
+   * @param {boolean} isAttackColliding
+   * @returns {boolean}
+   */
   canDealDamageToEnemy(enemy, isAttackColliding) {
     return this.combat.canDealDamageToEnemy(enemy, isAttackColliding);
   }
 
+  /**
+   * Runs register enemy hit.
+   * @param {object} enemy
+   * @returns {void}
+   */
   registerEnemyHit(enemy) {
     this.combat.registerEnemyHit(enemy);
   }
 
+  /**
+   * Retrieves attack hitbox.
+   * @returns {object|null}
+   */
   getAttackHitbox() {
     const reachX = 40;
     const reachY = 20;
@@ -318,6 +436,10 @@ export default class Character extends MovableObject {
     };
   }
 
+  /**
+   * Handles game over.
+   * @returns {void}
+   */
   handleGameOver() {
     this.world.handleGameOver();
   }

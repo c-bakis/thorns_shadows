@@ -1,4 +1,4 @@
-import MovableObject from "../core/movable-object.class.js";
+﻿import MovableObject from "../core/movable-object.class.js";
 
 export default class MagicAttack extends MovableObject {
 
@@ -51,6 +51,10 @@ export default class MagicAttack extends MovableObject {
     this.otherDirection = character.otherDirection;
   }
 
+  /**
+   * Runs update.
+   * @returns {void}
+   */
   update() {
     this.x += this.otherDirection ? -this.speed : this.speed;
     this.animationCounter++;

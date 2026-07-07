@@ -1,4 +1,4 @@
-export default class WorldBossController {
+﻿export default class WorldBossController {
   constructor(world) {
     this.world = world;
   }
@@ -48,6 +48,10 @@ export default class WorldBossController {
     }
   }
 
+  /**
+   * Handles finish boss intro.
+   * @returns {void}
+   */
   finishBossIntro() {
     const actor = this.world.bossIntroState.actor;
     if (typeof actor?.finishBossIntro === "function") {
@@ -64,6 +68,10 @@ export default class WorldBossController {
     this.world.gameplayFreezeUntil = 0;
   }
 
+  /**
+   * Handles find boss intro actor.
+   * @returns {object|null}
+   */
   findBossIntroActor() {
     const enemyType = this.world.level?.bossIntro?.enemyType;
     if (!enemyType) {
@@ -97,6 +105,10 @@ export default class WorldBossController {
     return true;
   }
 
+  /**
+   * Handles is boss intro active.
+   * @returns {boolean}
+   */
   isBossIntroActive() {
     return this.world.bossIntroState.active;
   }

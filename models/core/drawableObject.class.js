@@ -1,4 +1,4 @@
-export default class DrawableObject {
+﻿export default class DrawableObject {
     x = 100;
     y = 100;
     width = 100;
@@ -12,11 +12,21 @@ export default class DrawableObject {
     currentImg = 0;
     intervalIds = new Set();
 
+  /**
+   * Handles load image.
+   * @param {string} path
+   * @returns {void}
+   */
   loadImage(path) {
     this.img = new Image();
     this.img.src = path;
   }
 
+  /**
+   * Handles load images.
+   * @param {string[]} arr
+   * @returns {void}
+   */
   loadImages(arr) {
     arr.forEach((path) => {
       const img = new Image();
@@ -25,6 +35,11 @@ export default class DrawableObject {
     });
   }
 
+  /**
+   * Handles draw.
+   * @param {CanvasRenderingContext2D} ctx
+   * @returns {void}
+   */
   draw(ctx) {
     if (this.spriteSheet && this.img) {
       this.drawSpriteFrame(ctx);
@@ -36,6 +51,11 @@ export default class DrawableObject {
     }
   }
 
+  /**
+   * Handles draw sprite frame.
+   * @param {CanvasRenderingContext2D} ctx
+   * @returns {void}
+   */
   drawSpriteFrame(ctx) {
     const { frameWidth, frameHeight } = this.spriteSheet;
     const currentFrame = this.resolveCurrentFrame();
@@ -44,11 +64,20 @@ export default class DrawableObject {
     ctx.drawImage(this.img, frameX, frameY, frameWidth, frameHeight, this.x, this.y, this.width, this.height);
   }
 
+  /**
+   * Handles resolve current frame.
+    * @returns {number}
+   */
   resolveCurrentFrame() {
     const frameCount = this.spriteSheet.frameCount;
     return Math.max(0, Math.min(this.spriteSheet.currentFrame ?? 0, frameCount - 1));
   }
 
+  /**
+   * Handles resolve frame position.
+    * @param {number} currentFrame
+   * @returns {object}
+   */
   resolveFramePosition(currentFrame) {
     const { frameWidth, frameHeight } = this.spriteSheet;
     const layout = this.spriteSheet.layout ?? "row";
@@ -64,6 +93,14 @@ export default class DrawableObject {
     };
   }
 
+  /**
+   * Handles resolve grid position.
+    * @param {number} currentFrame
+    * @param {number} frameWidth
+    * @param {number} frameHeight
+   * @param {number} columns
+   * @returns {object}
+   */
   resolveGridPosition(currentFrame, frameWidth, frameHeight, columns) {
     const sourceY = Number.isFinite(this.spriteSheet.sourceY)
       ? this.spriteSheet.sourceY
@@ -75,17 +112,32 @@ export default class DrawableObject {
     };
   }
 
+  /**
+   * Handles start interval.
+   * @param {Function} callback
+   * @param {number} delay
+    * @returns {number}
+   */
   startInterval(callback, delay) {
     const intervalId = setInterval(callback, delay);
     this.intervalIds.add(intervalId);
     return intervalId;
   }
 
+  /**
+   * Handles clear intervals.
+   * @returns {void}
+   */
   clearIntervals() {
     this.intervalIds.forEach((intervalId) => clearInterval(intervalId));
     this.intervalIds.clear();
   }
   
+  /**
+   * Handles draw bounding box.
+   * @param {CanvasRenderingContext2D} ctx
+   * @returns {void}
+   */
   drawBoundingBox(ctx) {
     const shouldDrawBoundingBox =
       this.constructor?.name === "Character" ||
@@ -105,6 +157,10 @@ export default class DrawableObject {
     }
   }
 
+  /**
+   * Handles retrieve hitbox.
+   * @returns {object}
+   */
   getHitbox() {
     const width = this.hitboxWidth ?? this.width;
     const height = this.hitboxHeight ?? this.height;

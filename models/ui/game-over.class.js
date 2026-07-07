@@ -1,10 +1,14 @@
-import OverlayDialog from "./overlay-dialog.class.js";
+﻿import OverlayDialog from "./overlay-dialog.class.js";
 
 /**
  * Factory class to create a Game Over dialog.
  * Panel: frame 1 ("GAME OVER") from Win_loose.png
  */
 export default class GameOver {
+  /**
+   * Runs create.
+   * @returns {object|null}
+   */
   static create() {
     return new OverlayDialog({
       panelSrc: { sx: 330, sy: 196, sw: 110, sh: 98 },

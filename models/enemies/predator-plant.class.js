@@ -1,4 +1,4 @@
-import Enemy from "./enemy.class.js";
+﻿import Enemy from "./enemy.class.js";
 
 export default class PredatorPlant extends Enemy {
     damage = 10;
@@ -47,6 +47,11 @@ export default class PredatorPlant extends Enemy {
         this.animate();
     }
 
+    /**
+     * Advances sprite animation.
+     * @param {number} speed
+     * @returns {void}
+     */
     advanceSpriteAnimation(speed) {
         if (!this.spriteSheet) {
             return;
@@ -61,6 +66,10 @@ export default class PredatorPlant extends Enemy {
             (this.spriteSheet.currentFrame + 1) % this.spriteSheet.frameCount;
     }
 
+    /**
+     * Runs animate.
+     * @returns {void}
+     */
     animate() {
         this.startInterval(() => {
             if (this.world?.isGameplayFrozen?.(this)) {
@@ -78,6 +87,11 @@ export default class PredatorPlant extends Enemy {
 
     }
 
+    /**
+     * Updates platform lock.
+     * @param {object} tileset
+     * @returns {void}
+     */
     updatePlatformLock(tileset) {
         this.ensureLockedY(tileset);
         if (!this.hasLockedY()) {
@@ -87,6 +101,11 @@ export default class PredatorPlant extends Enemy {
         this.applyLockedY();
     }
 
+    /**
+     * Runs snap to floating platform.
+     * @param {object} tileset
+     * @returns {void}
+     */
     snapToFloatingPlatform(tileset) {
         const floatingTiles = this.getFloatingTiles(tileset);
         if (floatingTiles.length === 0) {
@@ -103,6 +122,11 @@ export default class PredatorPlant extends Enemy {
         this.setLockedY(standingY);
     }
 
+    /**
+     * Sets platform yoffset.
+     * @param {number} offset
+     * @returns {void}
+     */
     setPlatformYOffset(offset) {
         if (!Number.isFinite(offset)) {
             return;
@@ -114,16 +138,29 @@ export default class PredatorPlant extends Enemy {
         }
     }
 
+    /**
+     * Runs ensure locked y.
+     * @param {object} tileset
+     * @returns {void}
+     */
     ensureLockedY(tileset) {
         if (!this.hasLockedY() && Array.isArray(tileset)) {
             this.snapToFloatingPlatform(tileset);
         }
     }
 
+    /**
+     * Runs has locked y.
+     * @returns {boolean}
+     */
     hasLockedY() {
         return Number.isFinite(this.lockedY);
     }
 
+    /**
+     * Applies locked y.
+     * @returns {void}
+     */
     applyLockedY() {
         this.y = this.lockedY;
         this.groundY = this.lockedY;
@@ -131,26 +168,59 @@ export default class PredatorPlant extends Enemy {
         this.speedY = 0;
     }
 
+    /**
+     * Retrieves floating tiles.
+     * @param {object} tileset
+     * @returns {object[]}
+     */
     getFloatingTiles(tileset) {
         return (tileset ?? []).filter((tile) => tile?.img?.src?.includes("floating"));
     }
 
+    /**
+     * Retrieves center x.
+     * @returns {object|null}
+     */
     getCenterX() {
         return this.x + this.width / 2;
     }
 
+    /**
+     * Runs find target floating tile.
+     * @param {object[]} tiles
+     * @param {object} centerX
+     * @returns {object|null}
+     */
     findTargetFloatingTile(tiles, centerX) {
         return this.findTileUnderCenter(tiles, centerX) ?? this.findClosestTile(tiles, centerX);
     }
 
+    /**
+     * Runs find tile under center.
+     * @param {object[]} tiles
+     * @param {object} centerX
+     * @returns {object|null}
+     */
     findTileUnderCenter(tiles, centerX) {
         return tiles.find((tile) => this.isCenterWithinTile(tile, centerX));
     }
 
+    /**
+     * Checks whether this object is center within tile.
+     * @param {object} tile
+     * @param {object} centerX
+     * @returns {boolean}
+     */
     isCenterWithinTile(tile, centerX) {
         return centerX >= tile.x && centerX <= tile.x + tile.width;
     }
 
+    /**
+     * Runs find closest tile.
+     * @param {object[]} tiles
+     * @param {object} centerX
+     * @returns {object|null}
+     */
     findClosestTile(tiles, centerX) {
         return tiles.reduce((closest, tile) => {
             if (!closest) {
@@ -163,10 +233,20 @@ export default class PredatorPlant extends Enemy {
         }, null);
     }
 
+    /**
+     * Retrieves tile center x.
+     * @param {object} tile
+     * @returns {object|null}
+     */
     getTileCenterX(tile) {
         return tile.x + tile.width / 2;
     }
 
+    /**
+     * Runs calculate standing y.
+     * @param {object} tile
+     * @returns {number}
+     */
     calculateStandingY(tile) {
         return (
             tile.y -
@@ -176,6 +256,11 @@ export default class PredatorPlant extends Enemy {
         );
     }
 
+    /**
+     * Sets locked y.
+     * @param {object} standingY
+     * @returns {void}
+     */
     setLockedY(standingY) {
         this.lockedY = standingY;
         this.applyLockedY();

@@ -1,4 +1,4 @@
-import DrawableObject from "../core/drawableObject.class.js";
+﻿import DrawableObject from "../core/drawableObject.class.js";
 
 export default class DecorationObject extends DrawableObject {
     constructor(configOrImagePath, x, y, width, height) {
@@ -18,6 +18,11 @@ export default class DecorationObject extends DrawableObject {
         this.applyOptionalSpriteSheet(config);
     }
 
+    /**
+     * Applies optional sprite sheet.
+     * @param {*} config
+     * @returns {*}
+     */
     applyOptionalSpriteSheet(config) {
         if (!Number.isFinite(config.frameWidth) || !Number.isFinite(config.frameHeight)) {
             return;
@@ -26,6 +31,11 @@ export default class DecorationObject extends DrawableObject {
         this.spriteSheet = this.buildSpriteSheet(config);
     }
 
+    /**
+     * Runs build sprite sheet.
+     * @param {*} config
+     * @returns {*}
+     */
     buildSpriteSheet(config) {
         const columns = Number.isFinite(config.columns) ? config.columns : 1;
         const rows = Number.isFinite(config.rows) ? config.rows : 1;
@@ -43,6 +53,12 @@ export default class DecorationObject extends DrawableObject {
         };
     }
 
+    /**
+     * Runs resolve frame index.
+     * @param {*} frameIndex
+     * @param {*} frameCount
+     * @returns {*}
+     */
     resolveFrameIndex(frameIndex, frameCount) {
         const index = Number.isFinite(frameIndex) ? Math.max(0, Math.floor(frameIndex)) : 0;
         return Math.min(index, frameCount - 1);

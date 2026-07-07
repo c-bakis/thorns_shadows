@@ -1,9 +1,14 @@
-
+﻿
 export default class MenuActionsController {
   constructor(world) {
     this.world = world;
   }
 
+  /**
+   * Handles handle pause menu action.
+   * @param {string} action
+   * @returns {void}
+   */
   handlePauseMenuAction(action) {
     switch (action) {
       case "close":
@@ -40,6 +45,11 @@ export default class MenuActionsController {
     }
   }
 
+  /**
+   * Handles handle game over action.
+   * @param {string} action
+   * @returns {void}
+   */
   handleGameOverAction(action) {
     if (action === "restart") {
       console.log("Restart clicked");
@@ -50,6 +60,11 @@ export default class MenuActionsController {
     }
   }
 
+  /**
+   * Handles handle win action.
+   * @param {string} action
+   * @returns {void}
+   */
   handleWinAction(action) {
     if (action === "restart") {
       console.log("Restart clicked");

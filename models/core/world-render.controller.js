@@ -1,8 +1,12 @@
-export default class WorldRenderController {
+﻿export default class WorldRenderController {
   constructor(world) {
     this.world = world;
   }
 
+  /**
+   * Handles draw.
+   * @returns {void}
+   */
   draw() {
     this.world.ctx.clearRect(0, 0, this.world.ctx.canvas.width, this.world.ctx.canvas.height);
 
@@ -38,6 +42,10 @@ export default class WorldRenderController {
     this.world.renderFrameId = requestAnimationFrame(() => this.draw());
   }
 
+  /**
+   * Handles update enemy platform locks.
+   * @returns {void}
+   */
   updateEnemyPlatformLocks() {
     this.world.enemies.forEach((enemy) => {
       if (typeof enemy.updatePlatformLock === "function") {
@@ -46,10 +54,18 @@ export default class WorldRenderController {
     });
   }
 
+  /**
+   * Handles retrieve background vertical padding.
+   * @returns {number}
+   */
   getBackgroundVerticalPadding() {
     return Math.max(0, this.world.cameraMaxUp);
   }
 
+  /**
+   * Handles update magic attacks.
+   * @returns {void}
+   */
   updateMagicAttacks() {
     this.world.magicAttacks = this.world.magicAttacks.filter((attack) => {
       if (!attack || attack.isConsumed) {
@@ -67,6 +83,11 @@ export default class WorldRenderController {
     });
   }
 
+  /**
+   * Handles add magic attack.
+   * @param {object} attack
+   * @returns {void}
+   */
   addMagicAttack(attack) {
     if (!attack) {
       return;
@@ -75,12 +96,22 @@ export default class WorldRenderController {
     this.world.magicAttacks.push(attack);
   }
 
+  /**
+   * Handles add obj to map.
+   * @param {object[]} objects
+   * @returns {void}
+   */
   addObjToMap(objects) {
     objects.forEach((obj) => {
       this.addToMap(obj);
     });
   }
 
+  /**
+   * Handles add to map.
+   * @param {object} drawableObject
+   * @returns {void}
+   */
   addToMap(drawableObject) {
     if (!drawableObject?.img) {
       return;
@@ -112,6 +143,11 @@ export default class WorldRenderController {
     }
   }
 
+  /**
+   * Handles mirror object if needed.
+   * @param {object} movableObject
+   * @returns {boolean}
+   */
   mirrorObjectIfNeeded(movableObject) {
     if (!movableObject.otherDirection) {
       return false;
@@ -124,6 +160,11 @@ export default class WorldRenderController {
     return true;
   }
 
+  /**
+   * Handles retrieve object box.
+   * @param {object} object
+   * @returns {object}
+   */
   getObjectBox(object) {
     return typeof object?.getHitbox === "function"
       ? object.getHitbox()

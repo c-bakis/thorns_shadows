@@ -1,4 +1,4 @@
-import DrawableObject from "../core/drawableObject.class.js";
+﻿import DrawableObject from "../core/drawableObject.class.js";
 
 export default class Collectable extends DrawableObject {
     collected = false;
@@ -9,6 +9,10 @@ export default class Collectable extends DrawableObject {
     hitboxWidth = this.width;
     hitboxHeight = this.height;
 
+    /**
+     * Retrieves hitbox.
+     * @returns {object}
+     */
     getHitbox() {
         const width = this.hitboxWidth ?? this.width;
         const height = this.hitboxHeight ?? this.height;
@@ -23,6 +27,11 @@ export default class Collectable extends DrawableObject {
         };
     }
 
+    /**
+     * Draws bounding box.
+     * @param {CanvasRenderingContext2D} ctx
+     * @returns {void}
+     */
     drawBoundingBox(ctx) {
         const shouldDrawBoundingBox = this.constructor?.name === "ManaStone";
 
@@ -38,6 +47,11 @@ export default class Collectable extends DrawableObject {
         ctx.stroke();
     }
 
+    /**
+     * Switches animation.
+     * @param {string} name
+     * @returns {void}
+     */
     switchAnimation(name) {
         if (this.activeAnimation === name && this.spriteSheet) {
             return;
@@ -66,6 +80,11 @@ export default class Collectable extends DrawableObject {
         }
     }
 
+    /**
+     * Advances sprite animation.
+     * @param {number} speed
+     * @returns {void}
+     */
     advanceSpriteAnimation(speed) {
         if (!this.spriteSheet || !Number.isFinite(speed) || speed <= 0) {
             return;
@@ -80,6 +99,11 @@ export default class Collectable extends DrawableObject {
             (this.spriteSheet.currentFrame + 1) % this.spriteSheet.frameCount;
     }
 
+    /**
+     * Runs on collect.
+     * @param {object} character
+     * @returns {void}
+     */
     onCollect(character) {
         // overridden in subclasses
     }

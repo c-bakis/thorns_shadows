@@ -1,10 +1,14 @@
-import OverlayDialog from "./overlay-dialog.class.js";
+﻿import OverlayDialog from "./overlay-dialog.class.js";
 
 /**
  * Factory class to create a Pause Menu dialog.
  * Panel: frame 2 ("PAUSE") from Win_loose.png
  */
 export default class PauseMenu {
+  /**
+   * Runs create.
+   * @returns {object|null}
+   */
   static create() {
     return new OverlayDialog({
       panelSrc: { sx: 90, sy: 0, sw: 90, sh: 176 },

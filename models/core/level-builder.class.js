@@ -1,4 +1,4 @@
-import BackgroundObject from "../environment/background-object.class.js";
+﻿import BackgroundObject from "../environment/background-object.class.js";
 import Clouds from "../environment/clouds.class.js";
 import Tileset from "../environment/tileset.class.js";
 import Slime from "../enemies/slime.class.js";
@@ -9,6 +9,11 @@ import DecorationObject from "../environment/decoration-object.class.js";
 import ManaStone from "../collectables/mana-stone.class.js";
 
 export default class LevelBuilder {
+    /**
+     * Handles build.
+     * @param {object} level
+     * @returns {object|null}
+     */
     static build(level) {
         return {
             backgroundObjects: this.buildBackgrounds(level?.backgroundLayers ?? []),
@@ -19,6 +24,11 @@ export default class LevelBuilder {
         };
     }
 
+    /**
+     * Handles build backgrounds.
+     * @param {object} layers
+     * @returns {object|null}
+     */
     static buildBackgrounds(layers) {
         return layers.map((layer) => {
             if (layer.type === "clouds") {
@@ -29,18 +39,33 @@ export default class LevelBuilder {
         });
     }
 
+    /**
+     * Handles build tiles.
+     * @param {object} tiles
+     * @returns {object[]}
+     */
     static buildTiles(tiles) {
         return tiles.map((tile) => {
             return new Tileset(tile.imagePath, tile.x, tile.y, tile.width, tile.height);
         });
     }
 
+    /**
+     * Handles build decorations.
+     * @param {object[]} decorations
+     * @returns {object|null}
+     */
     static buildDecorations(decorations) {
         return decorations.map((deco) => {
             return new DecorationObject(deco);
         });
     }
 
+    /**
+     * Handles build collectables.
+     * @param {object[]} collectables
+     * @returns {object|null}
+     */
     static buildCollectables(collectables) {
         return collectables.map((collectable) => {
             if (collectable.type === "manaStone") {
@@ -51,6 +76,11 @@ export default class LevelBuilder {
         }).filter(Boolean);
     }
 
+    /**
+     * Handles build enemies.
+     * @param {object[]} enemies
+     * @returns {object[]}
+     */
     static buildEnemies(enemies) {
         return enemies.map((enemy) => {
             if (enemy.type === "slime") {

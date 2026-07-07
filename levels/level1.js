@@ -1,4 +1,5 @@
-import Level from "../models/core/level.class.js";
+﻿import Level from "../models/core/level.class.js";
+import GAME_AUDIO from "../models/core/game-audio.config.js";
 
 const level1 = new Level({
   spawn: { x: 100, y: 230 },
@@ -9,7 +10,7 @@ const level1 = new Level({
     enemyType: "wolf",
     triggerX: 3080,
     durationMs: 1800,
-    audioPath: null,
+    audioPath: GAME_AUDIO.wolfHowlSoundPath,
   },
   audio: {
     bgmPath: "audio/music/sky_city.ogg",

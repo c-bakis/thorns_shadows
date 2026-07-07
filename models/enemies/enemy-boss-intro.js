@@ -1,3 +1,9 @@
+﻿/**
+ * Checks whether enemy wait for boss intro.
+ * @param {object} enemy
+ * @param {string} enemyType
+ * @returns {boolean}
+ */
 export function shouldEnemyWaitForBossIntro(enemy, enemyType = null) {
     const bossIntro = enemy.world?.level?.bossIntro;
     if (!bossIntro) {
@@ -12,6 +18,12 @@ export function shouldEnemyWaitForBossIntro(enemy, enemyType = null) {
     return enemy.world?.bossIntroState?.played !== true;
 }
 
+/**
+ * Runs hold enemy for boss intro.
+ * @param {object} enemy
+ * @param {object} options
+ * @returns {void}
+ */
 export function holdEnemyForBossIntro(enemy, options = {}) {
     const {
         animationName,
@@ -29,6 +41,12 @@ export function holdEnemyForBossIntro(enemy, options = {}) {
     resetToAnimationStart(enemy);
 }
 
+/**
+ * Starts enemy boss intro.
+ * @param {object} enemy
+ * @param {object} options
+ * @returns {void}
+ */
 export function startEnemyBossIntro(enemy, options = {}) {
     const {
         audioPath = null,
@@ -53,6 +71,12 @@ export function startEnemyBossIntro(enemy, options = {}) {
     playBossIntroAudio(enemy, audioPath, audioProperty);
 }
 
+/**
+ * Updates enemy boss intro animation.
+ * @param {object} enemy
+ * @param {object} options
+ * @returns {void}
+ */
 export function updateEnemyBossIntroAnimation(enemy, options = {}) {
     const {
         animationName,
@@ -80,6 +104,12 @@ export function updateEnemyBossIntroAnimation(enemy, options = {}) {
     enemy.advanceSpriteAnimation();
 }
 
+/**
+ * Finishes enemy boss intro.
+ * @param {object} enemy
+ * @param {object} options
+ * @returns {void}
+ */
 export function finishEnemyBossIntro(enemy, options = {}) {
     const {
         animationName = null,
@@ -95,24 +125,53 @@ export function finishEnemyBossIntro(enemy, options = {}) {
     }
 }
 
+/**
+ * Plays boss intro audio.
+ * @param {object} enemy
+ * @param {string} audioPath
+ * @param {object} audioProperty
+ * @returns {void}
+ */
 function playBossIntroAudio(enemy, audioPath, audioProperty) {
     if (!audioPath) {
         return;
     }
 
-    if (!enemy[audioProperty] || enemy[audioProperty].src !== audioPath) {
-        enemy[audioProperty] = new Audio(audioPath);
-        enemy[audioProperty].preload = "auto";
+    const isWolfHowl = /wolf-howl\./i.test(audioPath);
+
+    const audioManager = enemy.world?.audioManager;
+    if (typeof audioManager?.playSfx === "function") {
+        audioManager.playSfx(audioPath, {
+            volume: 0.5,
+            maxDurationMs: 1800,
+            startTimeSec: isWolfHowl ? 1 : 0,
+        });
+        return;
     }
 
-    enemy[audioProperty].currentTime = 0;
+    // if (!enemy[audioProperty] || enemy[audioProperty].src !== audioPath) {
+    //     enemy[audioProperty] = new Audio(audioPath);
+    //     enemy[audioProperty].preload = "auto";
+    // }
+
+    enemy[audioProperty].currentTime = isWolfHowl ? 1 : 0;
     enemy[audioProperty].play().catch(() => {});
 }
 
+/**
+ * Runs stop enemy movement.
+ * @param {object} enemy
+ * @returns {void}
+ */
 function stopEnemyMovement(enemy) {
     enemy.speed = 0;
 }
 
+/**
+ * Resets to animation start.
+ * @param {object} enemy
+ * @returns {void}
+ */
 function resetToAnimationStart(enemy) {
     if (!enemy.spriteSheet) {
         return;
@@ -121,6 +180,11 @@ function resetToAnimationStart(enemy) {
     enemy.spriteSheet.currentFrame = enemy.spriteSheet.startFrame ?? 0;
 }
 
+/**
+ * Retrieves animation end frame.
+ * @param {object} enemy
+ * @returns {object|null}
+ */
 function getAnimationEndFrame(enemy) {
     if (Number.isFinite(enemy.spriteSheet?.endFrame)) {
         return enemy.spriteSheet.endFrame;

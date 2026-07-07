@@ -1,4 +1,4 @@
-import Character from "../player/character.class.js";
+﻿import Character from "../player/character.class.js";
 import Keyboard from "./keyboard.class.js";
 import LevelBuilder from "./level-builder.class.js";
 import StatusBar from "../ui/status-bar.class.js";
@@ -109,6 +109,10 @@ export default class World {
     }
   }
 
+  /**
+   * Handles initialize audio.
+    * @returns {void}
+   */
   initializeAudio() {
     const bgmPath = this.level?.audio?.bgmPath ?? this.level?.backgroundMusic;
     if (!bgmPath || !this.audioManager) {
@@ -122,26 +126,55 @@ export default class World {
   }
 
   
+  /**
+   * Handles retrieve object box.
+    * @param {{x: number, y: number, width: number, height: number}} object
+    * @returns {{x: number, y: number, width: number, height: number}}
+   */
   getObjectBox(object) {
     return this.renderController.getObjectBox(object);
   }
 
+  /**
+   * Handles draw.
+    * @returns {void}
+   */
   draw() {
     this.renderController.draw();
   }
 
+  /**
+   * Handles update camera.
+    * @returns {void}
+   */
   updateCamera() {
     this.cameraController.updateCamera();
   }
 
+  /**
+   * Handles focus camera on actor.
+    * @param {object|null} actor
+    * @returns {void}
+   */
   focusCameraOnActor(actor) {
     this.cameraController.focusCameraOnActor(actor);
   }
 
+  /**
+   * Handles retrieve camera bounds.
+    * @returns {{minX: number, maxX: number, minY: number, maxY: number}}
+   */
   getCameraBounds() {
     return this.cameraController.getCameraBounds();
   }
 
+  /**
+   * Handles clamp.
+    * @param {number} value
+    * @param {number} min
+    * @param {number} max
+    * @returns {number}
+   */
   clamp(value, min, max) {
     return this.cameraController.clamp(value, min, max);
   }
@@ -154,10 +187,18 @@ export default class World {
     this.bossController.startBossIntro(now);
   }
 
+  /**
+   * Handles finish boss intro.
+    * @returns {void}
+   */
   finishBossIntro() {
     this.bossController.finishBossIntro();
   }
 
+  /**
+   * Handles find boss intro actor.
+    * @returns {object|null}
+   */
   findBossIntroActor() {
     return this.bossController.findBossIntroActor();
   }
@@ -170,38 +211,78 @@ export default class World {
     return this.bossController.isGameplayFrozen(actor, now);
   }
 
+  /**
+   * Handles is boss intro active.
+    * @returns {boolean}
+   */
   isBossIntroActive() {
     return this.bossController.isBossIntroActive();
   }
 
+  /**
+   * Handles update enemy platform locks.
+    * @returns {void}
+   */
   updateEnemyPlatformLocks() {
     this.renderController.updateEnemyPlatformLocks();
   }
 
+  /**
+   * Handles retrieve background vertical padding.
+    * @returns {number}
+   */
   getBackgroundVerticalPadding() {
     return this.renderController.getBackgroundVerticalPadding();
   }
 
+  /**
+   * Handles update magic attacks.
+    * @returns {void}
+   */
   updateMagicAttacks() {
     this.renderController.updateMagicAttacks();
   }
 
+  /**
+   * Handles add magic attack.
+    * @param {object} attack
+    * @returns {void}
+   */
   addMagicAttack(attack) {
     this.renderController.addMagicAttack(attack);
   }
 
+  /**
+   * Handles add obj to map.
+    * @param {object[]} objects
+    * @returns {void}
+   */
   addObjToMap(objects) {
     this.renderController.addObjToMap(objects);
   }
 
+  /**
+   * Handles add to map.
+    * @param {object} drawableObject
+    * @returns {void}
+   */
   addToMap(drawableObject) {
     this.renderController.addToMap(drawableObject);
   }
 
+  /**
+   * Handles mirror object if needed.
+    * @param {object} movableObject
+    * @returns {boolean}
+   */
   mirrorObjectIfNeeded(movableObject) {
     return this.renderController.mirrorObjectIfNeeded(movableObject);
   }
 
+  /**
+   * Handles handle pause toggle.
+    * @returns {void}
+   */
   handlePauseToggle() {
     if (this.pause) {
       this.resumeGame();
@@ -211,17 +292,29 @@ export default class World {
     }
   }
 
+  /**
+   * Handles play pause menu ui.
+    * @returns {void}
+   */
   playPauseMenuUi() {
     if (this.pause) {
       this.overlayController.playPauseMenuUi();
     }
   }
 
+  /**
+   * Handles pause game.
+    * @returns {void}
+   */
   pauseGame() {
     this.pause = true;
     this.audioManager?.decreaseVolumeOnMenuOpen?.();
   }
 
+  /**
+   * Handles resume game.
+    * @returns {void}
+   */
   resumeGame() {
     this.overlayController?.closeActiveOverlay?.();
     this.pause = false;
@@ -231,16 +324,29 @@ export default class World {
     this.draw();
   }
 
+  /**
+   * Handles set restart handler.
+    * @param {Function|null} handler
+    * @returns {void}
+   */
   setRestartHandler(handler) {
     this.restartHandler = typeof handler === "function" ? handler : null;
   }
 
+  /**
+   * Handles restart.
+    * @returns {void}
+   */
   restart() {
     if (typeof this.restartHandler === "function") {
       this.restartHandler();
     }
   }
 
+  /**
+   * Handles destroy.
+    * @returns {void}
+   */
   destroy() {
     this.overlayController?.closeActiveOverlay?.();
     this.pause = true;
@@ -262,6 +368,10 @@ export default class World {
     cleanupTargets.forEach((obj) => obj?.clearIntervals?.());
   }
 
+  /**
+   * Handles handle game over.
+    * @returns {void}
+   */
   handleGameOver() {
     console.log("Game Over");
     this.pauseGame();
@@ -269,10 +379,18 @@ export default class World {
     this.playGameOverUi();
   }
 
+  /**
+   * Handles play game over ui.
+    * @returns {void}
+   */
   playGameOverUi() {
     this.overlayController.playGameOverUi();
   }
 
+  /**
+   * Handles handle win.
+    * @returns {void}
+   */
   handleWin() {
     console.log("Level Won");
     this.pauseGame();
@@ -280,10 +398,19 @@ export default class World {
     this.playWinUi();
   }
 
+  /**
+   * Handles play win ui.
+    * @returns {void}
+   */
   playWinUi() {
     this.overlayController.playWinUi();
   }
 
+  /**
+   * Handles handle enemy defeat.
+    * @param {object} enemy
+    * @returns {void}
+   */
   handleEnemyDefeat(enemy) {
     if (!this.isWinConditionEnemy(enemy) || this.hasLevelWon) {
       return;
@@ -292,6 +419,11 @@ export default class World {
     this.pendingWinEnemy = enemy;
   }
 
+  /**
+   * Handles handle enemy removed.
+    * @param {object} enemy
+    * @returns {void}
+   */
   handleEnemyRemoved(enemy) {
     if (this.hasLevelWon) {
       return;
@@ -307,6 +439,11 @@ export default class World {
     this.handleWin();
   }
 
+  /**
+   * Handles is win condition enemy.
+    * @param {object} enemy
+    * @returns {boolean}
+   */
   isWinConditionEnemy(enemy) {
     const expectedType = this.level?.winCondition?.enemyType;
     if (!expectedType || !enemy?.constructor?.name) {

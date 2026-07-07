@@ -1,4 +1,4 @@
-import PauseMenu from "../ui/pause-menu.class.js";
+﻿import PauseMenu from "../ui/pause-menu.class.js";
 import GameOver from "../ui/game-over.class.js";
 import Win from "../ui/win.class.js";
 
@@ -12,21 +12,39 @@ export default class WorldOverlayController {
     this.activeOverlayCleanup = null;
   }
 
+  /**
+   * Handles play pause menu ui.
+   * @returns {void}
+   */
   playPauseMenuUi() {
     const pauseMenu = PauseMenu.create();
     this.playOverlayDialog(pauseMenu, (action) => this.menuActionsController.handlePauseMenuAction(action));
   }
 
+  /**
+   * Handles play game over ui.
+   * @returns {void}
+   */
   playGameOverUi() {
     const gameOver = GameOver.create();
     this.playOverlayDialog(gameOver, (action) => this.menuActionsController.handleGameOverAction(action));
   }
 
+  /**
+   * Handles play win ui.
+   * @returns {void}
+   */
   playWinUi() {
     const win = Win.create();
     this.playOverlayDialog(win, (action) => this.menuActionsController.handleWinAction(action));
   }
 
+  /**
+   * Handles play overlay dialog.
+   * @param {object} dialog
+   * @param {Function} onActionCallback
+   * @returns {void}
+   */
   playOverlayDialog(dialog, onActionCallback) {
     this.closeActiveOverlay();
 
@@ -42,6 +60,10 @@ export default class WorldOverlayController {
       onClick: (e) => this.handleDialogClick(e, dialog, () => cleanup(), onActionCallback),
     };
 
+    /**
+     * Handles cleanup.
+     * @returns {void}
+     */
     const cleanup = () => {
       this.cleanupOverlayDialog(uiState, handlers);
       if (this.activeOverlayCleanup === cleanup) {
@@ -57,6 +79,10 @@ export default class WorldOverlayController {
     requestAnimationFrame(render);
   }
 
+  /**
+   * Handles close active overlay.
+   * @returns {void}
+   */
   closeActiveOverlay() {
     if (typeof this.activeOverlayCleanup === "function") {
       this.activeOverlayCleanup();
@@ -64,6 +90,12 @@ export default class WorldOverlayController {
     }
   }
 
+  /**
+   * Handles render overlay dialog.
+   * @param {object} dialog
+   * @param {string} uiState
+   * @returns {void}
+   */
   renderOverlayDialog(dialog, uiState) {
     if (!uiState.isActive) {
       return;
@@ -72,8 +104,18 @@ export default class WorldOverlayController {
     dialog.draw(this.world.ctx);
   }
 
+  /**
+   * Handles preload dialog images.
+   * @param {object} dialog
+   * @param {object} onReady
+   * @returns {void}
+   */
   preloadDialogImages(dialog, onReady) {
     let loaded = 0;
+    /**
+     * Handles on load.
+     * @returns {void}
+     */
     const onLoad = () => {
       loaded += 1;
       if (loaded >= 2) {
@@ -85,6 +127,11 @@ export default class WorldOverlayController {
     dialog.buttonSheet.complete ? onLoad() : (dialog.buttonSheet.onload = onLoad);
   }
 
+  /**
+   * Handles bind dialog events.
+   * @param {Function} handlers
+   * @returns {void}
+   */
   bindDialogEvents(handlers) {
     this.world.canvas.addEventListener("mousemove", handlers.onMouseMove);
     this.world.canvas.addEventListener("mouseleave", handlers.onMouseLeave);
@@ -93,6 +140,12 @@ export default class WorldOverlayController {
     this.world.canvas.addEventListener("click", handlers.onClick);
   }
 
+  /**
+   * Handles cleanup overlay dialog.
+   * @param {string} uiState
+   * @param {Function} handlers
+   * @returns {void}
+   */
   cleanupOverlayDialog(uiState, handlers) {
     uiState.isActive = false;
     this.world.canvas.style.cursor = "default";
@@ -103,6 +156,11 @@ export default class WorldOverlayController {
     this.world.canvas.removeEventListener("click", handlers.onClick);
   }
 
+  /**
+   * Handles retrieve canvas mouse pos.
+   * @param {Event} e
+   * @returns {object|null}
+   */
   getCanvasMousePos(e) {
     const rect = this.world.canvas.getBoundingClientRect();
     const scaleX = this.world.canvas.width / rect.width;
@@ -114,6 +172,13 @@ export default class WorldOverlayController {
     };
   }
 
+  /**
+   * Handles handle dialog mouse move.
+   * @param {Event} e
+   * @param {object} dialog
+   * @param {object} render
+   * @returns {void}
+   */
   handleDialogMouseMove(e, dialog, render) {
     const { x, y } = this.getCanvasMousePos(e);
     const hoveredButton = dialog.getClickedButton(x, y);
@@ -127,6 +192,12 @@ export default class WorldOverlayController {
     render();
   }
 
+  /**
+   * Handles handle dialog mouse leave.
+   * @param {object} dialog
+   * @param {object} render
+   * @returns {void}
+   */
   handleDialogMouseLeave(dialog, render) {
     dialog.setHoveredButton(null);
     dialog.setPressedButton(null);
@@ -134,6 +205,13 @@ export default class WorldOverlayController {
     render();
   }
 
+  /**
+   * Handles handle dialog mouse down.
+   * @param {Event} e
+   * @param {object} dialog
+   * @param {object} render
+   * @returns {void}
+   */
   handleDialogMouseDown(e, dialog, render) {
     const { x, y } = this.getCanvasMousePos(e);
     const pressedButton = dialog.getClickedButton(x, y);
@@ -141,6 +219,13 @@ export default class WorldOverlayController {
     render();
   }
 
+  /**
+   * Handles handle dialog mouse up.
+   * @param {Event} e
+   * @param {object} dialog
+   * @param {object} render
+   * @returns {void}
+   */
   handleDialogMouseUp(e, dialog, render) {
     const { x, y } = this.getCanvasMousePos(e);
     const hoveredButton = dialog.getClickedButton(x, y);
@@ -149,6 +234,14 @@ export default class WorldOverlayController {
     render();
   }
 
+  /**
+   * Handles handle dialog click.
+   * @param {Event} e
+   * @param {object} dialog
+   * @param {object} cleanup
+   * @param {Function} onActionCallback
+   * @returns {void}
+   */
   handleDialogClick(e, dialog, cleanup, onActionCallback) {
     const { x, y } = this.getCanvasMousePos(e);
     const btn = dialog.getClickedButton(x, y);

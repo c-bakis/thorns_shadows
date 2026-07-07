@@ -1,3 +1,9 @@
+﻿/**
+ * Updates wolf behavior.
+ * @param {object} wolf
+ * @param {number} now
+ * @returns {void}
+ */
 export function updateWolfBehavior(wolf, now) {
     ensureSpawnAnchor(wolf);
 
@@ -9,12 +15,23 @@ export function updateWolfBehavior(wolf, now) {
     executeTargetBehavior(wolf, character, now);
 }
 
+/**
+ * Runs ensure spawn anchor.
+ * @param {object} wolf
+ * @returns {void}
+ */
 function ensureSpawnAnchor(wolf) {
     if (!Number.isFinite(wolf.spawnX)) {
         wolf.spawnX = wolf.x;
     }
 }
 
+/**
+ * Runs has behavior target.
+ * @param {object} wolf
+ * @param {object} character
+ * @returns {boolean}
+ */
 function hasBehaviorTarget(wolf, character) {
     if (character) {
         return true;
@@ -24,6 +41,13 @@ function hasBehaviorTarget(wolf, character) {
     return false;
 }
 
+/**
+ * Runs execute target behavior.
+ * @param {object} wolf
+ * @param {object} character
+ * @param {number} now
+ * @returns {void}
+ */
 function executeTargetBehavior(wolf, character, now) {
     wolf.faceCharacter();
 
@@ -42,6 +66,11 @@ function executeTargetBehavior(wolf, character, now) {
     patrol(wolf);
 }
 
+/**
+ * Runs try keep combat animation running.
+ * @param {object} wolf
+ * @returns {void}
+ */
 function tryKeepCombatAnimationRunning(wolf) {
     if (!isCombatAnimationActive(wolf)) {
         return false;
@@ -55,10 +84,20 @@ function tryKeepCombatAnimationRunning(wolf) {
     return true;
 }
 
+/**
+ * Checks whether this object is combat animation active.
+ * @param {object} wolf
+ * @returns {boolean}
+ */
 function isCombatAnimationActive(wolf) {
     return wolf.activeAnimation === "ATTACK" || wolf.activeAnimation === "HOWL";
 }
 
+/**
+ * Checks whether this object is current animation complete.
+ * @param {object} wolf
+ * @returns {boolean}
+ */
 function isCurrentAnimationComplete(wolf) {
     if (!wolf.spriteSheet) {
         return false;
@@ -67,6 +106,12 @@ function isCurrentAnimationComplete(wolf) {
     return wolf.spriteSheet.currentFrame >= wolf.spriteSheet.endFrame;
 }
 
+/**
+ * Runs try handle attack behavior.
+ * @param {object} wolf
+ * @param {number} now
+ * @returns {void}
+ */
 function tryHandleAttackBehavior(wolf, now) {
     if (!wolf.isCharacterInAttackRange()) {
         return false;
@@ -76,6 +121,12 @@ function tryHandleAttackBehavior(wolf, now) {
     return true;
 }
 
+/**
+ * Runs try handle chase behavior.
+ * @param {object} wolf
+ * @param {object} character
+ * @returns {void}
+ */
 function tryHandleChaseBehavior(wolf, character) {
     if (!wolf.isCharacterNearby()) {
         return false;
@@ -85,6 +136,12 @@ function tryHandleChaseBehavior(wolf, character) {
     return true;
 }
 
+/**
+ * Handles attack.
+ * @param {object} wolf
+ * @param {number} now
+ * @returns {void}
+ */
 function handleAttack(wolf, now) {
     stopMovement(wolf);
 
@@ -99,6 +156,12 @@ function handleAttack(wolf, now) {
     wolf.switchAnimation("HOWL");
 }
 
+/**
+ * Runs try start attack.
+ * @param {object} wolf
+ * @param {number} now
+ * @returns {void}
+ */
 function tryStartAttack(wolf, now) {
     if (!wolf.canAttackCharacter(now)) {
         return false;
@@ -109,10 +172,21 @@ function tryStartAttack(wolf, now) {
     return true;
 }
 
+/**
+ * Runs stop movement.
+ * @param {object} wolf
+ * @returns {void}
+ */
 function stopMovement(wolf) {
     wolf.speed = 0;
 }
 
+/**
+ * Runs chase character.
+ * @param {object} wolf
+ * @param {object} character
+ * @returns {void}
+ */
 function chaseCharacter(wolf, character) {
     wolf.speed = wolf.runSpeed;
     wolf.switchAnimation("RUN");
@@ -125,6 +199,11 @@ function chaseCharacter(wolf, character) {
     wolf.moveRight();
 }
 
+/**
+ * Runs patrol.
+ * @param {object} wolf
+ * @returns {void}
+ */
 function patrol(wolf) {
     wolf.speed = wolf.walkSpeed;
     wolf.switchAnimation("WALK");
@@ -141,6 +220,13 @@ function patrol(wolf) {
     wolf.moveRight();
 }
 
+/**
+ * Updates patrol direction.
+ * @param {object} wolf
+ * @param {object} minX
+ * @param {object} maxX
+ * @returns {void}
+ */
 function updatePatrolDirection(wolf, minX, maxX) {
     if (wolf.x <= minX) {
         wolf.patrolDirection = 1;

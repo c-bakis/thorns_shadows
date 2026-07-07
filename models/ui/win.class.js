@@ -1,10 +1,14 @@
-import OverlayDialog from "./overlay-dialog.class.js";
+﻿import OverlayDialog from "./overlay-dialog.class.js";
 
 /**
  * Factory class to create a Win (victory) dialog.
  * Panel: frame 2 ("YOU WIN") from Win_loose.png
  */
 export default class Win {
+  /**
+   * Runs create.
+   * @returns {object|null}
+   */
   static create() {
     return new OverlayDialog({
       panelSrc: { sx: 220, sy: 196, sw: 110, sh: 98 },

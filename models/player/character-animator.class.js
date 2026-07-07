@@ -1,8 +1,16 @@
-export default class CharacterAnimator {
+﻿export default class CharacterAnimator {
   constructor(character) {
     this.character = character;
   }
 
+  /**
+   * Updates animation.
+   * @param {boolean} isMovingHorizontally
+   * @param {boolean} isAirborne
+   * @param {boolean} isHurt
+   * @param {number} now
+   * @returns {void}
+   */
   updateAnimation(isMovingHorizontally, isAirborne, isHurt, now) {
     if (this.character.energy <= 0) {
       this.character.combat.finishAttack();
@@ -33,26 +41,46 @@ export default class CharacterAnimator {
     this.playIdleAnimation();
   }
 
+  /**
+   * Plays hurt animation.
+   * @returns {void}
+   */
   playHurtAnimation() {
     this.switchAnimation("HURT");
     this.advanceOneShotAnimation(10);
   }
 
+  /**
+   * Plays jump animation.
+   * @returns {void}
+   */
   playJumpAnimation() {
     this.switchAnimation("JUMP");
     this.advanceLoopingAnimation(8);
   }
 
+  /**
+   * Plays run animation.
+   * @returns {void}
+   */
   playRunAnimation() {
     this.switchAnimation("RUN");
     this.advanceLoopingAnimation(6);
   }
 
+  /**
+   * Plays idle animation.
+   * @returns {void}
+   */
   playIdleAnimation() {
     this.switchAnimation("WALK");
     this.character.stopAnimation();
   }
 
+  /**
+   * Plays dead animation.
+   * @returns {void}
+   */
   playDeadAnimation() {
     this.switchAnimation("DEAD");
 
@@ -70,6 +98,11 @@ export default class CharacterAnimator {
     }
   }
 
+  /**
+   * Advances looping animation.
+   * @param {number} speed
+   * @returns {void}
+   */
   advanceLoopingAnimation(speed) {
     if (!this.character.spriteSheet) {
       return;
@@ -85,6 +118,11 @@ export default class CharacterAnimator {
       this.character.spriteSheet.frameCount;
   }
 
+  /**
+   * Advances one shot animation.
+   * @param {number} speed
+   * @returns {void}
+   */
   advanceOneShotAnimation(speed) {
     if (!this.character.spriteSheet) {
       return false;
@@ -104,6 +142,11 @@ export default class CharacterAnimator {
     return true;
   }
 
+  /**
+   * Switches animation.
+   * @param {string} name
+   * @returns {void}
+   */
   switchAnimation(name) {
     if (this.character.activeAnimation === name && this.character.spriteSheet) {
       return;

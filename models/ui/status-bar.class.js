@@ -1,4 +1,4 @@
-import DrawableObject from "../core/drawableObject.class.js";
+﻿import DrawableObject from "../core/drawableObject.class.js";
 
 export default class StatusBar extends DrawableObject {
     health = 100;
@@ -24,22 +24,48 @@ export default class StatusBar extends DrawableObject {
         this.expBarImg.src = "img/gui/exp_bar.png";
     }
 
+    /**
+     * Sets percentage.
+     * @param {number} value
+     * @param {string} type
+     * @returns {void}
+     */
     setPercentage(value, type) {
         this[type] = this.clampPercentage(value);
     }
 
+    /**
+     * Runs clamp percentage.
+     * @param {number} value
+     * @returns {number}
+     */
     clampPercentage(value) {
         return Math.max(0, Math.min(100, value));
     }
 
+    /**
+     * Retrieves ratio.
+     * @param {string} type
+     * @returns {object|null}
+     */
     getRatio(type) {
         return this[type] / 100;
     }
 
+    /**
+     * Checks whether this object is image ready.
+     * @param {object} img
+     * @returns {boolean}
+     */
     isImageReady(img) {
         return img && img.complete && img.naturalWidth > 0;
     }
 
+    /**
+     * Retrieves image content bounds.
+     * @param {object} img
+     * @returns {object}
+     */
     getImageContentBounds(img) {
         const cacheKey = this.getImageCacheKey(img);
         if (!cacheKey) {
@@ -71,18 +97,39 @@ export default class StatusBar extends DrawableObject {
         return bounds;
     }
 
+    /**
+     * Retrieves image cache key.
+     * @param {object} img
+     * @returns {object|null}
+     */
     getImageCacheKey(img) {
         return img?.src;
     }
 
+    /**
+     * Retrieves cached image bounds.
+     * @param {object} cacheKey
+     * @returns {object}
+     */
     getCachedImageBounds(cacheKey) {
         return this.imageBoundsCache.get(cacheKey);
     }
 
+    /**
+     * Runs cache image bounds.
+     * @param {object} cacheKey
+     * @param {object} bounds
+     * @returns {void}
+     */
     cacheImageBounds(cacheKey, bounds) {
         this.imageBoundsCache.set(cacheKey, bounds);
     }
 
+    /**
+     * Retrieves fallback bounds.
+     * @param {object} img
+     * @returns {object}
+     */
     getFallbackBounds(img) {
         return {
             x: 0,
@@ -91,6 +138,11 @@ export default class StatusBar extends DrawableObject {
         };
     }
 
+    /**
+     * Creates image analysis context.
+     * @param {object} img
+     * @returns {object|null}
+     */
     createImageAnalysisContext(img) {
         const canvas = document.createElement("canvas");
         canvas.width = img.naturalWidth;
@@ -109,6 +161,13 @@ export default class StatusBar extends DrawableObject {
         };
     }
 
+    /**
+     * Runs find horizontal alpha bounds.
+     * @param {object} pixels
+     * @param {number} width
+     * @param {number} height
+     * @returns {object}
+     */
     findHorizontalAlphaBounds(pixels, width, height) {
         let minX = width;
         let maxX = -1;
@@ -132,6 +191,13 @@ export default class StatusBar extends DrawableObject {
         return { minX, maxX };
     }
 
+    /**
+     * Runs build bounds from alpha range.
+     * @param {object} alphaRange
+     * @param {object} img
+     * @param {object} fallbackBounds
+     * @returns {object|null}
+     */
     buildBoundsFromAlphaRange(alphaRange, img, fallbackBounds) {
         if (alphaRange.maxX < alphaRange.minX) {
             return fallbackBounds;
@@ -144,6 +210,11 @@ export default class StatusBar extends DrawableObject {
         };
     }
 
+    /**
+     * Draws static elements.
+     * @param {CanvasRenderingContext2D} ctx
+     * @returns {void}
+     */
     drawStaticElements(ctx) {
         if (this.panelImg) {
             ctx.drawImage(this.panelImg, this.x, this.y, this.width, this.height);
@@ -154,6 +225,18 @@ export default class StatusBar extends DrawableObject {
         }
     }
 
+    /**
+     * Draws bar.
+     * @param {CanvasRenderingContext2D} ctx
+     * @param {object} img
+     * @param {number} x
+     * @param {number} y
+     * @param {object} maxWidth
+     * @param {object} barHeight
+     * @param {object} fallbackColor
+     * @param {string} type
+     * @returns {void}
+     */
     drawBar(ctx, img, x, y, maxWidth, barHeight, fallbackColor, type) {
         const ratio = this.getRatio(type);
 
@@ -166,6 +249,13 @@ export default class StatusBar extends DrawableObject {
         this.drawFallbackBar(ctx, x, y, maxWidth, barHeight, fallbackColor, ratio);
     }
 
+    /**
+     * Retrieves scaled bar widths.
+     * @param {object} ratio
+     * @param {object} sourceMaxWidth
+     * @param {object} destinationMaxWidth
+     * @returns {object|null}
+     */
     getScaledBarWidths(ratio, sourceMaxWidth, destinationMaxWidth) {
         if (ratio <= 0) {
             return { srcW: 0, dstW: 0 };
@@ -177,6 +267,18 @@ export default class StatusBar extends DrawableObject {
         };
     }
 
+    /**
+     * Draws image bar.
+     * @param {CanvasRenderingContext2D} ctx
+     * @param {object} img
+     * @param {object} bounds
+     * @param {number} x
+     * @param {number} y
+     * @param {object} maxWidth
+     * @param {object} barHeight
+     * @param {object} ratio
+     * @returns {void}
+     */
     drawImageBar(ctx, img, bounds, x, y, maxWidth, barHeight, ratio) {
         const widths = this.getScaledBarWidths(ratio, bounds.width, maxWidth);
         if (widths.srcW <= 0 || widths.dstW <= 0) {
@@ -190,11 +292,27 @@ export default class StatusBar extends DrawableObject {
         );
     }
 
+    /**
+     * Draws fallback bar.
+     * @param {CanvasRenderingContext2D} ctx
+     * @param {number} x
+     * @param {number} y
+     * @param {object} maxWidth
+     * @param {object} barHeight
+     * @param {object} fallbackColor
+     * @param {object} ratio
+     * @returns {void}
+     */
     drawFallbackBar(ctx, x, y, maxWidth, barHeight, fallbackColor, ratio) {
         ctx.fillStyle = fallbackColor;
         ctx.fillRect(x, y, maxWidth * ratio, barHeight);
     }
 
+    /**
+     * Runs draw.
+     * @param {CanvasRenderingContext2D} ctx
+     * @returns {void}
+     */
     draw(ctx) {
         this.drawStaticElements(ctx);
         this.drawBar(ctx, this.healthBarImg, this.x + 70, this.y + 10, 128, 16, "#d33", "health");

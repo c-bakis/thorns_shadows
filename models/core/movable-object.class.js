@@ -1,4 +1,4 @@
-import DrawableObject from "./drawableObject.class.js";
+﻿import DrawableObject from "./drawableObject.class.js";
 
 export default class MovableObject extends DrawableObject {
   x = 100;
@@ -28,6 +28,10 @@ export default class MovableObject extends DrawableObject {
   otherDirection = false;
   isDefeated = false;
 
+  /**
+   * Handles stop animation.
+   * @returns {void}
+   */
   stopAnimation() {
     this.animationCounter = 0;
     this.currentImg = 0;
@@ -75,6 +79,12 @@ export default class MovableObject extends DrawableObject {
   //   };
   // }
 
+  /**
+   * Handles initiate animation.
+   * @param {object} num
+   * @param {string[]} images
+   * @returns {void}
+   */
   initiateAnimation(num, images) {
     this.animationCounter++;
     if (this.animationCounter % num === 0) {
@@ -82,6 +92,11 @@ export default class MovableObject extends DrawableObject {
     }
   }
 
+  /**
+   * Handles play animation.
+   * @param {string[]} images
+   * @returns {void}
+   */
   playAnimation(images) {
     const i = this.currentImg % images.length;
     const path = images[i];
@@ -89,6 +104,10 @@ export default class MovableObject extends DrawableObject {
     this.currentImg++;
   }
 
+  /**
+   * Handles move right.
+   * @returns {void}
+   */
   moveRight() {
     if (this.world?.isGameplayFrozen?.(this)) {
       return;
@@ -98,6 +117,10 @@ export default class MovableObject extends DrawableObject {
     this.otherDirection = false;
   }
 
+  /**
+   * Handles move left.
+   * @returns {void}
+   */
   moveLeft() {
     if (this.world?.isGameplayFrozen?.(this)) {
       return;
@@ -107,6 +130,10 @@ export default class MovableObject extends DrawableObject {
     this.otherDirection = true;
   }
 
+  /**
+   * Handles apply gravity.
+   * @returns {void}
+   */
   applyGravity() {
     this.startInterval(() => {
       if (this.world?.isGameplayFrozen?.(this)) {
@@ -126,6 +153,11 @@ export default class MovableObject extends DrawableObject {
     }, 1000 / 25);
   }
 
+  /**
+   * Handles is colliding with.
+   * @param {object} object
+   * @returns {boolean}
+   */
   isCollidingWith(object) {
     const a = this.getHitbox();
     const b = typeof object?.getHitbox === "function"
@@ -160,6 +192,11 @@ export default class MovableObject extends DrawableObject {
     return true;
   }
 
+  /**
+   * Handles apply knockback.
+   * @param {object} sourceX
+   * @returns {void}
+   */
   applyKnockback(sourceX) {
     if (!Number.isFinite(sourceX) || !Number.isFinite(this.knockbackDistance)) {
       return;
@@ -180,23 +217,45 @@ export default class MovableObject extends DrawableObject {
     this.x = nextX;
   }
 
+  /**
+   * Handles is above ground.
+   * @returns {boolean}
+   */
   isAboveGround() {
     return this.y < this.groundY;
   }
 
+  /**
+   * Handles is hurt.
+   * @returns {boolean}
+   */
   isHurt() {
     return Date.now() - this.lastHitAt < this.hurtDuration;
   }
 
+  /**
+   * Handles reset position y.
+   * @param {object} numY
+   * @returns {void}
+   */
   resetPositionY(numY) {
     this.y = numY;
     this.speedY = 0;
   }
 
+  /**
+   * Handles jump.
+   * @param {object} speedY
+   * @returns {void}
+   */
   jump(speedY) {
     this.speedY = speedY;
   }
 
+  /**
+   * Handles can deal damage.
+   * @returns {boolean}
+   */
   canDealDamage() {
     const hasStart = Number.isFinite(this.damageWindowStartFrame);
     const hasEnd = Number.isFinite(this.damageWindowEndFrame);
@@ -220,6 +279,10 @@ export default class MovableObject extends DrawableObject {
     );
   }
 
+  /**
+   * Handles is defeated.
+   * @returns {boolean}
+   */
   isDefeated() {
     if (this.energy === 0) {
       this.isDefeated = true;

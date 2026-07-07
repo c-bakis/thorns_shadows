@@ -1,4 +1,4 @@
-export const WOLF_SPRITE_ANIMATIONS = {
+﻿export const WOLF_SPRITE_ANIMATIONS = {
     HOWL: {
         path: "img/enemies/wolf/wolf.png",
         frameWidth: 64,
@@ -36,6 +36,11 @@ export const WOLF_SPRITE_ANIMATIONS = {
     },
 };
 
+/**
+ * Applies wolf defaults.
+ * @param {object} wolf
+ * @returns {void}
+ */
 export function applyWolfDefaults(wolf) {
     wolf.damage = 25;
     wolf.energy = 50;
@@ -68,6 +73,10 @@ export function applyWolfDefaults(wolf) {
     wolf.speed = wolf.walkSpeed;
 }
 
+/**
+ * Retrieves wolf animation paths.
+ * @returns {object|null}
+ */
 export function getWolfAnimationPaths() {
     return Object.values(WOLF_SPRITE_ANIMATIONS).map((config) => config.path);
 }

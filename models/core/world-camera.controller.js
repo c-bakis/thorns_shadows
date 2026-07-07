@@ -1,8 +1,12 @@
-export default class WorldCameraController {
+﻿export default class WorldCameraController {
   constructor(world) {
     this.world = world;
   }
 
+  /**
+   * Handles update camera.
+   * @returns {void}
+   */
   updateCamera() {
     if (this.world.isBossIntroActive()) {
       this.focusCameraOnActor(this.world.bossIntroState.actor);
@@ -29,6 +33,11 @@ export default class WorldCameraController {
     this.world.camera_y = this.clamp(nextCameraY, 0, this.world.cameraMaxUp);
   }
 
+  /**
+   * Handles focus camera on actor.
+   * @param {object} actor
+   * @returns {void}
+   */
   focusCameraOnActor(actor) {
     if (!actor) {
       return;
@@ -44,6 +53,10 @@ export default class WorldCameraController {
     this.world.camera_y = this.clamp(nextCameraY, 0, this.world.cameraMaxUp);
   }
 
+  /**
+   * Handles retrieve camera bounds.
+   * @returns {object}
+   */
   getCameraBounds() {
     const max = -this.world.cameraAnchorX;
     const levelEndX = this.world.level?.levelEndX;
@@ -56,6 +69,13 @@ export default class WorldCameraController {
     return { min, max };
   }
 
+  /**
+   * Handles clamp.
+   * @param {number} value
+   * @param {number} min
+   * @param {number} max
+   * @returns {number}
+   */
   clamp(value, min, max) {
     return Math.max(min, Math.min(max, value));
   }

@@ -1,18 +1,33 @@
-export default class BackgroundRenderer {
+﻿export default class BackgroundRenderer {
     constructor(world) {
         this.world = world;
     }
 
+    /**
+     * Draws all.
+     * @param {object[]} backgroundObjects
+     * @returns {void}
+     */
     drawAll(backgroundObjects) {
         this.addRepeatingBackgroundsToMap(backgroundObjects);
     }
 
+        /**
+         * Runs add repeating backgrounds to map.
+         * @param {object[]} backgroundObjects
+         * @returns {void}
+         */
         addRepeatingBackgroundsToMap(backgroundObjects) {
     backgroundObjects.forEach((backgroundObject) => {
       this.addRepeatingBackgroundToMap(backgroundObject);
     });
   }
 
+  /**
+   * Retrieves repeated background config.
+   * @param {object} backgroundObject
+   * @returns {object|null}
+   */
   getRepeatedBackgroundConfig(backgroundObject) {
       const parallaxFactor = backgroundObject.parallaxFactor ?? 1;
       const parallaxCameraX = this.world.camera_x * parallaxFactor;
@@ -36,6 +51,12 @@ export default class BackgroundRenderer {
       };
   }
 
+  /**
+   * Draws repeated background tiles.
+   * @param {object} backgroundObject
+   * @param {object} config
+   * @returns {void}
+   */
   drawRepeatedBackgroundTiles(backgroundObject, config) {
     const {
       parallaxOffset,
@@ -61,11 +82,21 @@ export default class BackgroundRenderer {
       }
     }
 
+    /**
+     * Draws repeated background layer.
+     * @param {object} backgroundObject
+     * @returns {void}
+     */
     drawRepeatedBackgroundLayer(backgroundObject) {
       const config = this.getRepeatedBackgroundConfig(backgroundObject);
       this.drawRepeatedBackgroundTiles(backgroundObject, config);
     }
 
+  /**
+   * Runs add repeating background to map.
+   * @param {object} backgroundObject
+   * @returns {void}
+   */
   addRepeatingBackgroundToMap(backgroundObject) {
     if (!backgroundObject?.img) {
       return;

@@ -1,4 +1,4 @@
-import MagicAttack from "./magig-attack.class.js";
+﻿import MagicAttack from "./magig-attack.class.js";
 
 export default class CharacterCombat {
   attackActive = false;
@@ -13,10 +13,19 @@ export default class CharacterCombat {
     this.character = character;
   }
 
+  /**
+   * Checks whether this object is busy.
+   * @returns {boolean}
+   */
   isBusy() {
     return this.attackActive || this.magicAttackActive;
   }
 
+  /**
+   * Handles attack input.
+   * @param {number} now
+   * @returns {void}
+   */
   handleAttackInput(now) {
     if (this.character.energy <= 0) {
       return;
@@ -32,6 +41,10 @@ export default class CharacterCombat {
     }
   }
 
+  /**
+   * Runs queue next combo attack.
+   * @returns {void}
+   */
   queueNextComboAttack() {
     const nextAttackName = this.getNextAttackName(this.currentAttackName);
     if (nextAttackName) {
@@ -39,6 +52,11 @@ export default class CharacterCombat {
     }
   }
 
+  /**
+   * Retrieves next attack name.
+   * @param {string} attackName
+   * @returns {object|null}
+   */
   getNextAttackName(attackName) {
     const index = this.character.ATTACK_SEQUENCE.indexOf(attackName);
     const hasNext =
@@ -46,6 +64,12 @@ export default class CharacterCombat {
     return hasNext ? this.character.ATTACK_SEQUENCE[index + 1] : null;
   }
 
+  /**
+   * Starts attack.
+   * @param {string} attackName
+   * @param {number} now
+   * @returns {void}
+   */
   startAttack(attackName, now) {
     this.character.world?.audioManager?.playSfx?.(
       this.character.world?.audioManager?.attackSoundPath,
@@ -61,6 +85,10 @@ export default class CharacterCombat {
     this.character.switchAnimation(attackName);
   }
 
+  /**
+   * Finishes attack.
+   * @returns {void}
+   */
   finishAttack() {
     this.attackActive = false;
     this.magicAttackActive = false;
@@ -71,6 +99,11 @@ export default class CharacterCombat {
     this.hitEnemiesThisAttack.clear();
   }
 
+  /**
+   * Handles magic attack input.
+   * @param {number} now
+   * @returns {void}
+   */
   handleMagicAttackInput(now) {
     if (this.character.energy <= 0 || this.character.mana < 20) {
       return;
@@ -83,7 +116,17 @@ export default class CharacterCombat {
     this.startMagicAttack("ATTACK_2", now);
   }
 
-  startMagicAttack(attackName, now) {
+  /**
+   * Starts magic attack.
+   * @param {string} attackName
+   * @param {number} now
+   * @returns {void}
+   */
+  startMagicAttack(attackName, now)  {
+    this.character.world?.audioManager?.playSfx?.(
+      this.character.world?.audioManager?.fireMagicSoundPath,
+      { volume: 0.125 }, { maxDurationMs: 800 }
+    );
     this.magicAttackActive = true;
     this.pendingMagicProjectile = true;
     this.currentAttackName = attackName;
@@ -95,6 +138,11 @@ export default class CharacterCombat {
     this.character.switchAnimation(attackName);
   }
 
+  /**
+   * Plays attack animation.
+   * @param {number} now
+   * @returns {void}
+   */
   playAttackAnimation(now) {
     this.character.switchAnimation(this.currentAttackName);
     const finished = this.character.advanceOneShotAnimation(5);
@@ -115,6 +163,10 @@ export default class CharacterCombat {
     }
   }
 
+  /**
+   * Runs release magic projectile.
+   * @returns {void}
+   */
   releaseMagicProjectile() {
     if (!this.pendingMagicProjectile || !this.character.world) {
       return;
@@ -127,6 +179,10 @@ export default class CharacterCombat {
     this.pendingMagicProjectile = false;
   }
 
+  /**
+   * Checks whether this object is in attack damage frame.
+   * @returns {boolean}
+   */
   isInAttackDamageFrame() {
     if (!this.attackActive || !this.currentAttackName || !this.character.spriteSheet) {
       return false;
@@ -141,6 +197,12 @@ export default class CharacterCombat {
     return frameNumber >= window.startFrame && frameNumber <= window.endFrame;
   }
 
+  /**
+   * Checks whether this object can deal damage to enemy.
+   * @param {object} enemy
+   * @param {boolean} isAttackColliding
+   * @returns {boolean}
+   */
   canDealDamageToEnemy(enemy, isAttackColliding) {
     if (!isAttackColliding || !this.isInAttackDamageFrame()) {
       return false;
@@ -149,6 +211,11 @@ export default class CharacterCombat {
     return !this.hitEnemiesThisAttack.has(enemy);
   }
 
+  /**
+   * Runs register enemy hit.
+   * @param {object} enemy
+   * @returns {void}
+   */
   registerEnemyHit(enemy) {
     this.hitEnemiesThisAttack.add(enemy);
   }

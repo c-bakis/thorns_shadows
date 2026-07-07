@@ -1,4 +1,4 @@
-import GAME_AUDIO from "./game-audio.config.js";
+﻿import GAME_AUDIO from "./game-audio.config.js";
 
 export default class AudioManager {
   constructor({ initialMusicMuted = false, initialSfxMuted = false } = {}) {
@@ -14,6 +14,7 @@ export default class AudioManager {
     this.landingHitSoundPath = GAME_AUDIO.landingHitSoundPath;
     this.getHurtSoundPath = GAME_AUDIO.getHurtSoundPath;
     this.fireMagicSoundPath = GAME_AUDIO.fireMagicSoundPath;
+    this.fireHitSoundPath = GAME_AUDIO.fireHitSoundPath;
     this.collectItemSoundPath = GAME_AUDIO.collectItemSoundPath;
     this.wolfHowlSoundPath = GAME_AUDIO.wolfHowlSoundPath;
     this.wolfBiteSoundPath = GAME_AUDIO.wolfBiteSoundPath;
@@ -24,6 +25,10 @@ export default class AudioManager {
     this.pendingMusicPlay = false;
   }
 
+  /**
+   * Handles unlock.
+   * @returns {void}
+   */
   unlock() {
     if (this.unlocked) {
       return;
@@ -35,6 +40,16 @@ export default class AudioManager {
     }
   }
 
+  /**
+   * Handles configure audio track.
+   * @param {object} pathKey
+   * @param {string} path
+   * @param {object} loop
+   * @param {object} volume
+   * @param {object} restart
+   * @param {object} volumeKey }
+   * @returns {void}
+   */
   configureAudioTrack({ audioKey, pathKey, path, loop, volume, restart, volumeKey }) {
     if (!path) {
       return null;
@@ -62,6 +77,13 @@ export default class AudioManager {
     return this[audioKey];
   }
 
+  /**
+   * Handles set music track.
+   * @param {string} path
+   * @param {object} volume
+   * @param {object} restart
+   * @returns {void}
+   */
   setMusicTrack(path, { loop = true, volume = 0.35, restart = false } = {}) {
     const music = this.configureAudioTrack({
       audioKey: "music",
@@ -78,6 +100,10 @@ export default class AudioManager {
     }
   }
 
+  /**
+   * Handles play music.
+   * @returns {void}
+   */
   playMusic() {
     if (!this.music || this.musicMuted) {
       this.pendingMusicPlay = !this.musicMuted;
@@ -100,6 +126,13 @@ export default class AudioManager {
     this.pendingMusicPlay = false;
   }
 
+  /**
+   * Handles set victory music track.
+   * @param {string} path
+   * @param {object} volume
+   * @param {object} restart
+   * @returns {void}
+   */
   setVictoryMusicTrack(path, { loop = true, volume = 0.35, restart = false } = {}) {
     this.configureAudioTrack({
       audioKey: "victoryMusic",
@@ -112,6 +145,13 @@ export default class AudioManager {
     });
   }
 
+  /**
+   * Handles set game over music track.
+   * @param {string} path
+   * @param {object} volume
+   * @param {object} restart
+   * @returns {void}
+   */
   setGameOverMusicTrack(path, { loop = true, volume = 0.5, restart = false } = {}) {
     this.configureAudioTrack({
       audioKey: "gameOverMusic",
@@ -154,6 +194,10 @@ export default class AudioManager {
     }
   }
 
+  /**
+   * Handles play game over music.
+   * @returns {void}
+   */
   playGameOverMusic() {
     this.playSpecialMusic({
       audioKey: "gameOverMusic",
@@ -164,6 +208,10 @@ export default class AudioManager {
     });
   }
 
+  /**
+   * Handles play victory music.
+   * @returns {void}
+   */
   playVictoryMusic() {
     this.playSpecialMusic({
       audioKey: "victoryMusic",
@@ -174,6 +222,10 @@ export default class AudioManager {
     });
   }
 
+  /**
+   * Handles stop game over music.
+   * @returns {void}
+   */
   stopGameOverMusic() {
     if (!this.gameOverMusic) {
       return;
@@ -183,6 +235,10 @@ export default class AudioManager {
     this.gameOverMusic.currentTime = 0;
   }
 
+  /**
+   * Handles stop victory music.
+   * @returns {void}
+   */
   stopVictoryMusic() {
     if (!this.victoryMusic) {
       return;
@@ -192,12 +248,20 @@ export default class AudioManager {
     this.victoryMusic.currentTime = 0;
   }
 
+  /**
+   * Handles pause music.
+   * @returns {void}
+   */
   pauseMusic() {
     if (this.music) {
       this.music.pause();
     }
   }
 
+  /**
+   * Handles resume music.
+   * @returns {void}
+   */
   resumeMusic() {
     if (this.musicMuted) {
       return;
@@ -206,6 +270,10 @@ export default class AudioManager {
     this.playMusic();
   }
 
+  /**
+   * Handles stop music.
+   * @returns {void}
+   */
   stopMusic() {
     if (!this.music) {
       return;
@@ -216,6 +284,10 @@ export default class AudioManager {
     this.pendingMusicPlay = false;
   }
 
+  /**
+   * Handles toggle music.
+   * @returns {void}
+   */
   toggleMusic() {
     this.musicMuted = !this.musicMuted;
 
@@ -232,11 +304,21 @@ export default class AudioManager {
     return !this.musicMuted;
   }
 
+  /**
+   * Handles toggle sfx.
+   * @returns {void}
+   */
   toggleSfx() {
     this.sfxMuted = !this.sfxMuted;
     return !this.sfxMuted;
   }
 
+  /**
+   * Handles create sfx audio.
+   * @param {string} path
+   * @param {object} volume
+   * @returns {object|null}
+   */
   createSfxAudio(path, volume) {
     const sfx = new Audio(path);
     sfx.preload = "auto";
@@ -244,6 +326,11 @@ export default class AudioManager {
     return sfx;
   }
 
+  /**
+   * Handles safe play audio.
+   * @param {object} audio
+   * @returns {void}
+   */
   safePlayAudio(audio) {
     const playPromise = audio.play();
     if (playPromise && typeof playPromise.catch === "function") {
@@ -251,6 +338,12 @@ export default class AudioManager {
     }
   }
 
+  /**
+   * Handles schedule sfx stop.
+   * @param {object} sfx
+   * @param {object} maxDurationMs
+   * @returns {void}
+   */
   scheduleSfxStop(sfx, maxDurationMs) {
     if (!Number.isFinite(maxDurationMs) || maxDurationMs <= 0) {
       return;
@@ -262,18 +355,61 @@ export default class AudioManager {
     }, maxDurationMs);
   }
 
-  playSfx(path, { volume = 0.5, maxDurationMs = null } = {}) {
+  /**
+   * Handles set sfx start time.
+   * @param {object} sfx
+   * @param {object} startTimeSec
+   * @returns {void}
+   */
+  setSfxStartTime(sfx, startTimeSec) {
+    if (!Number.isFinite(startTimeSec) || startTimeSec <= 0) {
+      return;
+    }
+
+    /**
+     * Handles apply start time.
+     * @returns {void}
+     */
+    const applyStartTime = () => {
+      try {
+        sfx.currentTime = startTimeSec;
+      } catch {
+        // Ignore seek errors; playback can still continue from start.
+      }
+    };
+
+    if (sfx.readyState >= 1) {
+      applyStartTime();
+      return;
+    }
+
+    sfx.addEventListener("loadedmetadata", applyStartTime, { once: true });
+  }
+
+  /**
+   * Handles play sfx.
+   * @param {string} path
+   * @param {object} maxDurationMs
+   * @param {object} startTimeSec
+   * @returns {void}
+   */
+  playSfx(path, { volume = 0.5, maxDurationMs = null, startTimeSec = 0 } = {}) {
     if (!path || this.sfxMuted || !this.unlocked) {
       return null;
     }
 
     const sfx = this.createSfxAudio(path, volume);
+    this.setSfxStartTime(sfx, startTimeSec);
     this.safePlayAudio(sfx);
     this.scheduleSfxStop(sfx, maxDurationMs);
 
     return sfx;
   }
 
+  /**
+   * Handles decrease volume on menu open.
+   * @returns {void}
+   */
   decreaseVolumeOnMenuOpen() {
     this.musicVolume = this.music?.volume ?? 0.35;
     if (this.music) {
@@ -281,6 +417,10 @@ export default class AudioManager {
     }
   }
 
+  /**
+   * Handles increase volume on menu close.
+   * @returns {void}
+   */
   increaseVolumeOnMenuClose() {
     if (this.music) {
       this.music.volume = this.musicVolume;

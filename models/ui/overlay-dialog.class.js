@@ -1,4 +1,4 @@
-import DrawableObject from "../core/drawableObject.class.js";
+﻿import DrawableObject from "../core/drawableObject.class.js";
 
 const BTN_SRC = {
   normal: { sx: 350, sy: 273, sw: 50, sh: 16 },
@@ -33,11 +33,21 @@ export default class OverlayDialog extends DrawableObject {
     this.x_btn.src = "img/gui/x_btn.png";
   }
 
+  /**
+   * Runs draw.
+   * @param {CanvasRenderingContext2D} ctx
+   * @returns {void}
+   */
   draw(ctx) {
     this._drawPanel(ctx);
     this.buttons.forEach((btn) => this._drawButton(ctx, btn));
   }
 
+  /**
+   * Runs _draw panel.
+   * @param {CanvasRenderingContext2D} ctx
+   * @returns {void}
+   */
   _drawPanel(ctx) {
     ctx.drawImage(
       this.panelImg,
@@ -52,6 +62,12 @@ export default class OverlayDialog extends DrawableObject {
     );
   }
 
+  /**
+   * Runs _draw button.
+   * @param {CanvasRenderingContext2D} ctx
+   * @param {object} btn
+   * @returns {void}
+   */
   _drawButton(ctx, btn) {
     if (btn.isIconButton) {
       ctx.drawImage(this.x_btn, btn.x, btn.y, btn.w, btn.h);
@@ -76,6 +92,12 @@ export default class OverlayDialog extends DrawableObject {
     }
   }
 
+  /**
+   * Draws icon button.
+   * @param {CanvasRenderingContext2D} ctx
+   * @param {object} btn
+   * @returns {void}
+   */
   drawIconButton(ctx, btn) {
     ctx.save();
     ctx.filter = this.getButtonSpriteForState(btn, BTN_ICON_EFFECTS).filter;
@@ -84,6 +106,12 @@ export default class OverlayDialog extends DrawableObject {
     ctx.restore();
   }
 
+  /**
+   * Draws text button.
+   * @param {CanvasRenderingContext2D} ctx
+   * @param {object} btn
+   * @returns {void}
+   */
   drawTextButton(ctx, btn) {
     ctx.save();
     ctx.font = "bold 12px monospace";
@@ -97,6 +125,12 @@ export default class OverlayDialog extends DrawableObject {
     ctx.restore();
   }
 
+  /**
+   * Retrieves button sprite for state.
+   * @param {object} btn
+   * @param {object} btnSrc
+   * @returns {object|null}
+   */
   getButtonSpriteForState(btn, btnSrc) {
     if (this.pressedAction === btn.action) {
       return btnSrc.pressed;
@@ -109,15 +143,31 @@ export default class OverlayDialog extends DrawableObject {
     return btnSrc.normal;
   }
 
+  /**
+   * Sets hovered button.
+   * @param {string} action
+   * @returns {void}
+   */
   setHoveredButton(action) {
     this.hoveredAction = action ?? null;
   }
 
+  /**
+   * Sets pressed button.
+   * @param {string} action
+   * @returns {void}
+   */
   setPressedButton(action) {
     this.pressedAction = action ?? null;
   }
 
   /** Returns the button whose area contains (mouseX, mouseY), or null. */
+  /**
+   * Retrieves clicked button.
+   * @param {object} mouseX
+   * @param {object} mouseY
+   * @returns {object|null}
+   */
   getClickedButton(mouseX, mouseY) {
     return (
       this.buttons.find(

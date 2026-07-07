@@ -1,4 +1,4 @@
-import World from "../models/core/world.class.js";
+﻿import World from "../models/core/world.class.js";
 import AudioManager from "../models/core/audio-manager.class.js";
 import level1 from "../levels/level1.js";
 
@@ -6,10 +6,18 @@ let canvas;
 let world;
 let audioManager;
 
+/**
+ * Unlocks browser audio playback after a user interaction.
+ * @returns {void}
+ */
 function unlockAudio() {
   audioManager?.unlock?.();
 }
 
+/**
+ * Initializes the game state and core objects.
+ * @returns {void}
+ */
 function init() {
   canvas = document.getElementById("canvas");
   canvas.width = 720;
@@ -18,11 +26,19 @@ function init() {
   createWorld();
 }
 
+/**
+ * Creates world.
+ * @returns {void}
+ */
 function createWorld() {
   world = new World(canvas, level1, audioManager);
   world.setRestartHandler(restartGame);
 }
 
+/**
+ * Destroys the current world and recreates it from the level definition.
+ * @returns {void}
+ */
 function restartGame() {
   if (!canvas) {
     return;

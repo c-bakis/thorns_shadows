@@ -1,4 +1,4 @@
-import Collectable from "./collectables.class.js";
+﻿import Collectable from "./collectables.class.js";
 
 export default class ManaStone extends Collectable {
     manaAmount = 20;
@@ -33,6 +33,10 @@ export default class ManaStone extends Collectable {
         this.animate();
     }
 
+    /**
+     * Runs animate.
+     * @returns {void}
+     */
     animate() {
         this.startInterval(() => {
             this.switchAnimation("DEFAULT");
@@ -40,6 +44,11 @@ export default class ManaStone extends Collectable {
         }, 1000 / 60);
     }
 
+    /**
+     * Runs on collect.
+     * @param {object} character
+     * @returns {void}
+     */
     onCollect(character) {
         if (typeof character.increaseMana === "function") {
             character.increaseMana(this.manaAmount);

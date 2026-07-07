@@ -1,4 +1,4 @@
-import Enemy from "./enemy.class.js";
+﻿import Enemy from "./enemy.class.js";
 
 export default class Slime extends Enemy {
     damage = 10;
@@ -38,6 +38,11 @@ export default class Slime extends Enemy {
         this.animate();
     }
 
+    /**
+     * Advances sprite animation.
+     * @param {number} speed
+     * @returns {void}
+     */
     advanceSpriteAnimation(speed) {
         if (!this.spriteSheet) {
             return;
@@ -52,6 +57,10 @@ export default class Slime extends Enemy {
             (this.spriteSheet.currentFrame + 1) % this.spriteSheet.frameCount;
     }
 
+    /**
+     * Runs animate.
+     * @returns {void}
+     */
     animate() {
         this.startInterval(() => {
             if (this.world?.isGameplayFrozen?.(this)) {

@@ -1,4 +1,4 @@
-export default class Keyboard {
+﻿export default class Keyboard {
     LEFT = false;
     RIGHT = false;
     UP = false;
