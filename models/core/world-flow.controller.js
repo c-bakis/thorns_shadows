@@ -42,6 +42,15 @@ export default class WorldFlowController {
     }
   }
 
+  setQuitHandler(handler) {
+    this.world.quitHandler = typeof handler === "function" ? handler : null;
+  }
+
+  toggleMainMenuGame() {
+    if (typeof this.world.quitHandler === "function") {
+      this.world.quitHandler();
+    }
+  }
   destroy() {
     this.world.overlayController?.closeActiveOverlay?.();
     this.world.pause = true;

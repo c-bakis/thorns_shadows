@@ -27,16 +27,21 @@ export default class MenuActionsController {
         break;
       case "menu":
         console.log("Menu clicked");
+        this.world?.destroy?.();
+        this.world?.toggleMainMenuGame?.();
         break;
       case "toggleMusic":
         {
           const isEnabled = this.world?.audioManager?.toggleMusic?.();
+          this.world?.audioManager?.musicIsEnabled?.(isEnabled);
           console.log(`Music ${isEnabled ? "on" : "off"}`);
+          console.log(isEnabled);
         }
         break;
       case "toggleSound":
         {
           const isEnabled = this.world?.audioManager?.toggleSfx?.();
+          this.world?.audioManager?.soundIsEnabled?.(isEnabled);
           console.log(`SFX ${isEnabled ? "on" : "off"}`);
         }
         break;
@@ -56,7 +61,8 @@ export default class MenuActionsController {
       this.world?.restart?.();
     } else if (action === "menu" || action === "close") {
       console.log("Menu clicked");
-      // TODO: return to main menu
+        this.world?.destroy?.();
+        this.world?.toggleMainMenuGame?.();
     }
   }
 
@@ -71,7 +77,8 @@ export default class MenuActionsController {
       this.world?.restart?.();
     } else if (action === "menu" || action === "close") {
       console.log("Menu clicked");
-      // TODO: return to main menu
+        this.world?.destroy?.();
+        this.world?.toggleMainMenuGame?.();
     }
   }
 }

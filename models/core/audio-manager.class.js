@@ -298,7 +298,6 @@ export default class AudioManager {
     return sfx;
   }
 
-
   decreaseVolumeOnMenuOpen() {
     this.musicVolume = this.music?.volume ?? 0.35;
     if (this.music) {
@@ -312,4 +311,18 @@ export default class AudioManager {
       this.music.volume = this.musicVolume;
     }
   }
+
+  musicIsEnabled(isEnabled) {
+    if (this.world) {
+      this.world.musicIsEnabled = isEnabled;
+      sessionStorage.setItem("musicIsEnabled", isEnabled ? "true" : "false");
+    }
+  }
+    soundIsEnabled(isEnabled) {
+    if (this.world) {
+      this.world.soundIsEnabled = isEnabled;
+      sessionStorage.setItem("soundIsEnabled", isEnabled ? "true" : "false");
+    }
+  }
+
 }

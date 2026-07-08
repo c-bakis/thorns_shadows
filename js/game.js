@@ -6,6 +6,7 @@ let canvas;
 let world;
 let audioManager;
 
+
 /**
  * Unlocks browser audio playback after a user interaction.
  * @returns {void}
@@ -23,8 +24,11 @@ function init() {
   canvas.width = 720;
   canvas.height = 480;
   audioManager = new AudioManager();
+  toggleMainMenuGame();
   createWorld();
 }
+
+window.init = init;
 
 /**
  * Creates world.
@@ -33,6 +37,7 @@ function init() {
 function createWorld() {
   world = new World(canvas, level1, audioManager);
   world.setRestartHandler(restartGame);
+  world.setQuitHandler(toggleMainMenuGame);
 }
 
 /**
@@ -51,7 +56,23 @@ function restartGame() {
   createWorld();
 }
 
-window.addEventListener("load", init);
+/**
+ * Toggles the visibility of the main menu and game canvas.
+ * @returns {void}
+ */
+function toggleMainMenuGame() {  
+  if (world && typeof world.destroy === "function") {
+    world.destroy();
+  }
+  const startScreen = document.getElementById("start-screen");
+  const canvasElement = document.getElementById("canvas");
+  const isStartScreenHidden = getComputedStyle(startScreen).getPropertyValue("display") === "none";
+  console.log("Start screen display:", isStartScreenHidden);
+
+  startScreen.style.display = isStartScreenHidden ? "flex" : "none";
+  canvasElement.style.display = isStartScreenHidden ? "none" : "block";
+}
+
 window.addEventListener("keydown", (e) => {
   unlockAudio();
 
