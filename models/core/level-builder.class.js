@@ -5,6 +5,7 @@ import Slime from "../enemies/slime.class.js";
 import PredatorPlant from "../enemies/predator-plant.class.js";
 import Spider from "../enemies/spider.class.js";
 import Wolf from "../enemies/wolf.class.js";
+import SpikeTrap from "../enemies/spike-trap.class.js";
 import DecorationObject from "../environment/decoration-object.class.js";
 import ManaStone from "../collectables/mana-stone.class.js";
 
@@ -15,10 +16,15 @@ export default class LevelBuilder {
      * @returns {object|null}
      */
     static build(level) {
+        const tileConfigs = level?.tiles ?? [];
+        const builtTiles = this.buildTiles(tileConfigs);
+        const builtEnemies = this.buildEnemies(level?.enemies ?? []);
+        const trapEnemies = this.buildSpikeTrapsFromTiles(tileConfigs);
+
         return {
             backgroundObjects: this.buildBackgrounds(level?.backgroundLayers ?? []),
-            tileset: this.buildTiles(level?.tiles ?? []),
-            enemies: this.buildEnemies(level?.enemies ?? []),
+            tileset: builtTiles,
+            enemies: [...builtEnemies, ...trapEnemies],
             collectables: this.buildCollectables(level?.collectables ?? []),
             decorations: this.buildDecorations(level?.decorations ?? []),
         };
@@ -133,7 +139,64 @@ export default class LevelBuilder {
                 return wolf;
             }
 
+            if (enemy.type === "spikeTrap") {
+                const trapHitbox = enemy.hitbox ?? null;
+                return new SpikeTrap({
+                    x: enemy.x,
+                    y: enemy.y,
+                    width: enemy.width,
+                    height: enemy.height,
+                    damage: enemy.damage,
+                    hitbox: trapHitbox,
+                });
+            }
+
             return null;
         }).filter(Boolean);
+    }
+
+    /**
+     * Builds spike traps from tiles that are marked as traps.
+     * @param {object[]} tiles
+     * @returns {object[]}
+     */
+    static buildSpikeTrapsFromTiles(tiles) {
+        return tiles
+            .filter((tile) => this.isSpikeTrapTile(tile))
+            .map((tile) => {
+                const trapConfig = tile.trap === true ? {} : (tile.trap ?? {});
+                const hitboxConfig = trapConfig.hitbox ?? {};
+
+                return new SpikeTrap({
+                    x: tile.x,
+                    y: tile.y,
+                    width: tile.width,
+                    height: tile.height,
+                    damage: trapConfig.damage,
+                    hitbox: {
+                        offsetX: hitboxConfig.offsetX,
+                        offsetY: hitboxConfig.offsetY,
+                        width: hitboxConfig.width,
+                        height: hitboxConfig.height,
+                    },
+                });
+            });
+    }
+
+    /**
+     * Returns true if tile should also act as spike trap.
+     * @param {object} tile
+     * @returns {boolean}
+     */
+    static isSpikeTrapTile(tile) {
+        if (!tile || !tile.imagePath) {
+            return false;
+        }
+
+        if (tile.trap === true || typeof tile.trap === "object") {
+            return true;
+        }
+
+        return tile.imagePath.includes("spikes");
     }
 }
