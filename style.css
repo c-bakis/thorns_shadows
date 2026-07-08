@@ -1,3 +1,10 @@
+
+@font-face {
+    font-family: PixelifySans;
+    src: url('./font/static/PixelifySans-SemiBold.ttf') format('truetype');
+    
+}
+
 body {
     background-image: url('./img/backgrounds/forest.jpg');
     background-size: cover;
@@ -12,18 +19,38 @@ body {
 
 #start-screen {
     display: flex;
+    justify-content: center;
+    align-items: center;
     position: relative;
     background-image: url('./img/backgrounds/Full_bg_1920x1080.png');
     background-size: cover;
     background-position: center;
+    opacity: 0.95;
     width: 720px;
     height: 480px;
+}
+
+.game-name {
+    position: absolute;
+    top: -100px;
+    left: 50%;
+    width: 100%;
+    text-align: center;
+    transform: translateX(-50%);
+    font-family: 'PixelifySans', cursive;
+    font-size: 2.2rem;
+    color: white;
+    text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.7);
 }
 
 div.grid {
     display: grid;
     grid-template-columns: repeat(4, 1fr);
     grid-template-rows: repeat(4, 1fr);
+    width: 100%;
+    height: 100%;
+    margin: 0 auto;
+    box-sizing: border-box;
     gap: 10px;
     justify-items: center;
     align-items: center;
@@ -38,15 +65,24 @@ div.grid-item {
     height: 100%;
 }
 
-button#start-btn {
-    padding: 20px 30px;
-    font-size: 1.5rem;
-    cursor: pointer;
-    background-color: rgba(0, 0, 0, 0.7);
-    color: white;
+.menu-btn,
+#start-btn {
+    width: 182px;
+    height: 54px;
     border: none;
-    border-radius: 5px;
-    transition: background-color 0.3s ease;
+    background: transparent url('./img/gui/single_btn.png') center / 100% 100% no-repeat;
+    color: #1c3f1d;
+    font: 700 16px/1.2 monospace;
+    letter-spacing: 0.6px;
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    text-transform: uppercase;
+    padding: 0 16px;
+    text-shadow: 0 1px 0 rgba(227, 255, 190, 0.35);
+    transition: filter 120ms ease, transform 120ms ease, color 120ms ease;
 }
 
 div.game-start-btn {
@@ -56,17 +92,29 @@ div.game-start-btn {
     /* background-color: rgba(0, 0, 0, 0.5); */
 }
 
-button#start-btn:hover {
-    background-color: rgba(0, 0, 0, 0.9);
+.menu-btn:hover,
+#start-btn:hover {
+    color: #123613;
+    filter: saturate(1.18) brightness(1.06) contrast(1.04) drop-shadow(0 2px 2px rgba(16, 34, 11, 0.35));
 }
 
-button#start-btn:active {
-    background-color: rgba(0, 0, 0, 1);
+.menu-btn:active,
+#start-btn:active {
+    color: #0e290f;
+    transform: translateY(2px) scale(0.99);
+    filter: saturate(0.9) brightness(0.88);
 }
 
-button#start-btn:focus {
+.menu-btn:focus,
+#start-btn:focus {
     outline: none;
-    box-shadow: 0 0 10px rgba(255, 255, 255, 0.5);
+    box-shadow: 0 0 0 2px rgba(153, 219, 105, 0.45);
+}
+
+#start-btn {
+    width: 226px;
+    height: 86px;
+    font-size: 20px;
 }
 
 div.button-container {
@@ -75,7 +123,8 @@ div.button-container {
     display: flex;
     justify-content: space-around;
     align-items: center;
-    gap: 20px;
+    flex-wrap: wrap;
+    gap: 14px;
     /* background-color: rgba(0, 0, 0, 0.5); */
 }
 
@@ -99,14 +148,35 @@ div .hero-img img {
 }
 
 @media (max-width: 720px) {
-    canvas {
+    #canvas,
+    #start-screen {
         width: 100%;
+        max-width: 720px;
         height: auto;
     }
 }
 
 @media (max-width: 480px) {
-    canvas {
+    #canvas {
         height: 100vh;
+    }
+    .game-name {
+        font-size: 1.5rem;
+    }
+
+    .menu-btn,
+    #start-btn,
+    #info-btn,
+    #settings-btn,
+    #sowas-btn {
+        width: 160px;
+        height: 38px;
+        font-size: 11.5px;
+    }
+
+    #start-btn {
+        width: 172px;
+        height: 40px;
+        font-size: 12px;
     }
 }
