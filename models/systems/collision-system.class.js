@@ -45,6 +45,7 @@ export default class CollisionSystem {
 
       collectable.onCollect(this.character);
       this.updateCharacterHealthUi();
+      this.updateCharacterManaUi();
       this.combatSystem.playCorrectSfx(
         this.character.world?.audioManager?.collectItemSoundPath,
         { volume: 0.25 },
@@ -86,5 +87,9 @@ export default class CollisionSystem {
 
   updateCharacterHealthUi() {
     this.statusBar.setPercentage(this.character.energy, "health");
+  }
+
+  updateCharacterManaUi() {
+    this.statusBar.setPercentage(this.character.mana, "mana");
   }
 }

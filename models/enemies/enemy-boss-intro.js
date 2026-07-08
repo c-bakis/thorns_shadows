@@ -142,17 +142,12 @@ function playBossIntroAudio(enemy, audioPath, audioProperty) {
     const audioManager = enemy.world?.audioManager;
     if (typeof audioManager?.playSfx === "function") {
         audioManager.playSfx(audioPath, {
-            volume: 0.5,
-            maxDurationMs: 1800,
+            volume: 0.6,
+            maxDurationMs: 2450,
             startTimeSec: isWolfHowl ? 1 : 0,
         });
         return;
     }
-
-    // if (!enemy[audioProperty] || enemy[audioProperty].src !== audioPath) {
-    //     enemy[audioProperty] = new Audio(audioPath);
-    //     enemy[audioProperty].preload = "auto";
-    // }
 
     enemy[audioProperty].currentTime = isWolfHowl ? 1 : 0;
     enemy[audioProperty].play().catch(() => {});

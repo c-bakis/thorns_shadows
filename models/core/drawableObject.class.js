@@ -151,7 +151,6 @@
       const hitbox = this.getHitbox();
       ctx.beginPath();
       ctx.rect(hitbox.x, hitbox.y, hitbox.width, hitbox.height);
-      ctx.strokeStyle = "blue";
       ctx.lineWidth = 5;
       ctx.stroke();
     }
