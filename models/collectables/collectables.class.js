@@ -42,6 +42,7 @@ export default class Collectable extends DrawableObject {
         const hitbox = this.getHitbox();
         ctx.beginPath();
         ctx.rect(hitbox.x, hitbox.y, hitbox.width, hitbox.height);
+        ctx.strokeStyle = "transparent";
         ctx.lineWidth = 5;
         ctx.stroke();
     }

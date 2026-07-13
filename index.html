@@ -1,36 +1,227 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link rel="stylesheet" href="style.css">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link
+      rel="shortcut icon"
+      href="./img/character/wizard/wizard_avatare3.png"
+      type="png"
+    />
+    <link rel="stylesheet" href="style.css" />
     <title>Game</title>
+    <script src="js/dialog.js"></script>
     <script type="module" src="js/game.js"></script>
-</head>
-<body>
-
-    <div id="start-screen" >
-    <h1 class="game-name">THORNS & SHADOWS: The First Ember</h1>
+  </head>
+  <body>
+    <section id="game-container">
+      <div id="start-screen">
+        <h1 class="game-name">THORNS & SHADOWS: The First Ember</h1>
         <div class="grid">
-            <div class="grid-item hero-img">
-                <img src="img\character\wizard\wizard_with_weapon_without_backg.png">
-            </div>
-            <div class="grid-item game-start-btn">
-                <button id="start-btn" onclick="init()">Start Game</button>  
-            </div>
-            <div class="grid-item button-container">
-                <button class="menu-btn" id="info-btn" onclick="">Info</button>
-                <button class="menu-btn" id="how-to-play-btn" onclick="">How to Play</button>
-                <button class="menu-btn" id="settings-btn" onclick="">Settings</button>
-            </div>
+          <div class="grid-item hero-img">
+            <img
+              src="img/character/wizard/wizard_with_weapon_without_backg.png"
+            />
+          </div>
+          <div class="grid-item game-start-btn">
+            <button id="start-btn" onclick="init()">Start Game</button>
+          </div>
+          <div class="grid-item button-container">
+            <button
+              class="menu-btn"
+              id="info-btn"
+              onclick="
+                openDialog(document.getElementById('info-overlay-dialog'))
+              "
+            >
+              Story
+            </button>
+            <button
+              class="menu-btn"
+              id="how-to-play-btn"
+              onclick="
+                openDialog(
+                  document.getElementById('how-to-play-overlay-dialog'),
+                )
+              "
+            >
+              How to Play
+            </button>
+            <!-- <button
+              class="menu-btn"
+              id="settings-btn"
+              onclick="
+                openDialog(document.getElementById('settings-overlay-dialog'))
+              "
+            >
+              Settings
+            </button> -->
+          </div>
         </div>
+      </div>
 
-    </div>
+      <canvas id="canvas"> </canvas>
+    </section>
 
-    <canvas id="canvas">
+    <section id="info-overlay" class="hidden">
+      <dialog
+        id="info-overlay-dialog"
+        onclick="closeDialogOnClickOutside(event, this)"
+      >
+        <div class="wrapper">
+          <div class="overlay-content">
+            <button
+              class="close"
+              onclick="
+                closeDialog(this.parentElement.parentElement.parentElement)
+              "
+            >
+              <img src="./img/gui/x_btn.png" alt="close" class="close-img" />
+            </button>
+            <div class="overlay-main-content">
+              <div class="overlay-text">
+                <h2>Game Information</h2>
+                <img
+                  src="./img/character/wizard/wizard_front_without_backg.png"
+                  alt="Hero Pyris"
+                  class="hero-img"
+                />
+                <p class="game-info-text first-paragraph">
+                  Pyris faces the decisive day: the Sylvan Trial Rite. 
+                  To become a full-fledged Magic Guardian, he must venture 
+                  deep into the most dangerous section of the forest and defeat 
+                  the legendary Giant Wolf.
+                </p>
+                <p class="game-info-text second-paragraph">
+                  Only a few hours ago, Pyris learned the theory of 
+                  fire magic. Now he must prove it in practice.
+                </p>
+                <p class="game-info-text third-paragraph">
+                  The forest is full of wild creatures, but by collecting primeval mana crystals, 
+                  Pyris can channel the necessary heat into his staff to unleash his newly learned flames.
+                </p>
+                <p class="game-info-text fourth-paragraph">
+                  At the end of the path, the Giant Wolf awaits &minus; lured by the howling of the beast, Pyris' true trial begins.
+                </p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </dialog>
+    </section>
 
+    <section id="how-to-play-overlay" class="hidden">
+      <dialog
+        id="how-to-play-overlay-dialog"
+        onclick="closeDialogOnClickOutside(event, this)"
+      >
+        <div class="wrapper">
+          <div class="overlay-content">
+            <button
+              class="close"
+              onclick="
+                closeDialog(this.parentElement.parentElement.parentElement)
+              "
+            >
+              <img src="./img/gui/x_btn.png" alt="close" class="close-img" />
+            </button>
+            <div class="overlay-main-content">
+              <h2>How to Play</h2>
+              <p class="how-to-play-text">
+                Use the arrow keys or WASD to move Pyris through the forest.
+                Collect mana crystals to recharge yout mana and use fire magic.
+                Avoid or defeat enemies. Reach the end of the path to face the
+                giant wolf and complete your trial.
+              </p>
+              <div class="instructions">
+                <div>
+                  <span class="instruction-text">Move left:</span>
+                </div>
+                <div class="keys">
+                  <span class="keyboard-key">A</span>
+                  <span> or: </span>
+                  <span class="keyboard-key arrow"
+                    ><span class="arrow-left">&#10132;</span></span
+                  >
+                </div>
+              </div>
+              <div class="instructions">
+                <div>
+                  <span class="instruction-text">Move right:</span>
+                </div>
+                <div class="keys">
+                  <span class="keyboard-key">D</span>
+                  <span> or: </span>
+                  <span class="keyboard-key arrow">&#10132;</span>
+                </div>
+              </div>
+              <div class="instructions">
+                <div>
+                  <span>Jump:</span>
+                </div>
+                <div class="keys">
+                  <span class="keyboard-key">W</span>
+                  <span> or: </span>
+                  <span class="keyboard-key arrow"
+                    ><span class="arrow-up">&#10132;</span></span
+                  >
+                </div>
+              </div>
+              <div class="instructions">
+                <div>
+                  <span>Attack:</span>
+                </div>
+                <div class="keys">
+                  <span class="keyboard-key">F</span>
+                </div>
+              </div>
+              <div class="instructions">
+                <div>
+                  <span>Magic-Attack:</span>
+                </div>
+                <div class="keys">
+                  <span class="keyboard-key">G</span>
+                </div>
+              </div>
+              <div class="instructions">
+                <div>
+                  <span>Pause/Menu:</span>
+                </div>
+                <div class="keys">
+                  <span class="keyboard-key">P</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </dialog>
+    </section>
 
-    </canvas>
-    
-</body>
+    <!-- <section id="settings-overlay" class="hidden">
+      <dialog
+        id="settings-overlay-dialog"
+        onclick="closeDialogOnClickOutside(event, this)"
+      >
+        <div class="wrapper">
+          <div class="overlay-content">
+            <button
+              class="close"
+              onclick="
+                closeDialog(this.parentElement.parentElement.parentElement)
+              "
+            >
+              <img src="./img/gui/x_btn.png" alt="close" class="close-img" />
+            </button>
+            <div class="overlay-main-content">
+              <h2>Settings</h2>
+              <p class="settings-text">
+                Adjust the game settings to your preference. You can change the
+                volume, graphics quality, and control sensitivity.
+              </p>
+            </div>
+          </div>
+        </div>
+      </dialog>
+    </section> -->
+  </body>
 </html>

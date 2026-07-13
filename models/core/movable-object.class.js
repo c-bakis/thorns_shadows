@@ -46,39 +46,6 @@ export default class MovableObject extends DrawableObject {
     }
   }
 
-  // drawBoundingBox(ctx) {
-  //   const shouldDrawBoundingBox =
-  //     this.constructor?.name === "Character" ||
-  //     this.constructor?.name === "Slime" ||
-  //     this.constructor?.name === "PredatorPlant" ||
-  //     this.constructor?.name === "Spider" ||
-  //     this.constructor?.name === "Wolf" ||
-  //     this.constructor?.name === "Tileset";
-
-  //   if (shouldDrawBoundingBox) {
-  //     const hitbox = this.getHitbox();
-  //     ctx.beginPath();
-  //     ctx.rect(hitbox.x, hitbox.y, hitbox.width, hitbox.height);
-  //     ctx.strokeStyle = "blue";
-  //     ctx.lineWidth = 5;
-  //     ctx.stroke();
-  //   }
-  // }
-
-  // getHitbox() {
-  //   const width = this.hitboxWidth ?? this.width;
-  //   const height = this.hitboxHeight ?? this.height;
-  //   const offsetX = this.hitboxOffsetX ?? 0;
-  //   const offsetY = this.hitboxOffsetY ?? 0;
-
-  //   return {
-  //     x: this.x + offsetX,
-  //     y: this.y + offsetY,
-  //     width,
-  //     height,
-  //   };
-  // }
-
   /**
    * Handles initiate animation.
    * @param {object} num
