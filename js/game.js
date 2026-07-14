@@ -6,6 +6,23 @@ let canvas;
 let world;
 let audioManager;
 
+/**
+ * Reads a persisted enabled-state from sessionStorage.
+ * @param {string} key
+ * @param {boolean} fallbackEnabled
+ * @returns {boolean}
+ */
+function getStoredEnabledState(key, fallbackEnabled = true) {
+  const storedValue = sessionStorage.getItem(key);
+  if (storedValue === "true") {
+    return true;
+  }
+  if (storedValue === "false") {
+    return false;
+  }
+  return fallbackEnabled;
+}
+
 
 /**
  * Unlocks browser audio playback after a user interaction.
@@ -23,7 +40,12 @@ function init() {
   canvas = document.getElementById("canvas");
   canvas.width = 720;
   canvas.height = 480;
-  audioManager = new AudioManager();
+  const isMusicEnabled = getStoredEnabledState("musicIsEnabled", true);
+  const isSoundEnabled = getStoredEnabledState("soundIsEnabled", true);
+  audioManager = new AudioManager({
+    initialMusicMuted: !isMusicEnabled,
+    initialSfxMuted: !isSoundEnabled,
+  });
   toggleMainMenuGame();
   createWorld();
 }

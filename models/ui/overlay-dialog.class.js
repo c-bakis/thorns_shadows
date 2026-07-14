@@ -19,6 +19,7 @@ const BTN_ICON_EFFECTS = {
 export default class OverlayDialog extends DrawableObject {
   hoveredAction = null;
   pressedAction = null;
+  btnIsActive = false;
 
   constructor(config) {
     super();
@@ -119,7 +120,7 @@ export default class OverlayDialog extends DrawableObject {
     ctx.fillStyle = "#1a3d1a";
     ctx.textAlign = "center";
     ctx.textBaseline = "middle";
-    if (this.pressedAction === btn.action) {
+    if (this.isButtonInPressedState(btn)) {
       ctx.fillStyle = "#102910";
     }
     ctx.fillText(btn.label, btn.x + btn.w / 2, btn.y + btn.h / 2);
@@ -133,15 +134,47 @@ export default class OverlayDialog extends DrawableObject {
    * @returns {object|null}
    */
   getButtonSpriteForState(btn, btnSrc) {
-    if (this.pressedAction === btn.action) {
+    if (this.isButtonInPressedState(btn)) {
       return btnSrc.pressed;
     } else if (this.hoveredAction === btn.action) {
       return btnSrc.hover;
     } else {
       return btnSrc.normal;
     }
+  }
 
-    return btnSrc.normal;
+  /**
+   * Checks whether a button should render in pressed state.
+   * @param {object} btn
+   * @returns {boolean}
+   */
+  isButtonInPressedState(btn) {
+    return (
+      this.pressedAction === btn.action ||
+      this.btnIsActive ||
+      this.isPersistentTogglePressed(btn)
+    );
+  }
+
+  /**
+   * Keeps music/sound toggle buttons pressed while the option is disabled.
+   * @param {object} btn
+   * @returns {boolean}
+   */
+  isPersistentTogglePressed(btn) {
+    if (!btn?.action || typeof sessionStorage === "undefined") {
+      return false;
+    }
+
+    if (btn.action === "toggleMusic") {
+      return sessionStorage.getItem("musicIsEnabled") === "false";
+    }
+
+    if (btn.action === "toggleSound") {
+      return sessionStorage.getItem("soundIsEnabled") === "false";
+    }
+
+    return false;
   }
 
   /**

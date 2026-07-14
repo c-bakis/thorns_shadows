@@ -312,17 +312,17 @@ export default class AudioManager {
     }
   }
 
-  musicIsEnabled(isEnabled) {
-    if (this.world) {
-      this.world.musicIsEnabled = isEnabled;
-      sessionStorage.setItem("musicIsEnabled", isEnabled ? "true" : "false");
-    }
-  }
-    soundIsEnabled(isEnabled) {
-    if (this.world) {
-      this.world.soundIsEnabled = isEnabled;
-      sessionStorage.setItem("soundIsEnabled", isEnabled ? "true" : "false");
-    }
-  }
+  // musicIsEnabled(isEnabled) {
+  //   if (this.world) {
+  //     this.world.musicIsEnabled = isEnabled;
+  //     sessionStorage.setItem("musicIsEnabled", isEnabled ? "true" : "false");
+  //   }
+  // }
+  //   soundIsEnabled(isEnabled) {
+  //   if (this.world) {
+  //     this.world.soundIsEnabled = isEnabled;
+  //     sessionStorage.setItem("soundIsEnabled", isEnabled ? "true" : "false");
+  //   }
+  // }
 
 }
