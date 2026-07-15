@@ -23,7 +23,7 @@ export default class OverlayDialog extends DrawableObject {
 
   constructor(config) {
     super();
-    this.panelSrc = config.panelSrc; // { sx, sy, sw, sh }
+    this.panelSrc = config.panelSrc; 
     this.panelDst = config.panelDst || { x: 175, y: 120, w: 350, h: 285 };
     this.buttons = config.buttons || [];
     this.keepOpenActions = config.keepOpenActions || [];
@@ -77,7 +77,6 @@ export default class OverlayDialog extends DrawableObject {
     } else {
       const sprite = this.getButtonSpriteForState(btn, BTN_SRC);
 
-      // Sprite background
       ctx.drawImage(
         this.buttonSheet,
         sprite.sx,

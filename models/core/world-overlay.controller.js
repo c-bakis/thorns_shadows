@@ -275,8 +275,6 @@ export default class WorldOverlayController {
       onActionCallback(button.action);
       return;
     }
-
-    // Keep dialog interactive for toggle actions: clear transient state and redraw.
     dialog.setPressedButton(null);
     dialog.setHoveredButton(button.action);
     onActionCallback(button.action);

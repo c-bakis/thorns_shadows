@@ -1,12 +1,16 @@
+/** Handles player movement and input processing per frame. */
 export default class CharacterMovement {
+  /** @param {Character} character */
   constructor(character) {
     this.character = character;
   }
 
+  /** Starts the movement update loop at 60 FPS. */
   animate() {
     this.character.startInterval(() => this.tick(), 1000 / 60);
   }
 
+  /** Runs one movement tick and updates animation state. */
   tick() {
     if (!this.character.world?.keyboard) {
       return;
@@ -29,6 +33,10 @@ export default class CharacterMovement {
     );
   }
 
+  /**
+   * Processes combat and movement inputs for the current frame.
+   * @param {number} now
+   */
   handleInput(now) {
     if (this.isAttackPressedNow()) {
       this.character.combat.handleAttackInput(now);
@@ -43,6 +51,7 @@ export default class CharacterMovement {
     }
   }
 
+  /** Returns true only on the attack key down edge. */
   isAttackPressedNow() {
     const isPressed = Boolean(this.character.world?.keyboard?.ATTACK);
     const pressedNow = isPressed && !this.character.wasAttackPressed;
@@ -50,6 +59,7 @@ export default class CharacterMovement {
     return pressedNow;
   }
 
+  /** Returns true only on the magic-attack key down edge. */
   isMagicAttackPressedNow() {
     const isPressed = Boolean(this.character.world?.keyboard?.MAGIC_ATTACK);
     const pressedNow = isPressed && !this.character.wasMagicAttackPressed;
@@ -57,6 +67,7 @@ export default class CharacterMovement {
     return pressedNow;
   }
 
+  /** Handles jump/fall/horizontal movement when the character can move. */
   handleMovementInput() {
     if (this.character.energy <= 0) {
       this.character.speedY = 0;
@@ -68,6 +79,7 @@ export default class CharacterMovement {
     this.handleHorizontalInput();
   }
 
+  /** Applies jump impulse when jump input is pressed on ground. */
   handleJumpInput() {
     const isJumpPressed =
       this.character.world.keyboard.SPACE || this.character.world.keyboard.UP;
@@ -76,6 +88,7 @@ export default class CharacterMovement {
     }
   }
 
+  /** Handles fast-fall input in air or snaps to ground when grounded. */
   handleFallInput() {
     if (!this.character.world.keyboard.DOWN) {
       return;
@@ -88,12 +101,14 @@ export default class CharacterMovement {
     }
   }
 
+  /** Triggers horizontal movement handling if left or right is pressed. */
   handleHorizontalInput() {
     if (this.character.world.keyboard.RIGHT || this.character.world.keyboard.LEFT) {
       this.moveCharacter();
     }
   }
 
+  /** Moves the character within level bounds. */
   moveCharacter() {
     const worldEndX = this.character.world?.level?.levelEndX ?? Infinity;
     const maxCharacterX = worldEndX - this.character.width;

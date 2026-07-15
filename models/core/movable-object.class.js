@@ -8,10 +8,6 @@ export default class MovableObject extends DrawableObject {
   previousY = 230;
   height = 180;
   width = 150;
-  // hitboxOffsetX = 0;
-  // hitboxOffsetY = 0;
-  // hitboxWidth = this.width;
-  // hitboxHeight = this.height;
   speed = 0.15;
   speedY = 0;
   acceleration = 2.5;

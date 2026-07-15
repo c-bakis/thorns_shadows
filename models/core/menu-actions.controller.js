@@ -34,7 +34,6 @@ export default class MenuActionsController {
         {
           const isEnabled = this.world?.audioManager?.toggleMusic?.();
           sessionStorage.setItem("musicIsEnabled", isEnabled ? "true" : "false");
-          // this.world?.audioManager?.musicIsEnabled?.(isEnabled);
           const btnState = isEnabled ? "on" : "off";
           const btn = this.world?.overlayDialog?.buttons?.find((b) => b.action === "active");
           sessionStorage.setItem("toggleMusicButtonState", btnState);
@@ -46,7 +45,6 @@ export default class MenuActionsController {
         {
           const isEnabled = this.world?.audioManager?.toggleSfx?.();
           sessionStorage.setItem("soundIsEnabled", isEnabled ? "true" : "false");
-          // this.world?.audioManager?.soundIsEnabled?.(isEnabled);
           console.log(`SFX ${isEnabled ? "on" : "off"}`);
         }
         break;

@@ -17,11 +17,11 @@ export default class GameOver {
         {
           label: "X",
           action: "close",
-          x: 478, // Position des "x" im Panel
-          y: 146, // (adjustieren je nach Panel-Position)
-          w: 28, // Kleine Hit-Box um das x
+          x: 478, 
+          y: 146, 
+          w: 28, 
           h: 28,
-          isIconButton: true, // optional, um anders zu rendern
+          isIconButton: true, 
         },
         {
           label: "PLAY AGAIN",

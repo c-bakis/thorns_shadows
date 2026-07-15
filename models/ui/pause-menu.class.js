@@ -17,11 +17,11 @@ export default class PauseMenu {
         {
           label: "X",
           action: "close",
-          x: 461, // Position des "x" im Panel
-          y: 90, // (adjustieren je nach Panel-Position)
-          w: 21, // Kleine Hit-Box um das x
+          x: 461, 
+          y: 90, 
+          w: 21, 
           h: 18,
-          isIconButton: true, // optional, um anders zu rendern
+          isIconButton: true, 
         },
         {
           label: "RESUME",

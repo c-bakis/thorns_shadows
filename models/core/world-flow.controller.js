@@ -73,7 +73,6 @@ export default class WorldFlowController {
   }
 
   handleGameOver() {
-    console.log("Game Over");
     this.pauseGame();
     this.world.audioManager?.playGameOverMusic?.();
     this.playGameOverUi();
@@ -84,7 +83,6 @@ export default class WorldFlowController {
   }
 
   handleWin() {
-    console.log("Level Won");
     this.pauseGame();
     this.world.audioManager?.playVictoryMusic?.();
     this.playWinUi();

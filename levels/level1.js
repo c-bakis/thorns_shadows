@@ -71,7 +71,6 @@ const level1 = new Level({
     { imagePath: "img/objects/double_bush.png", x: 3450, y: 100, width: 55, height: 60 },
 
 
-    // Flower sheet (3x3). Visible placement on 3rd floating tile and grass below.
     { imagePath: "img/objects/flower_sheet.png", x: 1408, y: 247, width: 30, height: 48, frameWidth: 42, frameHeight: 66, columns: 3, frameCount: 9, frameIndex: 0 },
     { imagePath: "img/objects/flower_sheet.png", x: 1448, y: 247, width: 30, height: 48, frameWidth: 42, frameHeight: 66, columns: 3, frameCount: 9, frameIndex: 1 },
     { imagePath: "img/objects/flower_sheet.png", x: 1420, y: 245, width: 30, height: 48, frameWidth: 42, frameHeight: 66, columns: 3, frameCount: 9, frameIndex: 2 },

@@ -99,13 +99,4 @@ export default class Collectable extends DrawableObject {
             (this.spriteSheet.currentFrame + 1) % this.spriteSheet.frameCount;
     }
 
-    /**
-     * Runs on collect.
-     * @param {object} character
-     * @returns {void}
-     */
-    onCollect(character) {
-        // overridden in subclasses
-    }
-
 }
