@@ -89,10 +89,11 @@ function toggleMainMenuGame() {
   const startScreen = document.getElementById("start-screen");
   const canvasElement = document.getElementById("canvas");
   const isStartScreenHidden = getComputedStyle(startScreen).getPropertyValue("display") === "none";
-  console.log("Start screen display:", isStartScreenHidden);
+  const isGameActive = !isStartScreenHidden;
 
   startScreen.style.display = isStartScreenHidden ? "flex" : "none";
   canvasElement.style.display = isStartScreenHidden ? "none" : "block";
+  document.body.classList.toggle("is-game-active", isGameActive);
 }
 
 window.addEventListener("keydown", (e) => {

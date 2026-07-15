@@ -15,6 +15,32 @@ body {
   margin: 0;
 }
 
+footer {
+  position: fixed;
+  bottom: 10%;
+  right: 50%;
+  transform: translateX(50%) translateY(-10%);
+  text-align: center;
+  font-family: "PixelifySans", cursive;
+  font-size: 20px;
+  color: white;
+}
+
+footer a {
+  color: white;
+  text-decoration: none;
+  text-shadow: 2px 2px 2px rgba(0, 0, 0);
+  transition: color 0.3s ease;
+}
+
+footer a:hover {
+  color: #a0e0a0;
+}
+
+body.is-game-active footer {
+  display: none;
+}
+
 #start-screen {
   display: flex;
   justify-content: center;
@@ -36,9 +62,9 @@ body {
   text-align: center;
   transform: translateX(-50%);
   font-family: "PixelifySans", cursive;
-  font-size: 2.2rem;
+  font-size: 40px;
   color: white;
-  text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.7);
+  text-shadow: 2px 2px 2px rgba(0, 0, 0, 0.9);
 }
 
 div.grid {
@@ -126,7 +152,6 @@ div.button-container {
   align-items: center;
   flex-wrap: wrap;
   gap: 14px;
-  /* background-color: rgba(0, 0, 0, 0.5); */
 }
 
 div.hero-img {
@@ -261,7 +286,7 @@ img.hero-img {
   display: flex;
   justify-content: space-between;
   padding: 15px 120px;
-    max-width: calc(100% - 50px);
+  max-width: calc(100% - 50px);
 }
 
 .instructions div {
@@ -305,8 +330,20 @@ img.hero-img {
   transform: rotate(270deg);
 }
 
-@media (min-width: 1068px) {
+.landscape-message {
+  display: none;
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: white;
+  z-index: 9999;
+  text-align: center;
+  padding-top: 20%;
+}
 
+@media (min-width: 1068px) {
   .instructions {
     padding: 15px 200px;
     max-width: calc(100% - 80px);
@@ -320,34 +357,33 @@ img.hero-img {
     font-size: 2rem;
   }
 
-.second-paragraph {
-  grid-column: 2;
-  grid-row: 3;
-  padding-left: 0;
-}
+  .second-paragraph {
+    grid-column: 2;
+    grid-row: 3;
+    padding-left: 0;
+  }
 
-img.hero-img {
-  grid-column: 1;
-  grid-row: 2 / 4;
-  height: 320px;
-}
+  img.hero-img {
+    grid-column: 1;
+    grid-row: 2 / 4;
+    height: 320px;
+  }
 }
 
 @media (max-width: 768px) {
-  
-.first-paragraph {
-  margin-top: 0;
-}
+  .first-paragraph {
+    margin-top: 0;
+  }
 
-p {
-  padding: 15px;
-}
+  p {
+    padding: 15px;
+  }
 
-img.hero-img {
-  height: 250px;
-  padding: 0 15px;
-  margin: 0;
-}
+  img.hero-img {
+    height: 250px;
+    padding: 0 15px;
+    margin: 0;
+  }
 
   .instructions {
     font-size: 1.2rem;
@@ -364,12 +400,16 @@ img.hero-img {
   }
 }
 
-@media (max-width: 720px) {
+@media (max-width: 720px) and (orientation: portrait) {
   #canvas,
   #start-screen {
     width: 100%;
     max-width: 720px;
     height: auto;
+  }
+  .game-name {
+    font-size: 34px;
+    top: -120px;
   }
 }
 
@@ -388,43 +428,97 @@ img.hero-img {
   }
 }
 
-
-@media (max-width: 480px) {
-  #canvas {
-    height: 100vh;
+@media (max-width: 948px) and (orientation: landscape) {
+  html,
+  body {
+    width: 100%;
+    height: 100%;
+    margin: 0;
+    overflow: hidden;
   }
 
-  
-#info-overlay .overlay-text {
-  display: block;
-}
-
-.first-paragraph {
-  padding-left: 15px;
-}
-  img.hero-img {
-    display: none;
+  body {
+    min-height: 100dvh;
+    height: 100dvh;
   }
 
-  .menu-btn,
-  #start-btn,
-  #info-btn,
-  #settings-btn,
-  #sowas-btn {
-    width: 160px;
-    height: 38px;
-    font-size: 11.5px;
+  #game-container {
+    width: 100vw;
+    height: 100dvh;
+    max-width: none;
+    max-height: none;
   }
 
+  #canvas,
+  #start-screen {
+    width: 100vw !important;
+    height: 100dvh !important;
+    max-width: none;
+    max-height: none;
+  }
+
+  div.grid {
+    grid-template-columns: 1fr 1fr;
+    grid-template-rows: 1fr 1fr;
+    height: calc(100% - 30px);
+    gap: 5px;
+    padding: 10px;
+  }
+
+  div.hero-img {
+    grid-column: 1;
+    grid-row: 1 / -1;
+    width: 100%;
+    height: 100%;
+  }
+
+  div.button-container {
+    grid-column: 2;
+    grid-row: 2;
+    flex-direction: column;
+    gap: 10px;
+  }
+
+  button.menu-btn,
   #start-btn {
     width: 172px;
-    height: 40px;
+    height: 52px;
+    font-size: 16px;
+  }
+
+  .hero-img img {
+    height: 90%;
+    padding: 0 15px;
+  }
+
+  .game-name {
+    top: 10px;
+    font-size: 22px;
+    padding: 0 12px;
+  }
+
+  .game-name {
+    font-size: 18px;
+  }
+
+  footer {
     font-size: 12px;
+    bottom: 5%;
+  }
+}
+
+@media (orientation: portrait) and (max-width: 480px) {
+  .landscape-message {
+    display: block;
+  }
+  body > * {
+    display: none;
   }
 }
 
 @media (max-width: 340px) {
-  .instructions, p {
+  .instructions,
+  p {
     padding: 8px 15px;
   }
 }
