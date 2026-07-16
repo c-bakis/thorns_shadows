@@ -12,21 +12,17 @@ export default class MenuActionsController {
   handlePauseMenuAction(action) {
     switch (action) {
       case "close":
-        console.log("Close clicked");
         this.handlePauseMenuAction("resume");
         break;
       case "resume":
-        console.log("Resume clicked");
         if (this.world?.pause) {
           this.world.handlePauseToggle();
         }
         break;
       case "restart":
-        console.log("Restart clicked");
         this.world?.restart?.();
         break;
       case "menu":
-        console.log("Menu clicked");
         this.world?.destroy?.();
         this.world?.toggleMainMenuGame?.();
         break;
@@ -47,7 +43,8 @@ export default class MenuActionsController {
         }
         break;
       default:
-        console.log(`Unknown action: ${action}`);
+        console.warn(`Unknown pause menu action: ${action}`);
+        break;
     }
   }
 
@@ -58,10 +55,8 @@ export default class MenuActionsController {
    */
   handleGameOverAction(action) {
     if (action === "restart") {
-      console.log("Restart clicked");
       this.world?.restart?.();
     } else if (action === "menu" || action === "close") {
-      console.log("Menu clicked");
         this.world?.destroy?.();
         this.world?.toggleMainMenuGame?.();
     }
@@ -74,10 +69,8 @@ export default class MenuActionsController {
    */
   handleWinAction(action) {
     if (action === "restart") {
-      console.log("Restart clicked");
       this.world?.restart?.();
     } else if (action === "menu" || action === "close") {
-      console.log("Menu clicked");
         this.world?.destroy?.();
         this.world?.toggleMainMenuGame?.();
     }
