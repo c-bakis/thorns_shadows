@@ -21,6 +21,7 @@ export default class WorldFlowController {
   pauseGame() {
     this.world.pause = true;
     this.world.audioManager?.decreaseVolumeOnMenuOpen?.();
+    document.body.classList.add("is-game-paused");
   }
 
   resumeGame() {
@@ -29,6 +30,7 @@ export default class WorldFlowController {
     this.world.audioManager?.stopGameOverMusic?.();
     this.world.audioManager?.stopVictoryMusic?.();
     this.world.audioManager?.increaseVolumeOnMenuClose?.();
+    document.body.classList.remove("is-game-paused");
     this.world.draw();
   }
 
@@ -54,6 +56,7 @@ export default class WorldFlowController {
   destroy() {
     this.world.overlayController?.closeActiveOverlay?.();
     this.world.pause = true;
+    document.body.classList.remove("is-game-paused");
     this.world.audioManager?.stopGameOverMusic?.();
     this.world.audioManager?.stopVictoryMusic?.();
     this.world.audioManager?.stopMusic?.();

@@ -11,7 +11,7 @@ export default class StatusBar extends DrawableObject {
         this.x = 20;
         this.y = 20;
         this.width = 210;
-        this.height = 70;
+        this.height = 80;
         this.panelImg = new Image();
         this.panelImg.src = "img/gui/character_panel2.png";
         this.avatarImg = new Image();
@@ -221,7 +221,7 @@ export default class StatusBar extends DrawableObject {
         }
 
         if (this.avatarImg) {
-            ctx.drawImage(this.avatarImg, this.x + 14, this.y + 9, 52, 52);
+            ctx.drawImage(this.avatarImg, this.x + 14, this.y + 13, 52, 54);
         }
     }
 
@@ -315,9 +315,9 @@ export default class StatusBar extends DrawableObject {
      */
     draw(ctx) {
         this.drawStaticElements(ctx);
-        this.drawBar(ctx, this.healthBarImg, this.x + 70, this.y + 10, 128, 16, "#d33", "health");
-        this.drawBar(ctx, this.manaBarImg, this.x + 74, this.y + 23, 108, 16, "#2a7fff", "mana");
-        this.drawBar(ctx, this.expBarImg, this.x + 74, this.y + 36, 94, 16, "#3fd603", "exp");
+        this.drawBar(ctx, this.healthBarImg, this.x + 70, this.y + 10, 128, 18, "#d33", "health");
+        this.drawBar(ctx, this.manaBarImg, this.x + 74, this.y + 26, 108, 18, "#2a7fff", "mana");
+        this.drawBar(ctx, this.expBarImg, this.x + 74, this.y + 41, 94, 18, "#3fd603", "exp");
     }
     
 }
