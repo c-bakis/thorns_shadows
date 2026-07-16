@@ -1,0 +1,209 @@
+@media (min-width: 1068px) {
+  .instructions {
+    padding: 15px 200px;
+    max-width: calc(100% - 80px);
+  }
+
+  p {
+    font-size: 1.5rem;
+  }
+
+  h2 {
+    font-size: 2rem;
+  }
+
+  .second-paragraph {
+    grid-column: 2;
+    grid-row: 3;
+    padding-left: 0;
+  }
+
+  img.hero-img {
+    grid-column: 1;
+    grid-row: 2 / 4;
+    height: 320px;
+  }
+}
+
+@media (max-width: 768px) {
+  .first-paragraph {
+    margin-top: 0;
+  }
+
+  p {
+    padding: 15px;
+  }
+
+  img.hero-img {
+    height: 250px;
+    padding: 0 15px;
+    margin: 0;
+  }
+
+  .instructions {
+    font-size: 1.2rem;
+    padding: 10px 40px;
+    max-width: calc(100% - 40px);
+  }
+
+  .instructions div {
+    width: 45%;
+  }
+
+  .keys {
+    padding-left: 5px;
+  }
+}
+
+@media (max-width: 840px) and (orientation: portrait) {
+  #canvas,
+  #start-screen {
+    width: 100%;
+    max-width: 840px;
+    height: auto;
+    max-height: 472.5px;
+  }
+  .game-name {
+    font-size: 34px;
+    top: -120px;
+  }
+}
+
+@media (max-width: 580px) {
+  .overlay-content {
+    width: 94%;
+    height: 100vh;
+    top: 0;
+  }
+  h2 {
+    margin-top: 0;
+    margin-bottom: 10px;
+  }
+  .instructions {
+    padding: 10px 30px;
+  }
+}
+
+@media (max-width: 948px) and (orientation: landscape) {
+  html,
+  body {
+    width: 100%;
+    height: 100%;
+    margin: 0;
+    overflow: hidden;
+  }
+
+  body {
+    background: none;
+    background-color: #000;
+    min-height: 100dvh;
+    height: 100dvh;
+  }
+
+  #game-container {
+    width: 100vw;
+    height: 100dvh;
+    display: grid;
+    place-items: center;
+    overflow: hidden;
+    /* max-width: none;
+    max-height: none; */
+  }
+
+  #canvas,
+  #start-screen {
+    aspect-ratio: 3 / 2;
+    width: min(100vw, calc(100dvh * 2.5));
+    height: auto;
+    max-width: 100vw;
+    max-height: 100dvh;
+    /* width: 100vw !important;
+    height: 100dvh !important;
+    max-width: none;
+    max-height: none; */
+  }
+
+  div.grid {
+    grid-template-columns: 1fr 1fr;
+    grid-template-rows: 1fr 1fr;
+    height: calc(100% - 30px);
+    gap: 5px;
+    padding: 10px;
+  }
+
+  div.hero-img {
+    grid-column: 1;
+    grid-row: 1 / -1;
+    width: 100%;
+    height: 100%;
+  }
+
+  div.button-container {
+    grid-column: 2;
+    grid-row: 2;
+    flex-direction: column;
+    gap: 10px;
+  }
+
+  button.menu-btn,
+  #start-btn {
+    width: 172px;
+    height: 52px;
+    font-size: 16px;
+  }
+
+  .hero-img img {
+    height: 90%;
+    padding: 0 15px;
+  }
+
+  .game-name {
+    top: 10px;
+    font-size: 22px;
+    padding: 0 12px;
+  }
+
+  .game-name {
+    font-size: 18px;
+  }
+
+  dialog, .impressum-body {
+  background-image: url("../img/backgrounds/forest.jpg");
+    background-size: cover;
+    background-position: center;
+  backdrop-filter: contrast(0.9) grayscale(0.2) blur(1px);
+  }
+
+  .overlay-content, .impressum-container {
+    width: 80%;
+    height: 100dvh;
+    max-height: calc(100% - 70px);
+    top: 0;
+    top: 5%;
+  }
+
+  .impressum-container h1 {
+    font-size: 2.2rem;
+  }
+
+  footer {
+    font-size: 12px;
+    bottom: 5%;
+  }
+}
+
+@media (orientation: portrait) and (max-width: 480px) {
+  .landscape-message {
+    display: block;
+  }
+  body > * {
+    display: none;
+  }
+}
+
+@media (max-width: 340px) {
+  .instructions,
+  p {
+    padding: 8px 15px;
+  }
+}
