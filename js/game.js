@@ -137,6 +137,11 @@ function setupTouchControls() {
 
   touchButtonBindings.forEach(({ id, key }) => bindTouchHoldButton(id, key));
 
+  const touchButtons = document.querySelector(".touch-button-container");
+  touchButtons?.addEventListener("contextmenu", (event) => {
+    event.preventDefault();
+  });
+
   const pauseButton = document.getElementById("pause-btn");
   pauseButton?.addEventListener("click", (event) => {
     event.preventDefault();
