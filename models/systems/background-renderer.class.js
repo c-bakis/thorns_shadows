@@ -72,11 +72,13 @@
           backgroundObject.x +
           (startTileIndex + i) * tileWidth +
           parallaxOffset;
+        const snappedTileX = Math.round(tileX);
+        const drawWidth = Math.ceil(backgroundObject.width) + 1;
         this.world.ctx.drawImage(
           backgroundObject.img,
-          tileX,
+          snappedTileX,
           drawY,
-          backgroundObject.width,
+          drawWidth,
           drawHeight,
         );
       }
