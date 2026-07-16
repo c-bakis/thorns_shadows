@@ -5,6 +5,16 @@ import level1 from "../levels/level1.js";
 let canvas;
 let world;
 let audioManager;
+let touchControlsInitialized = false;
+const nonPassivePointerOptions = { passive: false };
+
+const touchButtonBindings = [
+  { id: "move-left-btn", key: "LEFT" },
+  { id: "move-right-btn", key: "RIGHT" },
+  { id: "jump-btn", key: "SPACE" },
+  { id: "attack-btn", key: "ATTACK" },
+  { id: "magic-attack-btn", key: "MAGIC_ATTACK" },
+];
 
 /**
  * Reads a persisted enabled-state from sessionStorage.
@@ -33,13 +43,118 @@ function unlockAudio() {
 }
 
 /**
+ * Toggles pause state from touch UI.
+ * @returns {void}
+ */
+function togglePause() {
+  unlockAudio();
+  world?.handlePauseToggle?.();
+}
+
+window.togglePause = togglePause;
+
+/**
+ * Sets a keyboard flag if world input is available.
+ * @param {keyof import("../models/core/keyboard.class.js").default} key
+ * @param {boolean} isPressed
+ * @returns {void}
+ */
+function setTouchKeyState(key, isPressed) {
+  if (!world?.keyboard) {
+    return;
+  }
+
+  world.keyboard[key] = isPressed;
+}
+
+/**
+ * Handles pointer down for hold-style touch controls.
+ * @param {PointerEvent} event
+ * @param {HTMLElement} button
+ * @param {string} key
+ * @returns {void}
+ */
+function onTouchHoldPointerDown(event, button, key) {
+  event.preventDefault();
+  unlockAudio();
+  button.setPointerCapture?.(event.pointerId);
+  setTouchKeyState(key, true);
+}
+
+/**
+ * Creates a release handler for a touch control key.
+ * @param {string} key
+ * @returns {(event: PointerEvent) => void}
+ */
+function createTouchReleaseHandler(key) {
+  return (event) => {
+    event.preventDefault();
+    setTouchKeyState(key, false);
+  };
+}
+
+/**
+ * Registers pointer release events for a hold-style button.
+ * @param {HTMLElement} button
+ * @param {(event: PointerEvent) => void} releaseHandler
+ * @returns {void}
+ */
+function addTouchReleaseListeners(button, releaseHandler) {
+  button.addEventListener("pointerup", releaseHandler, nonPassivePointerOptions);
+  button.addEventListener("pointercancel", releaseHandler, nonPassivePointerOptions);
+  button.addEventListener("pointerleave", releaseHandler, nonPassivePointerOptions);
+}
+
+/**
+ * Binds a touch button to a keyboard flag using pointer events.
+ * @param {string} buttonId
+ * @param {string} key
+ * @returns {void}
+ */
+function bindTouchHoldButton(buttonId, key) {
+  const button = document.getElementById(buttonId);
+  if (!button) {
+    return;
+  }
+
+  button.addEventListener(
+    "pointerdown",
+    (event) => onTouchHoldPointerDown(event, button, key),
+    nonPassivePointerOptions,
+  );
+
+  addTouchReleaseListeners(button, createTouchReleaseHandler(key));
+}
+
+/**
+ * Initializes touch controls once.
+ * @returns {void}
+ */
+function setupTouchControls() {
+  if (touchControlsInitialized) {
+    return;
+  }
+
+  touchButtonBindings.forEach(({ id, key }) => bindTouchHoldButton(id, key));
+
+  const pauseButton = document.getElementById("pause-btn");
+  pauseButton?.addEventListener("click", (event) => {
+    event.preventDefault();
+    togglePause();
+  });
+
+  touchControlsInitialized = true;
+}
+
+/**
  * Initializes the game state and core objects.
  * @returns {void}
  */
 function init() {
+  setupTouchControls();
   canvas = document.getElementById("canvas");
-  canvas.width = 720;
-  canvas.height = 480;
+  canvas.width = 840;
+  canvas.height = 472.5;
   const isMusicEnabled = getStoredEnabledState("musicIsEnabled", true);
   const isSoundEnabled = getStoredEnabledState("soundIsEnabled", true);
   audioManager = new AudioManager({
@@ -94,6 +209,9 @@ function toggleMainMenuGame() {
   startScreen.style.display = isStartScreenHidden ? "flex" : "none";
   canvasElement.style.display = isStartScreenHidden ? "none" : "block";
   document.body.classList.toggle("is-game-active", isGameActive);
+  if (!isGameActive) {
+    document.body.classList.remove("is-game-paused");
+  }
 }
 
 window.addEventListener("keydown", (e) => {

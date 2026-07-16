@@ -1,0 +1,99 @@
+#game-container {
+	position: relative;
+}
+
+.touch-button-container {
+	display: none;
+	position: absolute;
+	inset: 0;
+	z-index: 20;
+	pointer-events: none;
+	padding: 10px;
+	box-sizing: border-box;
+	-webkit-user-select: none;
+	user-select: none;
+	-webkit-touch-callout: none;
+	-webkit-tap-highlight-color: transparent;
+}
+
+.pause-btn,
+.move-btn,
+.action-btn {
+	position: absolute;
+	display: flex;
+	gap: 0px;
+	pointer-events: none;
+}
+
+.pause-btn {
+	top: 10px;
+	right: 10px;
+}
+
+.move-btn {
+	left: 10px;
+	bottom: 10px;
+}
+
+.action-btn {
+	right: 10px;
+	bottom: 10px;
+}
+
+#move-left-btn img {
+	transform: rotate(180deg);
+}
+
+#magic-attack-btn {
+    position: absolute;
+    bottom: 70px;
+    right: 15px;
+}
+
+#jump-btn {
+    position: absolute;
+    bottom: 30px;
+    right: 69px;
+}
+
+.touch-button {
+	pointer-events: auto;
+	min-width: 48px;
+	min-height: 48px;
+	padding: 10px 12px;
+	font: 900 14px "PixelifySans", monospace;
+	color: rgba(242, 231, 190);
+	background: rgba(242, 231, 190, 0.3);
+	box-shadow: 0 2px 10px rgba(0, 0, 0, 0.35);
+    border: 2px solid rgba(242, 231, 190);
+	border-radius: 50%;
+	-webkit-user-select: none;
+	user-select: none;
+	-webkit-touch-callout: none;
+	-webkit-tap-highlight-color: transparent;
+	touch-action: manipulation;
+}
+
+.touch-button:active {
+	transform: scale(0.96);
+}
+
+.touch-button img {
+	width: 24px;
+	height: 24px;
+}
+
+@media (hover: none) and (pointer: coarse) {
+	body.is-game-active:not(.is-game-paused) .touch-button-container {
+		display: block;
+	}
+
+	#attack-btn {
+		min-width: 72px;
+		min-height: 72px;
+	}
+	#attack-btn img {
+		min-width: 32px;
+		min-height: 32px;
+	}
+}

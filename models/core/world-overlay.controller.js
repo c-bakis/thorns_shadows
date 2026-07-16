@@ -54,11 +54,11 @@ export default class WorldOverlayController {
     this.preloadDialogImages(dialog, render);
 
     const handlers = {
-      onMouseMove: (e) => this.handleDialogMouseMove(e, dialog, render),
-      onMouseLeave: () => this.handleDialogMouseLeave(dialog, render),
-      onMouseDown: (e) => this.handleDialogMouseDown(e, dialog, render),
-      onMouseUp: (e) => this.handleDialogMouseUp(e, dialog, render),
-      onClick: (e) => this.handleDialogClick(e, dialog, render, () => cleanup(), onActionCallback),
+      onPointerMove: (e) => this.handleDialogMouseMove(e, dialog, render),
+      onPointerLeave: () => this.handleDialogMouseLeave(dialog, render),
+      onPointerDown: (e) => this.handleDialogMouseDown(e, dialog, render),
+      onPointerUp: (e) =>
+        this.handleDialogPointerUp(e, dialog, render, () => cleanup(), onActionCallback),
     };
 
     /**
@@ -133,11 +133,12 @@ export default class WorldOverlayController {
    * @returns {void}
    */
   bindDialogEvents(handlers) {
-    this.world.canvas.addEventListener("mousemove", handlers.onMouseMove);
-    this.world.canvas.addEventListener("mouseleave", handlers.onMouseLeave);
-    this.world.canvas.addEventListener("mousedown", handlers.onMouseDown);
-    this.world.canvas.addEventListener("mouseup", handlers.onMouseUp);
-    this.world.canvas.addEventListener("click", handlers.onClick);
+    this.world.canvas.style.touchAction = "none";
+    this.world.canvas.addEventListener("pointermove", handlers.onPointerMove);
+    this.world.canvas.addEventListener("pointerleave", handlers.onPointerLeave);
+    this.world.canvas.addEventListener("pointerdown", handlers.onPointerDown);
+    this.world.canvas.addEventListener("pointerup", handlers.onPointerUp);
+    this.world.canvas.addEventListener("pointercancel", handlers.onPointerLeave);
   }
 
   /**
@@ -149,11 +150,12 @@ export default class WorldOverlayController {
   cleanupOverlayDialog(uiState, handlers) {
     uiState.isActive = false;
     this.world.canvas.style.cursor = "default";
-    this.world.canvas.removeEventListener("mousemove", handlers.onMouseMove);
-    this.world.canvas.removeEventListener("mouseleave", handlers.onMouseLeave);
-    this.world.canvas.removeEventListener("mousedown", handlers.onMouseDown);
-    this.world.canvas.removeEventListener("mouseup", handlers.onMouseUp);
-    this.world.canvas.removeEventListener("click", handlers.onClick);
+    this.world.canvas.style.touchAction = "auto";
+    this.world.canvas.removeEventListener("pointermove", handlers.onPointerMove);
+    this.world.canvas.removeEventListener("pointerleave", handlers.onPointerLeave);
+    this.world.canvas.removeEventListener("pointerdown", handlers.onPointerDown);
+    this.world.canvas.removeEventListener("pointerup", handlers.onPointerUp);
+    this.world.canvas.removeEventListener("pointercancel", handlers.onPointerLeave);
   }
 
   /**
@@ -232,6 +234,31 @@ export default class WorldOverlayController {
     dialog.setHoveredButton(hoveredButton?.action ?? null);
     dialog.setPressedButton(null);
     render();
+  }
+
+  /**
+   * Handles pointerup and executes action when press+release stays on same button.
+   * @param {Event} e
+   * @param {object} dialog
+   * @param {Function} render
+   * @param {Function} cleanup
+   * @param {Function} onActionCallback
+   * @returns {void}
+   */
+  handleDialogPointerUp(e, dialog, render, cleanup, onActionCallback) {
+    const pressedAction = dialog.pressedAction;
+    const { x, y } = this.getCanvasMousePos(e);
+    const releasedButton = dialog.getClickedButton(x, y);
+
+    dialog.setHoveredButton(releasedButton?.action ?? null);
+    dialog.setPressedButton(null);
+    render();
+
+    if (!releasedButton || !pressedAction || releasedButton.action !== pressedAction) {
+      return;
+    }
+
+    this.executeDialogAction(dialog, releasedButton, render, cleanup, onActionCallback);
   }
 
   /**
