@@ -44,6 +44,17 @@
 	transform: rotate(180deg);
 }
 
+#move-left-btn, 
+#move-right-btn {
+	min-width: 62px;
+	min-height: 62px;
+}
+
+#attack-btn {
+	min-width: 72px;
+	min-height: 72px;
+}
+
 #magic-attack-btn {
     position: absolute;
     bottom: 70px;
@@ -58,8 +69,8 @@
 
 .touch-button {
 	pointer-events: auto;
-	min-width: 48px;
-	min-height: 48px;
+	min-width: 58px;
+	min-height: 58px;
 	padding: 10px 12px;
 	font: 900 14px "PixelifySans", monospace;
 	color: rgba(242, 231, 190);
@@ -94,24 +105,6 @@ body.is-game-active:not(.is-game-paused).is-input-hybrid.is-last-input-touch .to
 
 body.is-desktop-optimized .touch-button-container {
 	display: none !important;
-}
-
-body.is-touch-optimized .touch-button,
-body.is-input-hybrid.is-last-input-touch .touch-button {
-	min-width: 52px;
-	min-height: 52px;
-}
-
-body.is-touch-optimized #attack-btn,
-body.is-input-hybrid.is-last-input-touch #attack-btn {
-	min-width: 72px;
-	min-height: 72px;
-}
-
-body.is-touch-optimized #attack-btn img,
-body.is-input-hybrid.is-last-input-touch #attack-btn img {
-	min-width: 32px;
-	min-height: 32px;
 }
 
 @media (hover: none) and (pointer: coarse) {
