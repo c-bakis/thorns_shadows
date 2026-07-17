@@ -219,7 +219,7 @@ div.wrapper {
 .overlay-content,
 .impressum-container {
   position: absolute;
-  top: 24px;
+  top: 8%;
   left: 50%;
   font-family: "PixelifySans", cursive;
   font-size: 1.5rem;
@@ -243,6 +243,11 @@ div.wrapper {
   overflow-x: hidden;
   overflow-y: auto;
   z-index: 2;
+}
+
+div.impressum-container {
+  top: 50%;
+  transform: translateX(-50%) translateY(-50%);
 }
 
 .close {

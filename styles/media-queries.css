@@ -69,11 +69,19 @@
   }
 }
 
-@media (max-width: 580px) {
-  .overlay-content {
+@media (max-width: 620px) {
+  .overlay-content, .impressum-container {
     width: 94%;
     height: 100vh;
     top: 0;
+  }
+  .impressum-container h1 {
+    font-size: 2rem;
+  }
+
+  .back-button{
+    border-left: 70px;
+    border-right: 70px;
   }
   h2 {
     margin-top: 0;
@@ -81,6 +89,21 @@
   }
   .instructions {
     padding: 10px 30px;
+  }
+}
+
+@media (max-width: 470px) {
+  .overlay-content, .impressum-container {
+    width: 90%;
+  }
+
+  img.hero-img {
+    display: none;
+  }
+
+  p.first-paragraph {
+    grid-column: 1 / -1;
+    padding-left: 15px;
   }
 }
 
