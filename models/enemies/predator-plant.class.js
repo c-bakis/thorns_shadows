@@ -33,9 +33,9 @@ export default class PredatorPlant extends Enemy {
         this.y = 100;
         this.width = 180;
         this.height = 180;
-        this.hitboxOffsetX = 70;
+        this.hitboxOffsetX = 30;
         this.hitboxOffsetY = 40;
-        this.hitboxWidth = 65;
+        this.hitboxWidth = 95;
         this.hitboxHeight = 35;
         this.speed = 0;
         const animationPaths = Object.values(this.SPRITE_ANIMATIONS).map(
