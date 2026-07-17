@@ -87,6 +87,33 @@
 	-webkit-touch-callout: none;
 }
 
+body.is-game-active:not(.is-game-paused).is-touch-optimized .touch-button-container,
+body.is-game-active:not(.is-game-paused).is-input-hybrid.is-last-input-touch .touch-button-container {
+	display: block;
+}
+
+body.is-desktop-optimized .touch-button-container {
+	display: none !important;
+}
+
+body.is-touch-optimized .touch-button,
+body.is-input-hybrid.is-last-input-touch .touch-button {
+	min-width: 52px;
+	min-height: 52px;
+}
+
+body.is-touch-optimized #attack-btn,
+body.is-input-hybrid.is-last-input-touch #attack-btn {
+	min-width: 72px;
+	min-height: 72px;
+}
+
+body.is-touch-optimized #attack-btn img,
+body.is-input-hybrid.is-last-input-touch #attack-btn img {
+	min-width: 32px;
+	min-height: 32px;
+}
+
 @media (hover: none) and (pointer: coarse) {
 	body.is-game-active:not(.is-game-paused) .touch-button-container {
 		display: block;

@@ -46,6 +46,149 @@ const KEYBOARD_FLAG_BY_CODE = {
 };
 
 /**
+ * Reads current input capabilities from browser APIs.
+ * @returns {{hasTouch: boolean, hasCoarsePointer: boolean, hasFinePointer: boolean, canHover: boolean}}
+ */
+function getInputCapabilities() {
+  return {
+    hasTouch: navigator.maxTouchPoints > 0,
+    hasCoarsePointer: window.matchMedia("(pointer: coarse)").matches,
+    hasFinePointer: window.matchMedia("(pointer: fine)").matches,
+    canHover: window.matchMedia("(hover: hover)").matches,
+  };
+}
+
+/**
+ * Resolves an input profile from current device capabilities.
+ * @param {{hasTouch: boolean, hasCoarsePointer: boolean, hasFinePointer: boolean, canHover: boolean}} capabilities
+ * @returns {"touchOptimized"|"desktopOptimized"|"hybrid"}
+ */
+function resolveInputProfile(capabilities) {
+  const touchLike = capabilities.hasTouch || capabilities.hasCoarsePointer;
+  const desktopLike = capabilities.hasFinePointer && capabilities.canHover;
+
+  if (touchLike && desktopLike) {
+    return "hybrid";
+  }
+
+  if (touchLike) {
+    return "touchOptimized";
+  }
+
+  return "desktopOptimized";
+}
+
+/**
+ * Detects current input profile and capability flags.
+ * @returns {{profile: "touchOptimized"|"desktopOptimized"|"hybrid", capabilities: {hasTouch: boolean, hasCoarsePointer: boolean, hasFinePointer: boolean, canHover: boolean}}}
+ */
+function detectInputProfile() {
+  const capabilities = getInputCapabilities();
+  const profile = resolveInputProfile(capabilities);
+  return { profile, capabilities };
+}
+
+/**
+ * Applies input profile information as body data and state classes.
+ * @param {{profile: "touchOptimized"|"desktopOptimized"|"hybrid", capabilities: {hasTouch: boolean, hasCoarsePointer: boolean, hasFinePointer: boolean, canHover: boolean}}} inputProfile
+ * @returns {void}
+ */
+function applyInputProfileToBody(inputProfile) {
+  const body = document.body;
+  if (!body) {
+    return;
+  }
+
+  body.dataset.inputProfile = inputProfile.profile;
+  body.classList.toggle("is-touch-optimized", inputProfile.profile === "touchOptimized");
+  body.classList.toggle("is-desktop-optimized", inputProfile.profile === "desktopOptimized");
+  body.classList.toggle("is-input-hybrid", inputProfile.profile === "hybrid");
+}
+
+/**
+ * Applies last-input classes to the body.
+ * @param {"touch"|"mouse"} mode
+ * @returns {void}
+ */
+function applyLastInputModeToBody(mode) {
+  const body = document.body;
+  if (!body) {
+    return;
+  }
+
+  body.classList.toggle("is-last-input-touch", mode === "touch");
+  body.classList.toggle("is-last-input-mouse", mode === "mouse");
+}
+
+/**
+ * Sets and applies the last detected input mode.
+ * @param {"touch"|"mouse"} mode
+ * @returns {void}
+ */
+function setLastInputMode(mode) {
+  const body = document.body;
+  if (!body) {
+    return;
+  }
+
+  body.dataset.lastInputMode = mode;
+  applyLastInputModeToBody(mode);
+}
+
+/**
+ * Reads current last input mode from body dataset.
+ * @returns {"touch"|"mouse"|null}
+ */
+function getLastInputMode() {
+  const mode = document.body?.dataset?.lastInputMode;
+  return mode === "touch" || mode === "mouse" ? mode : null;
+}
+
+/**
+ * Initializes last-input mode after profile detection.
+ * @param {{profile: "touchOptimized"|"desktopOptimized"|"hybrid"}} inputProfile
+ * @returns {void}
+ */
+function initializeLastInputMode(inputProfile) {
+  if (inputProfile.profile === "touchOptimized") {
+    setLastInputMode("touch");
+    return;
+  }
+
+  if (inputProfile.profile === "desktopOptimized") {
+    setLastInputMode("mouse");
+    return;
+  }
+
+  const existingMode = getLastInputMode();
+  if (existingMode) {
+    applyLastInputModeToBody(existingMode);
+    return;
+  }
+
+  setLastInputMode("mouse");
+}
+
+/**
+ * Returns true when hybrid input profile is active.
+ * @returns {boolean}
+ */
+function isHybridInputProfileActive() {
+  return document.body?.classList.contains("is-input-hybrid") ?? false;
+}
+
+/**
+ * Detects and applies the current input profile.
+ * @returns {{profile: "touchOptimized"|"desktopOptimized"|"hybrid", capabilities: {hasTouch: boolean, hasCoarsePointer: boolean, hasFinePointer: boolean, canHover: boolean}}}
+ */
+function refreshInputProfile() {
+  const inputProfile = detectInputProfile();
+  applyInputProfileToBody(inputProfile);
+  initializeLastInputMode(inputProfile);
+  return inputProfile;
+}
+
+/**
  * Reads a persisted enabled-state from sessionStorage.
  * @param {string} key
  * @param {boolean} fallbackEnabled
@@ -185,6 +328,7 @@ function setupTouchControls() {
  * @returns {void}
  */
 function init() {
+  refreshInputProfile();
   setupTouchControls();
   canvas = document.getElementById("canvas");
   canvas.width = 840;
@@ -285,8 +429,36 @@ function handlePauseKeyDown(event) {
   }
 }
 
+/**
+ * Updates last-input mode from pointer interaction.
+ * @param {PointerEvent} event
+ * @returns {void}
+ */
+function handlePointerInput(event) {
+  unlockAudio();
+  if (event.pointerType === "touch") {
+    setLastInputMode("touch");
+    return;
+  }
+
+  setLastInputMode("mouse");
+}
+
+/**
+ * Handles touchstart fallback for browsers without pointer events.
+ * @returns {void}
+ */
+function handleTouchStartInput() {
+  unlockAudio();
+  setLastInputMode("touch");
+}
+
 window.addEventListener("keydown", (e) => {
   unlockAudio();
+
+  if (isHybridInputProfileActive()) {
+    setLastInputMode("mouse");
+  }
 
   if (!world) {
     return;
@@ -297,8 +469,24 @@ window.addEventListener("keydown", (e) => {
   handlePauseKeyDown(e);
 });
 
-window.addEventListener("pointerdown", unlockAudio, { passive: true });
-window.addEventListener("touchstart", unlockAudio, { passive: true });
+window.addEventListener("pointerdown", handlePointerInput, { passive: true });
+window.addEventListener("touchstart", handleTouchStartInput, { passive: true });
+window.addEventListener("resize", refreshInputProfile);
+
+["(pointer: coarse)", "(pointer: fine)", "(hover: hover)"]
+  .map((query) => window.matchMedia(query))
+  .forEach((mediaQueryList) => {
+    if (typeof mediaQueryList.addEventListener === "function") {
+      mediaQueryList.addEventListener("change", refreshInputProfile);
+      return;
+    }
+
+    mediaQueryList.addListener(refreshInputProfile);
+  });
+
+window.getInputProfile = detectInputProfile;
+window.refreshInputProfile = refreshInputProfile;
+window.getLastInputMode = getLastInputMode;
 
 window.addEventListener("keyup", (e) => {
     if (!world) {

@@ -20,10 +20,11 @@ const level1 = new Level({
   },
   collectables: [
     { type: "manaStone", x: 600, y: 120},
+    { type: "manaStone", x: 820, y: 50 },
+    { type: "manaStone", x: 910, y: 42 },
     { type: "manaStone", x: 2000, y: 40},
     { type: "manaStone", x: 3400, y: 40},
     { type: "manaStone", x: 3300, y: 38},
-    { type: "manaStone", x: 910, y: 42 },
     { type: "manaStone", x: 3115, y: 36 },
   ],
   enemies: [
@@ -45,24 +46,24 @@ const level1 = new Level({
   ],
   decorations: [
 
-    { imagePath: "img/objects/tree.png", x: 400, y: 212, width: 140, height: 220 },
-    { imagePath: "img/objects/tree.png", x: 600, y: 214, width: 140, height: 220 },
-    { imagePath: "img/objects/tree.png", x: 320, y: 218, width: 140, height: 220 },
-    { imagePath: "img/objects/tree.png", x: 880, y: 210, width: 140, height: 220 },
-    { imagePath: "img/objects/tree.png", x: 980, y: 212, width: 140, height: 220 },
-    { imagePath: "img/objects/tree.png", x: 1130, y: 216, width: 140, height: 220 },
-    { imagePath: "img/objects/tree.png", x: 2200, y: 214, width: 140, height: 220 },
-    { imagePath: "img/objects/tree.png", x: 2400, y: 212, width: 140, height: 220 },
-    { imagePath: "img/objects/tree.png", x: 2520, y: 210, width: 140, height: 220 },
+    { imagePath: "img/objects/tree.png", x: 400, y: 190, width: 140, height: 220 },
+    { imagePath: "img/objects/tree.png", x: 600, y: 185, width: 140, height: 220 },
+    { imagePath: "img/objects/tree.png", x: 320, y: 190, width: 140, height: 220 },
+    { imagePath: "img/objects/tree.png", x: 880, y: 192, width: 140, height: 220 },
+    { imagePath: "img/objects/tree.png", x: 980, y: 188, width: 140, height: 220 },
+    { imagePath: "img/objects/tree.png", x: 1130, y: 190, width: 140, height: 220 },
+    { imagePath: "img/objects/tree.png", x: 2200, y: 185, width: 140, height: 220 },
+    { imagePath: "img/objects/tree.png", x: 2400, y: 190, width: 140, height: 220 },
+    { imagePath: "img/objects/tree.png", x: 2520, y: 188, width: 140, height: 220 },
     
-    { imagePath: "img/objects/big_tree.png", x: 50, y: 90, width: 300, height: 400 },
-    { imagePath: "img/objects/big_tree.png", x: 700, y: 90, width: 300, height: 400 },
-    { imagePath: "img/objects/big_tree.png", x: 1600, y: 90, width: 300, height: 400 },
-    { imagePath: "img/objects/big_tree.png", x: 2250, y: 90, width: 300, height: 400 },
+    { imagePath: "img/objects/big_tree.png", x: 50, y: 60, width: 300, height: 400 },
+    { imagePath: "img/objects/big_tree.png", x: 700, y: 60, width: 300, height: 400 },
+    { imagePath: "img/objects/big_tree.png", x: 1600, y: 60, width: 300, height: 400 },
+    { imagePath: "img/objects/big_tree.png", x: 2250, y: 60, width: 300, height: 400 },
 
-    { imagePath: "img/objects/small_tree.png", x: 480, y: 250, width: 120, height: 190 },
-    { imagePath: "img/objects/small_tree.png", x: 880, y: -18, width: 120, height: 190 },
-    { imagePath: "img/objects/small_tree.png", x: 1580, y: 250, width: 120, height: 190 },
+    { imagePath: "img/objects/small_tree.png", x: 480, y: 220, width: 120, height: 190 },
+    { imagePath: "img/objects/small_tree.png", x: 860, y: -40, width: 120, height: 190 },
+    { imagePath: "img/objects/small_tree.png", x: 1580, y: 220, width: 120, height: 190 },
 
     
     { imagePath: "img/objects/double_bush.png", x: 2150, y: 145, width: 55, height: 60 },    

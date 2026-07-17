@@ -193,10 +193,13 @@
 }
 
 @media (orientation: portrait) and (max-width: 480px) {
-  .landscape-message {
+  body.is-touch-optimized .landscape-message,
+  body.is-input-hybrid .landscape-message {
     display: block;
   }
-  body > * {
+
+  body.is-touch-optimized > *:not(.landscape-message),
+  body.is-input-hybrid > *:not(.landscape-message) {
     display: none;
   }
 }
