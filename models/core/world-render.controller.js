@@ -8,31 +8,54 @@
    * @returns {void}
    */
   draw() {
-    this.world.ctx.clearRect(0, 0, this.world.ctx.canvas.width, this.world.ctx.canvas.height);
+    this.prepareFrame();
+    this.drawWorldObjects();
+    this.finalizeFrame();
+  }
 
+  /**
+   * Clears frame and applies camera translation.
+   * @returns {void}
+   */
+  prepareFrame() {
+    this.world.ctx.clearRect(0, 0, this.world.ctx.canvas.width, this.world.ctx.canvas.height);
     this.world.updateBossIntro();
     this.world.updateCamera();
-
     this.world.ctx.translate(this.world.camera_x, this.world.camera_y);
+  }
 
+  /**
+   * Draws world layers and runs gameplay updates.
+   * @returns {void}
+   */
+  drawWorldObjects() {
     this.world.plattformGroundResolver.resolvePlatformGround();
     this.world.backgroundRenderer.drawAll(this.world.backgroundObjects);
     this.addObjToMap(this.world.tileset);
     this.addObjToMap(this.world.decorations);
     this.addObjToMap(this.world.collectables);
+
     if (!this.world.isGameplayFrozen()) {
       this.updateMagicAttacks();
     }
     this.addObjToMap(this.world.magicAttacks);
+
     this.addToMap(this.world.character);
     if (!this.world.isGameplayFrozen()) {
       this.updateEnemyPlatformLocks();
     }
     this.addObjToMap(this.world.enemies);
+
     if (!this.world.isGameplayFrozen()) {
       this.world.collisionSystem.run(Date.now());
     }
+  }
 
+  /**
+   * Restores camera transform, draws UI and schedules next frame.
+   * @returns {void}
+   */
+  finalizeFrame() {
     this.world.ctx.translate(-this.world.camera_x, -this.world.camera_y);
     this.world.statusBar.draw(this.world.ctx);
     if (this.world.pause) {
@@ -118,29 +141,57 @@
     }
 
     const isMirrored = this.mirrorObjectIfNeeded(drawableObject);
-    if (drawableObject.img.complete && drawableObject.img.naturalWidth > 0) {
-      drawableObject.draw(this.world.ctx);
-      if (typeof drawableObject.drawBoundingBox === "function") {
-        drawableObject.drawBoundingBox(this.world.ctx);
-      }
+    if (this.isDrawableImageReady(drawableObject.img)) {
+      this.drawDrawableObject(drawableObject);
     } else {
-      drawableObject.img.onload = () => {
-        if (drawableObject.img.naturalWidth > 0) {
-          this.world.ctx.drawImage(
-            drawableObject.img,
-            drawableObject.x,
-            drawableObject.y,
-            drawableObject.width,
-            drawableObject.height,
-          );
-        }
-      };
-      drawableObject.img.onerror = () =>
-        console.error("Movable object image failed to load.");
+      this.queueDrawableObjectOnLoad(drawableObject);
     }
+
     if (isMirrored) {
       this.world.ctx.restore();
     }
+  }
+
+  /**
+   * Returns true when an object image can be drawn immediately.
+   * @param {HTMLImageElement} image
+   * @returns {boolean}
+   */
+  isDrawableImageReady(image) {
+    return image.complete && image.naturalWidth > 0;
+  }
+
+  /**
+   * Draws an object and optional debug hitbox.
+   * @param {object} drawableObject
+   * @returns {void}
+   */
+  drawDrawableObject(drawableObject) {
+    drawableObject.draw(this.world.ctx);
+    if (typeof drawableObject.drawBoundingBox === "function") {
+      drawableObject.drawBoundingBox(this.world.ctx);
+    }
+  }
+
+  /**
+   * Queues one-time fallback draw when image finishes loading.
+   * @param {object} drawableObject
+   * @returns {void}
+   */
+  queueDrawableObjectOnLoad(drawableObject) {
+    drawableObject.img.onload = () => {
+      if (drawableObject.img.naturalWidth > 0) {
+        this.world.ctx.drawImage(
+          drawableObject.img,
+          drawableObject.x,
+          drawableObject.y,
+          drawableObject.width,
+          drawableObject.height,
+        );
+      }
+    };
+    drawableObject.img.onerror = () =>
+      console.error("Movable object image failed to load.");
   }
 
   /**

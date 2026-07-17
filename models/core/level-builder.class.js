@@ -89,70 +89,74 @@ export default class LevelBuilder {
      */
     static buildEnemies(enemies) {
         return enemies.map((enemy) => {
-            if (enemy.type === "slime") {
-                const slime = new Slime();
-                if (typeof enemy.x === "number") {
-                    slime.x = enemy.x;
-                }
-                if (typeof enemy.y === "number") {
-                    slime.y = enemy.y;
-                }
-                return slime;
-            }
-
-            if (enemy.type === "predatorPlant") {
-                const predatorPlant = new PredatorPlant();
-                if (typeof enemy.x === "number") {
-                    predatorPlant.x = enemy.x;
-                }
-                if (typeof enemy.y === "number") {
-                    predatorPlant.y = enemy.y;
-                }
-                if (typeof enemy.yOffset === "number") {
-                    predatorPlant.platformYOffset = enemy.yOffset;
-                }
-                return predatorPlant;
-            }
-
-            if (enemy.type === "spider") {
-                const spider = new Spider();
-                if (typeof enemy.x === "number") {
-                    spider.x = enemy.x;
-                }
-                if (typeof enemy.y === "number") {
-                    spider.y = enemy.y;
-                }
-                if (typeof enemy.yOffset === "number") {
-                    spider.platformYOffset = enemy.yOffset;
-                }
-                return spider;
-            }
-
-            if (enemy.type === "wolf") {
-                const wolf = new Wolf();
-                if (typeof enemy.x === "number") {
-                    wolf.x = enemy.x;
-                }
-                if (typeof enemy.y === "number") {
-                    wolf.y = enemy.y;
-                }
-                return wolf;
-            }
-
-            if (enemy.type === "spikeTrap") {
-                const trapHitbox = enemy.hitbox ?? null;
-                return new SpikeTrap({
-                    x: enemy.x,
-                    y: enemy.y,
-                    width: enemy.width,
-                    height: enemy.height,
-                    damage: enemy.damage,
-                    hitbox: trapHitbox,
-                });
-            }
-
-            return null;
+            return this.buildEnemyByType(enemy);
         }).filter(Boolean);
+    }
+
+    /**
+     * Builds one enemy instance based on type and config.
+     * @param {object} enemy
+     * @returns {object|null}
+     */
+    static buildEnemyByType(enemy) {
+        if (enemy.type === "slime") {
+            return this.createPositionedEnemy(new Slime(), enemy);
+        }
+
+        if (enemy.type === "predatorPlant") {
+            return this.createPositionedEnemy(new PredatorPlant(), enemy, { hasPlatformYOffset: true });
+        }
+
+        if (enemy.type === "spider") {
+            return this.createPositionedEnemy(new Spider(), enemy, { hasPlatformYOffset: true });
+        }
+
+        if (enemy.type === "wolf") {
+            return this.createPositionedEnemy(new Wolf(), enemy);
+        }
+
+        if (enemy.type === "spikeTrap") {
+            return this.createSpikeTrapEnemy(enemy);
+        }
+
+        return null;
+    }
+
+    /**
+     * Applies shared position/platform settings to an enemy instance.
+     * @param {object} enemyInstance
+     * @param {object} config
+     * @param {{hasPlatformYOffset?: boolean}} options
+     * @returns {object}
+     */
+    static createPositionedEnemy(enemyInstance, config, options = {}) {
+        if (typeof config.x === "number") {
+            enemyInstance.x = config.x;
+        }
+        if (typeof config.y === "number") {
+            enemyInstance.y = config.y;
+        }
+        if (options.hasPlatformYOffset && typeof config.yOffset === "number") {
+            enemyInstance.platformYOffset = config.yOffset;
+        }
+
+        return enemyInstance;
+    }
+
+    /**
+     * Builds a spike trap from enemy configuration.
+     * @param {object} enemy
+     * @returns {SpikeTrap}
+     */
+    static createSpikeTrapEnemy(enemy) {
+        return new SpikeTrap({
+            x: enemy.x,
+            y: enemy.y,
+            width: enemy.width,
+            height: enemy.height,
+            damage: enemy.damage,
+            hitbox: enemy.hitbox ?? null,
+        });
     }
 
     /**

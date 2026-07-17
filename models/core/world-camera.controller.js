@@ -13,10 +13,21 @@
       return;
     }
 
+    const nextCameraX = this.getHorizontalCameraTarget();
+    const nextCameraY = this.getVerticalCameraTarget();
+
+    const bounds = this.getCameraBounds();
+    this.world.camera_x = this.clamp(nextCameraX, bounds.min, bounds.max);
+    this.world.camera_y = this.clamp(nextCameraY, 0, this.world.cameraMaxUp);
+  }
+
+  /**
+   * Returns horizontal camera target respecting dead-zone around the anchor.
+   * @returns {number}
+   */
+  getHorizontalCameraTarget() {
     const deltaFromAnchor = this.world.character.x - this.world.cameraAnchorX;
-    const deltaYUp = this.world.cameraAnchorY - this.world.character.y;
     let nextCameraX = -this.world.cameraAnchorX;
-    let nextCameraY = 0;
 
     if (deltaFromAnchor > this.world.cameraDeadZone) {
       nextCameraX = -(this.world.character.x - this.world.cameraDeadZone);
@@ -24,13 +35,20 @@
       nextCameraX = -(this.world.character.x + this.world.cameraDeadZone);
     }
 
-    const bounds = this.getCameraBounds();
-    this.world.camera_x = this.clamp(nextCameraX, bounds.min, bounds.max);
+    return nextCameraX;
+  }
 
+  /**
+   * Returns vertical camera target based on upward movement dead-zone.
+   * @returns {number}
+   */
+  getVerticalCameraTarget() {
+    const deltaYUp = this.world.cameraAnchorY - this.world.character.y;
     if (deltaYUp > this.world.cameraDeadZoneY) {
-      nextCameraY = deltaYUp - this.world.cameraDeadZoneY;
+      return deltaYUp - this.world.cameraDeadZoneY;
     }
-    this.world.camera_y = this.clamp(nextCameraY, 0, this.world.cameraMaxUp);
+
+    return 0;
   }
 
   /**

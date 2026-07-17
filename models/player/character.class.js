@@ -4,7 +4,7 @@ import CharacterAnimator from "./character-animator.class.js";
 import CharacterMovement from "./character-movement.class.js";
 
 export default class Character extends MovableObject {
-  speed = 10;
+  speed = 8;
   attackDamage = 5;
   comboInputWindowMs = 850;
   mana = 20;
@@ -13,6 +13,13 @@ export default class Character extends MovableObject {
   maxExperience = 100;
 
   SPRITE_ANIMATIONS = {
+    IDLE: {
+      path: "img/character/wizard/Idle.png",
+      frameWidth: 128,
+      frameHeight: 128,
+      frameCount: 6,
+    },
+
     WALK: {
       path: "img/character/wizard/Walk.png",
       frameWidth: 128,
@@ -79,7 +86,11 @@ export default class Character extends MovableObject {
 
   currentImg = 0;
   animationCounter = 0;
-  activeAnimation = "WALK";
+  activeAnimation = "IDLE";
+  idleStartedAt = 0;
+  isSleeping = false;
+  sleepEffectStartedAt = 0;
+  sleepAfterMs = 3000;
   deathAnimationFinished = false;
   wasMagicAttackPressed = false;
   wasAttackPressed = false;
@@ -101,7 +112,7 @@ export default class Character extends MovableObject {
     this.combat = new CharacterCombat(this);
     this.animator = new CharacterAnimator(this);
     this.movement = new CharacterMovement(this);
-    this.switchAnimation("WALK");
+    this.switchAnimation("IDLE");
 
     this.animate();
     this.applyGravity();
@@ -233,7 +244,64 @@ export default class Character extends MovableObject {
    * @returns {void}
    */
   updateAnimation(isMovingHorizontally, isAirborne, isHurt, now) {
+    this.updateSleepState(isMovingHorizontally, isAirborne, isHurt, now);
     this.animator.updateAnimation(isMovingHorizontally, isAirborne, isHurt, now);
+  }
+
+  /**
+   * Updates sleep state based on idle duration.
+   * @param {boolean} isMovingHorizontally
+   * @param {boolean} isAirborne
+   * @param {boolean} isHurt
+   * @param {number} now
+   * @returns {void}
+   */
+  updateSleepState(isMovingHorizontally, isAirborne, isHurt, now) {
+    if (!this.canStartSleepTimer(isMovingHorizontally, isAirborne, isHurt)) {
+      this.resetSleepState();
+      return;
+    }
+
+    if (this.idleStartedAt === 0) {
+      this.idleStartedAt = now;
+      return;
+    }
+
+    if (now - this.idleStartedAt < this.sleepAfterMs) {
+      return;
+    }
+
+    if (!this.isSleeping) {
+      this.isSleeping = true;
+      this.sleepEffectStartedAt = now;
+    }
+  }
+
+  /**
+   * Returns true when character conditions allow sleep-idle tracking.
+   * @param {boolean} isMovingHorizontally
+   * @param {boolean} isAirborne
+   * @param {boolean} isHurt
+   * @returns {boolean}
+   */
+  canStartSleepTimer(isMovingHorizontally, isAirborne, isHurt) {
+    return (
+      this.energy > 0 &&
+      !this.combat.isBusy() &&
+      !isMovingHorizontally &&
+      !isAirborne &&
+      !isHurt
+    );
+  }
+
+  /**
+   * Resets sleep tracking and effect state.
+   * @returns {void}
+   */
+  resetSleepState() {
+    this.idleStartedAt = 0;
+    this.isSleeping = false;
+    this.sleepEffectStartedAt = 0;
   }
 
   /**
@@ -324,9 +392,94 @@ export default class Character extends MovableObject {
 
     super.draw(ctx);
 
+    this.drawSleepEffect(ctx, now);
+
     if (this.isHitFlashing) {
       ctx.restore();
     }
+  }
+
+  /**
+   * Draws a comic-style sleeping "Z" effect over the character.
+   * @param {CanvasRenderingContext2D} ctx
+   * @param {number} now
+   * @returns {void}
+   */
+  drawSleepEffect(ctx, now) {
+    if (!this.isSleeping) {
+      return;
+    }
+
+    const { elapsed, centerX, baseX, baseY } = this.getSleepEffectMetrics(now);
+    const sleepLetters = this.getSleepLetters();
+
+    ctx.save();
+
+    if (this.otherDirection) {
+      ctx.translate(centerX, 0);
+      ctx.scale(-1, 1);
+      ctx.translate(-centerX, 0);
+    }
+
+    sleepLetters.forEach((letter, index) => {
+      this.drawSleepLetter(ctx, letter, index, elapsed, baseX, baseY);
+    });
+
+    ctx.restore();
+  }
+
+  /**
+   * Builds timing and anchor values for the sleep effect.
+   * @param {number} now
+   * @returns {{elapsed: number, centerX: number, baseX: number, baseY: number}}
+   */
+  getSleepEffectMetrics(now) {
+    const elapsed = (now - this.sleepEffectStartedAt) / 1000;
+    const floatY = Math.sin(elapsed * 2.5) * 4;
+    const centerX = this.x + this.width / 2;
+
+    return {
+      elapsed,
+      centerX,
+      baseX: centerX + this.width * 0.05,
+      baseY: this.y - 16 + floatY,
+    };
+  }
+
+  /**
+   * Returns letter descriptors for the comic sleep effect.
+   * @returns {{glyph: string, x: number, y: number, size: number, alpha: number}[]}
+   */
+  getSleepLetters() {
+    return [
+      { glyph: "Z", x: 0, y: 80, size: 30, alpha: 0.95 },
+      { glyph: "Z", x: 20, y: 65, size: 24, alpha: 0.8 },
+      { glyph: "Z", x: 36, y: 50, size: 18, alpha: 0.65 },
+    ];
+  }
+
+  /**
+   * Draws one animated sleep letter.
+   * @param {CanvasRenderingContext2D} ctx
+   * @param {{glyph: string, x: number, y: number, size: number, alpha: number}} letter
+   * @param {number} index
+   * @param {number} elapsed
+   * @param {number} baseX
+   * @param {number} baseY
+   * @returns {void}
+   */
+  drawSleepLetter(ctx, letter, index, elapsed, baseX, baseY) {
+    const pulse = 0.85 + Math.sin(elapsed * 3 + index * 0.8) * 0.1;
+
+    ctx.globalAlpha = letter.alpha;
+    ctx.fillStyle = "#fef7cf";
+    ctx.strokeStyle = "#2f2730";
+    ctx.lineWidth = 3;
+    ctx.font = `700 ${Math.round(letter.size * pulse)}px \"Comic Sans MS\", \"Trebuchet MS\", sans-serif`;
+    ctx.textAlign = "center";
+    ctx.textBaseline = "middle";
+    ctx.strokeText(letter.glyph, baseX + letter.x, baseY + letter.y);
+    ctx.fillText(letter.glyph, baseX + letter.x, baseY + letter.y);
   }
 
   // --- Attack hit detection ---

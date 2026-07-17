@@ -63,11 +63,7 @@ export default class Slime extends Enemy {
      */
     animate() {
         this.startInterval(() => {
-            if (this.world?.isGameplayFrozen?.(this)) {
-                return;
-            }
-
-            if (this.handleDefeatAnimation(14)) {
+            if (this.shouldSkipSlimeTick()) {
                 return;
             }
 
@@ -76,5 +72,17 @@ export default class Slime extends Enemy {
             this.advanceSpriteAnimation(14);
         }, 1000 / 60);
 
+    }
+
+    /**
+     * Returns true when slime tick should not continue this frame.
+     * @returns {boolean}
+     */
+    shouldSkipSlimeTick() {
+        if (this.world?.isGameplayFrozen?.(this)) {
+            return true;
+        }
+
+        return this.handleDefeatAnimation(14);
     }
 }

@@ -2,7 +2,7 @@
 
 export default class MagicAttack extends MovableObject {
 
-  speed = 10;
+  speed = 6;
   attackDamage = 5;
 
   SPRITE_ANIMATION = {
@@ -26,7 +26,7 @@ export default class MagicAttack extends MovableObject {
     this.loadImage("img/character/wizard/fire_magic.png");
     this.width = 120;
     this.height = 100;
-    this.speed = 2;
+    this.speed = 4;
     this.damage = 10;
     this.hitboxOffsetX = 18;
     this.hitboxOffsetY = 25;
@@ -40,15 +40,27 @@ export default class MagicAttack extends MovableObject {
       currentFrame: 0,
     };
 
+    const spawnPosition = this.getSpawnPosition(character);
+    this.x = spawnPosition.x;
+    this.y = spawnPosition.y;
+    this.otherDirection = character.otherDirection;
+  }
+
+  /**
+   * Calculates spawn coordinates near the character's casting hand.
+   * @param {object} character
+   * @returns {{x: number, y: number}}
+   */
+  getSpawnPosition(character) {
     const spawnAnchorX = character.otherDirection
       ? character.x + character.width * this.LEFT_HAND_SPAWN_X_RATIO
       : character.x + character.width * this.RIGHT_HAND_SPAWN_X_RATIO;
     const spawnAnchorY = character.y + character.height * this.HAND_SPAWN_Y_RATIO;
-    this.x = character.otherDirection
-      ? spawnAnchorX - this.width * 0.75
-      : spawnAnchorX;
-    this.y = spawnAnchorY - this.height / 2;
-    this.otherDirection = character.otherDirection;
+
+    return {
+      x: character.otherDirection ? spawnAnchorX - this.width * 0.75 : spawnAnchorX,
+      y: spawnAnchorY - this.height / 2,
+    };
   }
 
   /**

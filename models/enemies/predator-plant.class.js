@@ -72,11 +72,7 @@ export default class PredatorPlant extends Enemy {
      */
     animate() {
         this.startInterval(() => {
-            if (this.world?.isGameplayFrozen?.(this)) {
-                return;
-            }
-
-            if (this.handleDefeatAnimation(14)) {
+            if (this.shouldSkipPredatorPlantTick()) {
                 return;
             }
 
@@ -85,6 +81,18 @@ export default class PredatorPlant extends Enemy {
             this.advanceSpriteAnimation(14);
         }, 1000 / 60);
 
+    }
+
+    /**
+     * Returns true when predator-plant tick should not continue this frame.
+     * @returns {boolean}
+     */
+    shouldSkipPredatorPlantTick() {
+        if (this.world?.isGameplayFrozen?.(this)) {
+            return true;
+        }
+
+        return this.handleDefeatAnimation(14);
     }
 
     /**

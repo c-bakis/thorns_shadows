@@ -72,25 +72,34 @@ export default class OverlayDialog extends DrawableObject {
    */
   _drawButton(ctx, btn) {
     if (btn.isIconButton) {
-      ctx.drawImage(this.x_btn, btn.x, btn.y, btn.w, btn.h);
       this.drawIconButton(ctx, btn);
-    } else {
-      const sprite = this.getButtonSpriteForState(btn, BTN_SRC);
-
-      ctx.drawImage(
-        this.buttonSheet,
-        sprite.sx,
-        sprite.sy,
-        sprite.sw,
-        sprite.sh,
-        btn.x,
-        btn.y,
-        btn.w,
-        btn.h,
-      );
-
-      this.drawTextButton(ctx, btn);
+      return;
     }
+
+    this.drawSpriteButton(ctx, btn);
+    this.drawTextButton(ctx, btn);
+  }
+
+  /**
+   * Draws a sprite-based button background.
+   * @param {CanvasRenderingContext2D} ctx
+   * @param {object} btn
+   * @returns {void}
+   */
+  drawSpriteButton(ctx, btn) {
+    const sprite = this.getButtonSpriteForState(btn, BTN_SRC);
+
+    ctx.drawImage(
+      this.buttonSheet,
+      sprite.sx,
+      sprite.sy,
+      sprite.sw,
+      sprite.sh,
+      btn.x,
+      btn.y,
+      btn.w,
+      btn.h,
+    );
   }
 
   /**
@@ -100,11 +109,23 @@ export default class OverlayDialog extends DrawableObject {
    * @returns {void}
    */
   drawIconButton(ctx, btn) {
+    this.drawIconBaseButton(ctx, btn);
+
     ctx.save();
     ctx.filter = this.getButtonSpriteForState(btn, BTN_ICON_EFFECTS).filter;
     ctx.drawImage(this.x_btn, btn.x, btn.y, btn.w, btn.h);
 
     ctx.restore();
+  }
+
+  /**
+   * Draws the base icon button image.
+   * @param {CanvasRenderingContext2D} ctx
+   * @param {object} btn
+   * @returns {void}
+   */
+  drawIconBaseButton(ctx, btn) {
+    ctx.drawImage(this.x_btn, btn.x, btn.y, btn.w, btn.h);
   }
 
   /**

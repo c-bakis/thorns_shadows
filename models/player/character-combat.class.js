@@ -75,14 +75,7 @@ export default class CharacterCombat {
       this.character.world?.audioManager?.attackSoundPath,
       { volume: 0.4, maxDurationMs: 650 },
     );
-    this.attackActive = true;
-    this.currentAttackName = attackName;
-    this.queuedAttackName = null;
-    this.comboExpiresAt = now + this.character.comboInputWindowMs;
-    this.hitEnemiesThisAttack.clear();
-    this.character.activeAnimation = null;
-    this.character.animationCounter = 0;
-    this.character.switchAnimation(attackName);
+    this.beginAttackAnimation(attackName, now, { isMagicAttack: false });
   }
 
   /**
@@ -127,8 +120,28 @@ export default class CharacterCombat {
       this.character.world?.audioManager?.fireMagicSoundPath,
       { volume: 0.125 }, { maxDurationMs: 800 }
     );
-    this.magicAttackActive = true;
-    this.pendingMagicProjectile = true;
+    this.beginAttackAnimation(attackName, now, {
+      isMagicAttack: true,
+      pendingMagicProjectile: true,
+    });
+  }
+
+  /**
+   * Initializes shared state for melee and magic attack animations.
+   * @param {string} attackName
+   * @param {number} now
+   * @param {{isMagicAttack?: boolean, pendingMagicProjectile?: boolean}} options
+   * @returns {void}
+   */
+  beginAttackAnimation(attackName, now, options = {}) {
+    const {
+      isMagicAttack = false,
+      pendingMagicProjectile = false,
+    } = options;
+
+    this.attackActive = !isMagicAttack;
+    this.magicAttackActive = isMagicAttack;
+    this.pendingMagicProjectile = pendingMagicProjectile;
     this.currentAttackName = attackName;
     this.queuedAttackName = null;
     this.comboExpiresAt = now + this.character.comboInputWindowMs;
@@ -150,6 +163,15 @@ export default class CharacterCombat {
       return;
     }
 
+    this.handleFinishedAttack(now);
+  }
+
+  /**
+   * Resolves what happens after an attack animation completes.
+   * @param {number} now
+   * @returns {void}
+   */
+  handleFinishedAttack(now) {
     if (this.magicAttackActive) {
       this.releaseMagicProjectile();
       this.finishAttack();
@@ -158,9 +180,10 @@ export default class CharacterCombat {
 
     if (this.queuedAttackName && now <= this.comboExpiresAt) {
       this.startAttack(this.queuedAttackName, now);
-    } else {
-      this.finishAttack();
+      return;
     }
+
+    this.finishAttack();
   }
 
   /**

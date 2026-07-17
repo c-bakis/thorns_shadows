@@ -12,33 +12,49 @@
    * @returns {void}
    */
   updateAnimation(isMovingHorizontally, isAirborne, isHurt, now) {
-    if (this.character.energy <= 0) {
-      this.character.combat.finishAttack();
-      this.playDeadAnimation();
-      return;
-    }
-
-    if (this.character.combat.isBusy()) {
-      this.character.combat.playAttackAnimation(now);
-      return;
-    }
-
-    if (isHurt) {
-      this.playHurtAnimation();
-      return;
-    }
-
-    if (isAirborne) {
-      this.playJumpAnimation();
-      return;
-    }
-
-    if (isMovingHorizontally) {
-      this.playRunAnimation();
+    if (this.tryPlayPriorityAnimation(isMovingHorizontally, isAirborne, isHurt, now)) {
       return;
     }
 
     this.playIdleAnimation();
+  }
+
+  /**
+   * Applies priority animation states and returns true when one was played.
+   * @param {boolean} isMovingHorizontally
+   * @param {boolean} isAirborne
+   * @param {boolean} isHurt
+   * @param {number} now
+   * @returns {boolean}
+   */
+  tryPlayPriorityAnimation(isMovingHorizontally, isAirborne, isHurt, now) {
+    if (this.character.energy <= 0) {
+      this.character.combat.finishAttack();
+      this.playDeadAnimation();
+      return true;
+    }
+
+    if (this.character.combat.isBusy()) {
+      this.character.combat.playAttackAnimation(now);
+      return true;
+    }
+
+    if (isHurt) {
+      this.playHurtAnimation();
+      return true;
+    }
+
+    if (isAirborne) {
+      this.playJumpAnimation();
+      return true;
+    }
+
+    if (isMovingHorizontally) {
+      this.playRunAnimation();
+      return true;
+    }
+
+    return false;
   }
 
   /**
@@ -73,7 +89,7 @@
    * @returns {void}
    */
   playIdleAnimation() {
-    this.switchAnimation("WALK");
+    this.switchAnimation("IDLE");
     this.character.stopAnimation();
   }
 
@@ -85,17 +101,35 @@
     this.switchAnimation("DEAD");
 
     if (this.character.deathAnimationFinished) {
-      this.character.spriteSheet.currentFrame =
-        this.character.spriteSheet.frameCount - 1;
+      this.holdLastDeathFrame();
       return;
     }
 
     const finished = this.advanceOneShotAnimation(10);
-    if (finished) {
-      this.character.deathAnimationFinished = true;
-      this.character.speedY = 0;
-      this.character.handleGameOver();
+    if (!finished) {
+      return;
     }
+
+    this.finishDeathAnimation();
+  }
+
+  /**
+   * Locks the death animation to its last frame.
+   * @returns {void}
+   */
+  holdLastDeathFrame() {
+    this.character.spriteSheet.currentFrame =
+      this.character.spriteSheet.frameCount - 1;
+  }
+
+  /**
+   * Finalizes state after death animation reaches the last frame.
+   * @returns {void}
+   */
+  finishDeathAnimation() {
+    this.character.deathAnimationFinished = true;
+    this.character.speedY = 0;
+    this.character.handleGameOver();
   }
 
   /**

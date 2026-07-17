@@ -152,9 +152,7 @@ export default class CollisionCombatSystem {
       return;
     }
 
-    const damage = Number.isFinite(this.character?.attackDamage)
-      ? this.character.attackDamage
-      : 35;
+    const damage = this.getCharacterAttackDamage();
     const didTakeDamage = this.applyDamageToEnemy(enemy, damage, now);
 
     this.playEnemyHitSfx(didTakeDamage);
@@ -163,6 +161,16 @@ export default class CollisionCombatSystem {
       return;
     }
 
+    this.onEnemyHitByCharacter(enemy);
+  }
+
+  getCharacterAttackDamage() {
+    return Number.isFinite(this.character?.attackDamage)
+      ? this.character.attackDamage
+      : 35;
+  }
+
+  onEnemyHitByCharacter(enemy) {
     this.character.registerEnemyHit(enemy);
     if ((enemy.energy ?? 0) <= 0) {
       this.markEnemyDefeated(enemy, { grantExperience: true });
@@ -197,11 +205,7 @@ export default class CollisionCombatSystem {
   }
 
   checkDamageOnCollision(enemy, isColliding, now) {
-    if (!isColliding || enemy?.isDefeated) {
-      return;
-    }
-
-    if (typeof enemy?.canDealDamage === "function" && !enemy.canDealDamage()) {
+    if (!this.canEnemyDamageCharacterOnCollision(enemy, isColliding)) {
       return;
     }
 
@@ -214,6 +218,18 @@ export default class CollisionCombatSystem {
     this.playCorrectSfx(this.world.audioManager?.getHurtSoundPath, {
       volume: 0.125,
     });
+  }
+
+  canEnemyDamageCharacterOnCollision(enemy, isColliding) {
+    if (!isColliding || enemy?.isDefeated) {
+      return false;
+    }
+
+    if (typeof enemy?.canDealDamage === "function" && !enemy.canDealDamage()) {
+      return false;
+    }
+
+    return true;
   }
 
   applyCollisionDamageToCharacter(enemy, now) {
@@ -238,16 +254,22 @@ export default class CollisionCombatSystem {
 
     enemy.isDefeated = true;
 
-    if (options.grantExperience) {
-      const experiencePoints = Number.isFinite(enemy.experiencePoints)
-        ? enemy.experiencePoints
-        : 0;
-      this.character.gainExperience(experiencePoints);
-    }
+    this.tryGrantEnemyExperience(enemy, options);
 
     if (typeof this.world?.handleEnemyDefeat === "function") {
       this.world.handleEnemyDefeat(enemy);
     }
+  }
+
+  tryGrantEnemyExperience(enemy, options = {}) {
+    if (!options.grantExperience) {
+      return;
+    }
+
+    const experiencePoints = Number.isFinite(enemy.experiencePoints)
+      ? enemy.experiencePoints
+      : 0;
+    this.character.gainExperience(experiencePoints);
   }
 
   removeOrKeepEnemy(enemy) {

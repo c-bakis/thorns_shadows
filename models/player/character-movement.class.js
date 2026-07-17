@@ -12,11 +12,7 @@ export default class CharacterMovement {
 
   /** Runs one movement tick and updates animation state. */
   tick() {
-    if (!this.character.world?.keyboard) {
-      return;
-    }
-
-    if (this.character.world?.isGameplayFrozen?.(this.character)) {
+    if (this.shouldSkipTick()) {
       return;
     }
 
@@ -31,6 +27,15 @@ export default class CharacterMovement {
       this.character.isHurt(),
       now,
     );
+  }
+
+  /** Returns true when movement/animation updates should be skipped. */
+  shouldSkipTick() {
+    if (!this.character.world?.keyboard) {
+      return true;
+    }
+
+    return Boolean(this.character.world?.isGameplayFrozen?.(this.character));
   }
 
   /**
@@ -110,16 +115,33 @@ export default class CharacterMovement {
 
   /** Moves the character within level bounds. */
   moveCharacter() {
+    const maxCharacterX = this.getMaxCharacterX();
+    this.moveRightIfPressed(maxCharacterX);
+    this.moveLeftIfPressed();
+  }
+
+  /** Returns right boundary for the player within the level. */
+  getMaxCharacterX() {
     const worldEndX = this.character.world?.level?.levelEndX ?? Infinity;
-    const maxCharacterX = worldEndX - this.character.width;
+    return worldEndX - this.character.width;
+  }
 
-    if (this.character.world.keyboard.RIGHT && this.character.x < maxCharacterX) {
-      this.character.moveRight();
-      this.character.x = Math.min(this.character.x, maxCharacterX);
+  /** Moves right while clamping against the right world boundary. */
+  moveRightIfPressed(maxCharacterX) {
+    if (!this.character.world.keyboard.RIGHT || this.character.x >= maxCharacterX) {
+      return;
     }
 
-    if (this.character.world.keyboard.LEFT && this.character.x >= 80) {
-      this.character.moveLeft();
+    this.character.moveRight();
+    this.character.x = Math.min(this.character.x, maxCharacterX);
+  }
+
+  /** Moves left within the minimum left boundary. */
+  moveLeftIfPressed() {
+    if (!this.character.world.keyboard.LEFT || this.character.x < 80) {
+      return;
     }
+
+    this.character.moveLeft();
   }
 }

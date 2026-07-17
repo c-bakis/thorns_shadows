@@ -46,18 +46,13 @@ export default class Wolf extends Enemy {
             return;
         }
 
-        const speed = this.spriteSheet.speed || 2;
+        const speed = this.getCurrentAnimationSpeed();
         this.animationCounter++;
         if (this.animationCounter % speed !== 0) {
             return;
         }
 
-        const startFrame = Number.isFinite(this.spriteSheet.startFrame)
-            ? this.spriteSheet.startFrame
-            : 0;
-        const endFrame = Number.isFinite(this.spriteSheet.endFrame)
-            ? this.spriteSheet.endFrame
-            : this.spriteSheet.frameCount - 1;
+        const { startFrame, endFrame } = this.getCurrentAnimationFrameRange();
 
         if (this.spriteSheet.currentFrame >= endFrame) {
             this.spriteSheet.currentFrame = startFrame;
@@ -65,6 +60,29 @@ export default class Wolf extends Enemy {
         }
 
         this.spriteSheet.currentFrame++;
+    }
+
+    /**
+     * Returns current animation speed.
+     * @returns {number}
+     */
+    getCurrentAnimationSpeed() {
+        return this.spriteSheet.speed || 2;
+    }
+
+    /**
+     * Returns start/end frame range for current animation.
+     * @returns {{startFrame: number, endFrame: number}}
+     */
+    getCurrentAnimationFrameRange() {
+        const startFrame = Number.isFinite(this.spriteSheet.startFrame)
+            ? this.spriteSheet.startFrame
+            : 0;
+        const endFrame = Number.isFinite(this.spriteSheet.endFrame)
+            ? this.spriteSheet.endFrame
+            : this.spriteSheet.frameCount - 1;
+
+        return { startFrame, endFrame };
     }
 
     ensureSpawnAnchor() {
@@ -99,17 +117,7 @@ export default class Wolf extends Enemy {
 
     animate() {
         this.startInterval(() => {
-            if (this.world?.isBossIntroActive?.()) {
-                this.updateBossIntroAnimation();
-                return;
-            }
-
-            if (this.world?.isGameplayFrozen?.(this)) {
-                return;
-            }
-
-            if (this.shouldWaitForBossIntro()) {
-                this.holdPositionUntilBossIntro();
+            if (this.shouldSkipWolfTick()) {
                 return;
             }
 
@@ -121,5 +129,27 @@ export default class Wolf extends Enemy {
             this.advanceSpriteAnimation();
         }, 1000 / 60);
 
+    }
+
+    /**
+     * Returns true when the wolf tick should exit early.
+     * @returns {boolean}
+     */
+    shouldSkipWolfTick() {
+        if (this.world?.isBossIntroActive?.()) {
+            this.updateBossIntroAnimation();
+            return true;
+        }
+
+        if (this.world?.isGameplayFrozen?.(this)) {
+            return true;
+        }
+
+        if (!this.shouldWaitForBossIntro()) {
+            return false;
+        }
+
+        this.holdPositionUntilBossIntro();
+        return true;
     }
 }

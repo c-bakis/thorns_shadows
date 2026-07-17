@@ -90,7 +90,7 @@ export default class PlattformGroundResolver {
     let bestPlatformBox = null;
 
     for (const tile of this.getFloatingTiles()) {
-      const platformBox = this.getValidFloatingPlatformBox(
+      const candidatePlatform = this.getValidFloatingPlatformBox(
         tile,
         actor,
         actorHitbox,
@@ -98,11 +98,7 @@ export default class PlattformGroundResolver {
         actorCurrentBottom,
       );
 
-      if (!platformBox) {
-        continue;
-      }
-
-      bestPlatformBox = this.selectHigherPlatform(bestPlatformBox, platformBox);
+      bestPlatformBox = this.selectHigherPlatform(bestPlatformBox, candidatePlatform);
     }
 
     return bestPlatformBox;
@@ -172,6 +168,10 @@ export default class PlattformGroundResolver {
    * @returns {void}
    */
   selectHigherPlatform(currentBest, candidate) {
+    if (!candidate) {
+      return currentBest;
+    }
+
     if (!currentBest) {
       return candidate;
     }
@@ -251,18 +251,36 @@ export default class PlattformGroundResolver {
     const filledTiles = [];
 
     baseTiles.forEach((tile) => {
-      const isGrassTile = tile.img.src.includes("grass");
-      const stepX = isGrassTile ? tile.width - 0 : tile.width;
-
-      if (this.shouldKeepSingleTile(tile)) {
-        filledTiles.push(tile);
-        return;
-      }
-
-      this.addRepeatingTiles(tile, stepX, filledTiles);
+      this.addOrRepeatTile(tile, filledTiles);
     });
 
     return filledTiles;
+  }
+
+  /**
+   * Adds a tile once or repeats it across the ground based on tile type.
+   * @param {object} tile
+   * @param {object[]} targetTiles
+   * @returns {void}
+   */
+  addOrRepeatTile(tile, targetTiles) {
+    if (this.shouldKeepSingleTile(tile)) {
+      targetTiles.push(tile);
+      return;
+    }
+
+    const stepX = this.getTileRepeatStep(tile);
+    this.addRepeatingTiles(tile, stepX, targetTiles);
+  }
+
+  /**
+   * Returns repetition step size for a ground tile.
+   * @param {object} tile
+   * @returns {number}
+   */
+  getTileRepeatStep(tile) {
+    const isGrassTile = tile.img.src.includes("grass");
+    return isGrassTile ? tile.width - 0 : tile.width;
   }
 
   /**

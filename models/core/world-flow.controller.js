@@ -57,22 +57,46 @@ export default class WorldFlowController {
     this.world.overlayController?.closeActiveOverlay?.();
     this.world.pause = true;
     document.body.classList.remove("is-game-paused");
+    this.stopWorldAudioAndFrame();
+    this.clearWorldObjectIntervals();
+  }
+
+  /**
+   * Stops music tracks and cancels active render frame.
+   * @returns {void}
+   */
+  stopWorldAudioAndFrame() {
     this.world.audioManager?.stopGameOverMusic?.();
     this.world.audioManager?.stopVictoryMusic?.();
     this.world.audioManager?.stopMusic?.();
-    if (Number.isFinite(this.world.renderFrameId)) {
-      cancelAnimationFrame(this.world.renderFrameId);
-      this.world.renderFrameId = null;
+
+    if (!Number.isFinite(this.world.renderFrameId)) {
+      return;
     }
 
-    const cleanupTargets = [
+    cancelAnimationFrame(this.world.renderFrameId);
+    this.world.renderFrameId = null;
+  }
+
+  /**
+   * Clears all object interval timers used by active world entities.
+   * @returns {void}
+   */
+  clearWorldObjectIntervals() {
+    this.getDestroyCleanupTargets().forEach((obj) => obj?.clearIntervals?.());
+  }
+
+  /**
+   * Returns all world objects requiring interval cleanup.
+   * @returns {object[]}
+   */
+  getDestroyCleanupTargets() {
+    return [
       this.world.character,
       ...this.world.enemies,
       ...this.world.collectables,
       ...this.world.magicAttacks,
     ];
-
-    cleanupTargets.forEach((obj) => obj?.clearIntervals?.());
   }
 
   handleGameOver() {

@@ -33,13 +33,12 @@
       const parallaxCameraX = this.world.camera_x * parallaxFactor;
       const parallaxOffset = this.world.camera_x * (parallaxFactor - 1);
       const tileWidth = backgroundObject.width;
-      const verticalPadding = this.world.getBackgroundVerticalPadding();
-      const drawY = backgroundObject.y - verticalPadding;
-      const drawHeight = backgroundObject.height + verticalPadding;
-      const cameraWorldX = -parallaxCameraX;
-      const startTileIndex =
-        Math.floor((cameraWorldX - backgroundObject.x) / tileWidth) - 1;
-      const tilesToDraw = Math.ceil(this.world.canvas.width / tileWidth) + 3;
+      const { drawY, drawHeight } = this.getBackgroundDrawBounds(backgroundObject);
+      const { startTileIndex, tilesToDraw } = this.getTileWindow(
+        backgroundObject,
+        tileWidth,
+        parallaxCameraX,
+      );
 
       return {
         parallaxOffset,
@@ -49,6 +48,34 @@
         startTileIndex,
         tilesToDraw,
       };
+  }
+
+  /**
+   * Returns vertical draw bounds for a repeated background layer.
+   * @param {object} backgroundObject
+   * @returns {{drawY: number, drawHeight: number}}
+   */
+  getBackgroundDrawBounds(backgroundObject) {
+    const verticalPadding = this.world.getBackgroundVerticalPadding();
+    return {
+      drawY: backgroundObject.y - verticalPadding,
+      drawHeight: backgroundObject.height + verticalPadding,
+    };
+  }
+
+  /**
+   * Resolves first visible tile index and tile count for the viewport.
+   * @param {object} backgroundObject
+   * @param {number} tileWidth
+   * @param {number} parallaxCameraX
+   * @returns {{startTileIndex: number, tilesToDraw: number}}
+   */
+  getTileWindow(backgroundObject, tileWidth, parallaxCameraX) {
+    const cameraWorldX = -parallaxCameraX;
+    const startTileIndex =
+      Math.floor((cameraWorldX - backgroundObject.x) / tileWidth) - 1;
+    const tilesToDraw = Math.ceil(this.world.canvas.width / tileWidth) + 3;
+    return { startTileIndex, tilesToDraw };
   }
 
   /**
@@ -104,19 +131,35 @@
       return;
     }
 
-    if (
-      backgroundObject.img.complete &&
-      backgroundObject.img.naturalWidth > 0
-    ) {
+    if (this.isLoadedImage(backgroundObject.img)) {
       this.drawRepeatedBackgroundLayer(backgroundObject);
-    } else {
-      backgroundObject.img.onload = () => {
-        if (backgroundObject.img.naturalWidth > 0) {
-          this.drawRepeatedBackgroundLayer(backgroundObject);
-        }
-      };
-      backgroundObject.img.onerror = () =>
-        console.error("Background image failed to load.");
+      return;
     }
+
+    this.queueBackgroundDrawOnLoad(backgroundObject);
+  }
+
+  /**
+   * Returns true when an image is already available for drawing.
+   * @param {HTMLImageElement} image
+   * @returns {boolean}
+   */
+  isLoadedImage(image) {
+    return image.complete && image.naturalWidth > 0;
+  }
+
+  /**
+   * Queues one-time background draw callback after image load.
+   * @param {object} backgroundObject
+   * @returns {void}
+   */
+  queueBackgroundDrawOnLoad(backgroundObject) {
+    backgroundObject.img.onload = () => {
+      if (backgroundObject.img.naturalWidth > 0) {
+        this.drawRepeatedBackgroundLayer(backgroundObject);
+      }
+    };
+    backgroundObject.img.onerror = () =>
+      console.error("Background image failed to load.");
   }
     }

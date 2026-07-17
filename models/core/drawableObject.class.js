@@ -139,13 +139,9 @@
    * @returns {void}
    */
   drawBoundingBox(ctx) {
-    const shouldDrawBoundingBox =
-      this.constructor?.name === "Character" ||
-      this.constructor?.name === "Slime" ||
-      this.constructor?.name === "PredatorPlant" ||
-      this.constructor?.name === "Spider" ||
-      this.constructor?.name === "Wolf" ||
-      this.constructor?.name === "Tileset";
+    const shouldDrawBoundingBox = this.shouldDrawBoundingBoxForClass(
+      this.constructor?.name,
+    );
 
     if (shouldDrawBoundingBox) {
       const hitbox = this.getHitbox();
@@ -155,6 +151,24 @@
       ctx.lineWidth = 5;
       ctx.stroke();
     }
+  }
+
+  /**
+   * Returns true when class should show debug hitbox rendering.
+   * @param {string} className
+   * @returns {boolean}
+   */
+  shouldDrawBoundingBoxForClass(className) {
+    const drawableDebugClasses = [
+      "Character",
+      "Slime",
+      "PredatorPlant",
+      "Spider",
+      "Wolf",
+      "Tileset",
+    ];
+
+    return drawableDebugClasses.includes(className);
   }
 
   /**

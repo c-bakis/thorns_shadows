@@ -93,13 +93,9 @@ export default class AudioManager {
       return;
     }
 
-    const playPromise = this.music.play();
-    if (playPromise && typeof playPromise.catch === "function") {
-      playPromise.catch((error) => {
-        console.warn("Music playback failed:", this.musicPath, error);
-        this.pendingMusicPlay = true;
-      });
-    }
+    this.playAudioWithWarning(this.music, "Music playback failed:", this.musicPath, () => {
+      this.pendingMusicPlay = true;
+    });
 
     this.pendingMusicPlay = false;
   }
@@ -143,20 +139,56 @@ export default class AudioManager {
       this.pauseMusic();
     }
 
+    const specialTrack = this.getOrCreateSpecialTrack(audioKey, pathKey, setTrack);
+    if (!this.canPlaySpecialTrack(specialTrack)) {
+      return;
+    }
+
+    specialTrack.currentTime = 0;
+    specialTrack.volume = this[volumeKey];
+    this.playAudioWithWarning(specialTrack, `${warnLabel} playback failed:`, this[pathKey]);
+  }
+
+  /**
+   * Returns an existing special track or creates it from configured path.
+   * @param {string} audioKey
+   * @param {string} pathKey
+   * @param {Function} setTrack
+   * @returns {HTMLAudioElement|null}
+   */
+  getOrCreateSpecialTrack(audioKey, pathKey, setTrack) {
     if (!this[audioKey]) {
       setTrack.call(this, this[pathKey]);
     }
 
-    if (!this[audioKey] || this.musicMuted || !this.unlocked) {
-      return;
-    }
+    return this[audioKey] ?? null;
+  }
 
-    this[audioKey].currentTime = 0;
-    this[audioKey].volume = this[volumeKey];
-    const playPromise = this[audioKey].play();
+  /**
+   * Returns true when a special track is playable in current audio state.
+   * @param {HTMLAudioElement|null} track
+   * @returns {boolean}
+   */
+  canPlaySpecialTrack(track) {
+    return Boolean(track && !this.musicMuted && this.unlocked);
+  }
+
+  /**
+   * Plays audio and logs warning if playback fails.
+   * @param {HTMLAudioElement} audio
+   * @param {string} warningPrefix
+   * @param {string} warningPath
+   * @param {Function|null} onError
+   * @returns {void}
+   */
+  playAudioWithWarning(audio, warningPrefix, warningPath, onError = null) {
+    const playPromise = audio.play();
     if (playPromise && typeof playPromise.catch === "function") {
       playPromise.catch((error) => {
-        console.warn(`${warnLabel} playback failed:`, this[pathKey], error);
+        console.warn(warningPrefix, warningPath, error);
+        if (typeof onError === "function") {
+          onError(error);
+        }
       });
     }
   }

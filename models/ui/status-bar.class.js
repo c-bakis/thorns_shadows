@@ -77,7 +77,29 @@ export default class StatusBar extends DrawableObject {
             return cachedBounds;
         }
 
+        return this.computeAndCacheImageBounds(cacheKey, img);
+    }
+
+    /**
+     * Computes image bounds once and stores them in cache.
+     * @param {string} cacheKey
+     * @param {object} img
+     * @returns {object}
+     */
+    computeAndCacheImageBounds(cacheKey, img) {
         const fallbackBounds = this.getFallbackBounds(img);
+        const computedBounds = this.computeImageContentBounds(img, fallbackBounds);
+        this.cacheImageBounds(cacheKey, computedBounds);
+        return computedBounds;
+    }
+
+    /**
+     * Computes alpha-based horizontal bounds or returns fallback.
+     * @param {object} img
+     * @param {object} fallbackBounds
+     * @returns {object}
+     */
+    computeImageContentBounds(img, fallbackBounds) {
         if (!this.isImageReady(img)) {
             return fallbackBounds;
         }
@@ -92,9 +114,8 @@ export default class StatusBar extends DrawableObject {
             contextData.width,
             contextData.height,
         );
-        const bounds = this.buildBoundsFromAlphaRange(alphaRange, img, fallbackBounds);
-        this.cacheImageBounds(cacheKey, bounds);
-        return bounds;
+
+        return this.buildBoundsFromAlphaRange(alphaRange, img, fallbackBounds);
     }
 
     /**
@@ -179,16 +200,24 @@ export default class StatusBar extends DrawableObject {
                     continue;
                 }
 
-                if (x < minX) {
-                    minX = x;
-                }
-                if (x > maxX) {
-                    maxX = x;
-                }
+                ({ minX, maxX } = this.expandAlphaRange({ minX, maxX }, x));
             }
         }
 
         return { minX, maxX };
+    }
+
+    /**
+     * Expands alpha range with a visible x-position.
+     * @param {{minX: number, maxX: number}} range
+     * @param {number} x
+     * @returns {{minX: number, maxX: number}}
+     */
+    expandAlphaRange(range, x) {
+        return {
+            minX: x < range.minX ? x : range.minX,
+            maxX: x > range.maxX ? x : range.maxX,
+        };
     }
 
     /**

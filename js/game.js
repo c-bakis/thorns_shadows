@@ -16,6 +16,35 @@ const touchButtonBindings = [
   { id: "magic-attack-btn", key: "MAGIC_ATTACK" },
 ];
 
+const GAME_INPUT_CODES = [
+  "ArrowRight",
+  "ArrowLeft",
+  "ArrowUp",
+  "ArrowDown",
+  "Space",
+  "KeyW",
+  "KeyA",
+  "KeyS",
+  "KeyD",
+  "KeyF",
+  "KeyG",
+  "KeyP",
+];
+
+const KEYBOARD_FLAG_BY_CODE = {
+  ArrowRight: "RIGHT",
+  KeyD: "RIGHT",
+  ArrowLeft: "LEFT",
+  KeyA: "LEFT",
+  ArrowUp: "UP",
+  KeyW: "UP",
+  ArrowDown: "DOWN",
+  KeyS: "DOWN",
+  Space: "SPACE",
+  KeyF: "ATTACK",
+  KeyG: "MAGIC_ATTACK",
+};
+
 /**
  * Reads a persisted enabled-state from sessionStorage.
  * @param {string} key
@@ -219,6 +248,43 @@ function toggleMainMenuGame() {
   }
 }
 
+/**
+ * Prevents default browser behavior for gameplay input keys.
+ * @param {KeyboardEvent} event
+ * @returns {void}
+ */
+function preventDefaultForGameInput(event) {
+  if (GAME_INPUT_CODES.includes(event.code)) {
+    event.preventDefault();
+  }
+}
+
+/**
+ * Sets a world keyboard flag based on key code mapping.
+ * @param {string} code
+ * @param {boolean} isPressed
+ * @returns {void}
+ */
+function setKeyboardStateForCode(code, isPressed) {
+  const keyboardFlag = KEYBOARD_FLAG_BY_CODE[code];
+  if (!keyboardFlag || !world?.keyboard) {
+    return;
+  }
+
+  world.keyboard[keyboardFlag] = isPressed;
+}
+
+/**
+ * Handles pause key toggle on keydown (without repeat).
+ * @param {KeyboardEvent} event
+ * @returns {void}
+ */
+function handlePauseKeyDown(event) {
+  if (event.code === "KeyP" && !event.repeat) {
+    world.handlePauseToggle();
+  }
+}
+
 window.addEventListener("keydown", (e) => {
   unlockAudio();
 
@@ -226,42 +292,9 @@ window.addEventListener("keydown", (e) => {
     return;
   }
 
-  if (["ArrowRight", "ArrowLeft", "ArrowUp", "ArrowDown", "Space", "KeyW", "KeyA", "KeyS", "KeyD", "KeyF", "KeyG", "KeyP"].includes(e.code)) {
-    e.preventDefault();
-  }
-
-  switch (e.code) {
-    case "ArrowRight":
-    case "KeyD":
-      world.keyboard.RIGHT = true;
-      break;
-    case "ArrowLeft":
-    case "KeyA":
-      world.keyboard.LEFT = true;
-      break;
-    case "ArrowUp":
-    case "KeyW":
-      world.keyboard.UP = true;
-      break;
-    case "ArrowDown":
-    case "KeyS":
-      world.keyboard.DOWN = true;
-      break;
-    case "Space":
-      world.keyboard.SPACE = true;
-      break;
-    case "KeyF":
-      world.keyboard.ATTACK = true;
-      break;
-      case "KeyG":
-        world.keyboard.MAGIC_ATTACK = true;
-        break;
-    case "KeyP":
-        if (!e.repeat) {
-          world.handlePauseToggle();
-        }
-      break;
-  }
+  preventDefaultForGameInput(e);
+  setKeyboardStateForCode(e.code, true);
+  handlePauseKeyDown(e);
 });
 
 window.addEventListener("pointerdown", unlockAudio, { passive: true });
@@ -272,35 +305,6 @@ window.addEventListener("keyup", (e) => {
       return;
     }
 
-  if (["ArrowRight", "ArrowLeft", "ArrowUp", "ArrowDown", "Space", "KeyW", "KeyA", "KeyS", "KeyD", "KeyF", "KeyG", "KeyP"].includes(e.code)) {
-    e.preventDefault();
-  }
-
-  switch (e.code) {
-    case "ArrowRight":
-    case "KeyD":
-      world.keyboard.RIGHT = false;
-      break;
-    case "ArrowLeft":
-    case "KeyA":
-      world.keyboard.LEFT = false;
-      break;
-    case "ArrowUp":
-    case "KeyW":
-      world.keyboard.UP = false;
-      break;
-    case "ArrowDown":
-    case "KeyS":
-      world.keyboard.DOWN = false;
-      break;
-    case "Space":
-      world.keyboard.SPACE = false;
-      break;
-    case "KeyF":
-      world.keyboard.ATTACK = false;
-      break;
-      case "KeyG":
-        world.keyboard.MAGIC_ATTACK = false;
-        break;
-  }
+  preventDefaultForGameInput(e);
+  setKeyboardStateForCode(e.code, false);
 });

@@ -4,18 +4,47 @@ export default class DecorationObject extends DrawableObject {
     constructor(configOrImagePath, x, y, width, height) {
         super();
 
+        const config = this.normalizeDecorationConfig(
+            configOrImagePath,
+            x,
+            y,
+            width,
+            height,
+        );
+
+        this.applyDecorationBounds(config);
+        this.loadImage(config.imagePath);
+        this.applyOptionalSpriteSheet(config);
+    }
+
+    /**
+     * Normalizes constructor arguments into a unified decoration config object.
+     * @param {*} configOrImagePath
+     * @param {number} x
+     * @param {number} y
+     * @param {number} width
+     * @param {number} height
+     * @returns {object}
+     */
+    normalizeDecorationConfig(configOrImagePath, x, y, width, height) {
         const isConfigObject =
             configOrImagePath !== null && typeof configOrImagePath === "object";
-        const config = isConfigObject
+
+        return isConfigObject
             ? configOrImagePath
             : { imagePath: configOrImagePath, x, y, width, height };
+    }
 
+    /**
+     * Applies decoration bounds with numeric fallbacks.
+     * @param {object} config
+     * @returns {void}
+     */
+    applyDecorationBounds(config) {
         this.x = Number.isFinite(config.x) ? config.x : 0;
         this.y = Number.isFinite(config.y) ? config.y : 0;
         this.width = Number.isFinite(config.width) ? config.width : 0;
         this.height = Number.isFinite(config.height) ? config.height : 0;
-        this.loadImage(config.imagePath);
-        this.applyOptionalSpriteSheet(config);
     }
 
     /**

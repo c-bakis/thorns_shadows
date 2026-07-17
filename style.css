@@ -32,7 +32,7 @@ footer a {
 }
 
 .impressum-container a {
-  color:#1c3f1d;
+  color: #1c3f1d;
   text-shadow: 2px 2px 2px #a0e0a0;
   text-decoration: underline;
 }
@@ -216,7 +216,8 @@ div.wrapper {
   scroll-behavior: smooth;
 }
 
-.overlay-content, .impressum-container {
+.overlay-content,
+.impressum-container {
   position: absolute;
   top: 24px;
   left: 50%;
@@ -374,4 +375,8 @@ img.hero-img {
     monospace;
   color: #0e290f;
   line-height: 1.6;
+}
+
+.legal-p {
+  font-family: monospace;
 }

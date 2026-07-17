@@ -62,9 +62,32 @@ export default class Collectable extends DrawableObject {
             return;
         }
 
+        this.prepareAnimationState(name);
+        this.spriteSheet = this.buildSpriteSheetConfig(config);
+        this.img = this.imgCache[config.path];
+
+        if (!this.img) {
+            this.loadImage(config.path);
+        }
+    }
+
+    /**
+     * Resets state before applying a new collectable animation.
+     * @param {string} name
+     * @returns {void}
+     */
+    prepareAnimationState(name) {
         this.activeAnimation = name;
         this.animationCounter = 0;
-        this.spriteSheet = {
+    }
+
+    /**
+     * Builds sprite sheet config for a collectable animation.
+     * @param {object} config
+     * @returns {object}
+     */
+    buildSpriteSheetConfig(config) {
+        return {
             frameWidth: config.frameWidth,
             frameHeight: config.frameHeight,
             frameCount: config.frameCount,
@@ -73,11 +96,6 @@ export default class Collectable extends DrawableObject {
             layout: config.layout ?? "row",
             currentFrame: 0,
         };
-        this.img = this.imgCache[config.path];
-
-        if (!this.img) {
-            this.loadImage(config.path);
-        }
     }
 
     /**

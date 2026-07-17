@@ -30,15 +30,7 @@ export function holdEnemyForBossIntro(enemy, options = {}) {
         faceCharacter = true,
     } = options;
 
-    stopEnemyMovement(enemy);
-    if (faceCharacter) {
-        enemy.faceCharacter();
-    }
-    if (animationName) {
-        enemy.switchAnimation(animationName);
-    }
-
-    resetToAnimationStart(enemy);
+    prepareEnemyIntroPose(enemy, { animationName, faceCharacter });
 }
 
 /**
@@ -56,18 +48,12 @@ export function startEnemyBossIntro(enemy, options = {}) {
         onStart = null,
     } = options;
 
-    stopEnemyMovement(enemy);
-    if (faceCharacter) {
-        enemy.faceCharacter();
-    }
+    prepareEnemyIntroPose(enemy, { animationName, faceCharacter });
+
     if (typeof onStart === "function") {
         onStart(enemy);
     }
-    if (animationName) {
-        enemy.switchAnimation(animationName);
-    }
 
-    resetToAnimationStart(enemy);
     playBossIntroAudio(enemy, audioPath, audioProperty);
 }
 
@@ -83,6 +69,32 @@ export function updateEnemyBossIntroAnimation(enemy, options = {}) {
         faceCharacter = true,
     } = options;
 
+    applyIntroStance(enemy, { animationName, faceCharacter });
+
+    if (!enemy.spriteSheet) {
+        return;
+    }
+
+    const endFrame = getAnimationEndFrame(enemy);
+    if (lockAtAnimationEndIfReached(enemy, endFrame)) {
+        return;
+    }
+
+    enemy.advanceSpriteAnimation();
+}
+
+/**
+ * Applies shared intro pose (stop movement + optional facing/animation switch).
+ * @param {object} enemy
+ * @param {{animationName?: string, faceCharacter?: boolean}} options
+ * @returns {void}
+ */
+function applyIntroStance(enemy, options = {}) {
+    const {
+        animationName,
+        faceCharacter = true,
+    } = options;
+
     stopEnemyMovement(enemy);
     if (faceCharacter) {
         enemy.faceCharacter();
@@ -90,18 +102,32 @@ export function updateEnemyBossIntroAnimation(enemy, options = {}) {
     if (animationName) {
         enemy.switchAnimation(animationName);
     }
+}
 
-    if (!enemy.spriteSheet) {
-        return;
+/**
+ * Applies intro stance and resets animation to the start frame.
+ * @param {object} enemy
+ * @param {{animationName?: string, faceCharacter?: boolean}} options
+ * @returns {void}
+ */
+function prepareEnemyIntroPose(enemy, options = {}) {
+    applyIntroStance(enemy, options);
+    resetToAnimationStart(enemy);
+}
+
+/**
+ * Clamps animation frame to end frame if already reached.
+ * @param {object} enemy
+ * @param {number} endFrame
+ * @returns {boolean}
+ */
+function lockAtAnimationEndIfReached(enemy, endFrame) {
+    if (enemy.spriteSheet.currentFrame < endFrame) {
+        return false;
     }
 
-    const endFrame = getAnimationEndFrame(enemy);
-    if (enemy.spriteSheet.currentFrame >= endFrame) {
-        enemy.spriteSheet.currentFrame = endFrame;
-        return;
-    }
-
-    enemy.advanceSpriteAnimation();
+    enemy.spriteSheet.currentFrame = endFrame;
+    return true;
 }
 
 /**

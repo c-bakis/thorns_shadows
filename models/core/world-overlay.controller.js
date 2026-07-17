@@ -47,26 +47,24 @@ export default class WorldOverlayController {
    * @returns {void}
    */
   playOverlayDialog(dialog, onActionCallback) {
-    
-
     const uiState = { isActive: true };
     const render = () => this.renderOverlayDialog(dialog, uiState);
     this.preloadDialogImages(dialog, render);
 
-    const handlers = {
-      onPointerMove: (e) => this.handleDialogMouseMove(e, dialog, render),
-      onPointerLeave: () => this.handleDialogMouseLeave(dialog, render),
-      onPointerDown: (e) => this.handleDialogMouseDown(e, dialog, render),
-      onPointerUp: (e) =>
-        this.handleDialogPointerUp(e, dialog, render, () => cleanup(), onActionCallback),
-    };
+    let cleanup = null;
+    const handlers = this.createDialogPointerHandlers(
+      dialog,
+      render,
+      () => cleanup?.(),
+      onActionCallback,
+    );
 
     /**
      * Handles cleanup overlay dialog. Cleans up event 
      * listeners and resets the active overlay cleanup reference.
      * @returns {void}
      */
-    const cleanup = () => {
+    cleanup = () => {
       this.cleanupOverlayDialog(uiState, handlers);
       if (this.activeOverlayCleanup === cleanup) {
         this.activeOverlayCleanup = null;
@@ -77,6 +75,24 @@ export default class WorldOverlayController {
     this.bindDialogEvents(handlers);
 
     requestAnimationFrame(render);
+  }
+
+  /**
+   * Creates pointer handlers for an overlay dialog lifecycle.
+   * @param {object} dialog
+   * @param {Function} render
+   * @param {Function} cleanup
+   * @param {Function} onActionCallback
+   * @returns {{onPointerMove: Function, onPointerLeave: Function, onPointerDown: Function, onPointerUp: Function}}
+   */
+  createDialogPointerHandlers(dialog, render, cleanup, onActionCallback) {
+    return {
+      onPointerMove: (e) => this.handleDialogMouseMove(e, dialog, render),
+      onPointerLeave: () => this.handleDialogMouseLeave(dialog, render),
+      onPointerDown: (e) => this.handleDialogMouseDown(e, dialog, render),
+      onPointerUp: (e) =>
+        this.handleDialogPointerUp(e, dialog, render, cleanup, onActionCallback),
+    };
   }
 
   /**

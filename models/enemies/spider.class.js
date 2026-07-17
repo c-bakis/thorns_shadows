@@ -103,11 +103,7 @@ export default class Spider extends Enemy {
      */
     animate() {
         this.startInterval(() => {
-            if (this.world?.isGameplayFrozen?.(this)) {
-                return;
-            }
-
-            if (this.handleDefeatAnimation(10)) {
+            if (this.shouldSkipSpiderTick()) {
                 return;
             }
 
@@ -115,6 +111,18 @@ export default class Spider extends Enemy {
             this.switchAnimation("ATTACK");
             this.advanceSpriteAnimation(10);
         }, 1000 / 60);
+    }
+
+    /**
+     * Returns true when spider tick should not continue this frame.
+     * @returns {boolean}
+     */
+    shouldSkipSpiderTick() {
+        if (this.world?.isGameplayFrozen?.(this)) {
+            return true;
+        }
+
+        return this.handleDefeatAnimation(10);
     }
 
     /**
