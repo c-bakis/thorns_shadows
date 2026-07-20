@@ -44,7 +44,7 @@
 export function applyWolfDefaults(wolf) {
     wolf.damage = 25;
     wolf.energy = 50;
-    wolf.experiencePoints = 30;
+    wolf.experiencePoints = 0;
     wolf.damageWindowStartFrame = 2;
     wolf.damageWindowEndFrame = 3;
     wolf.damageWindowAnimation = "ATTACK";

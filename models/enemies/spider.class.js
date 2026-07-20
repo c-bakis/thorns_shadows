@@ -3,7 +3,7 @@
 export default class Spider extends Enemy {
     damage = 10;
     energy = 10;
-    experiencePoints = 20;
+    experiencePoints = 0;
     damageWindowStartFrame = 0;
     damageWindowEndFrame = 7;
     damageWindowAnimation = "ATTACK";

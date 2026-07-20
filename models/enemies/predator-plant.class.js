@@ -3,7 +3,7 @@
 export default class PredatorPlant extends Enemy {
     damage = 10;
     energy = 10;
-    experiencePoints = 20;
+    experiencePoints = 0;
     damageWindowStartFrame = 5;
     damageWindowEndFrame = 6;
     damageWindowAnimation = "ATTACK";

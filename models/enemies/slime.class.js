@@ -3,7 +3,7 @@
 export default class Slime extends Enemy {
     damage = 10;
     energy= 10;
-    experiencePoints = 10;
+    experiencePoints = 0;
 
     SPRITE_ANIMATIONS = {
         WALK: {
