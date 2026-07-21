@@ -35,7 +35,7 @@ A 2D canvas platformer with a modular architecture (World, Render, Collision, In
 
 <img align="left" src="https://github.com/c-bakis/thorns_shadows/blob/main/img/screenshots/Screenshot_attack.png" alt="screenshot thorns and shadows"/>
 
-<img align="left" src="https://github.com/c-bakis/thorns_shadows/blob/main/img/screenshots/Screenshot_responsive.png" alt="screenshot thorns and shadows"/>
+<img align="left" src="https://github.com/c-bakis/thorns_shadows/blob/main/img/screenshots/screenshoot_responsive.jpeg" alt="screenshot thorns and shadows"/>
 
 <p></p>
 <p></p>
