@@ -13,7 +13,7 @@ export default class MovableObject extends DrawableObject {
   acceleration = 2.5;
   energy = 100;
   lastHitAt = 0;
-  hurtDuration = 500;
+  hurtDuration = 400;
   knockbackDistance = 18;
   damageWindowStartFrame = null;
   damageWindowEndFrame = null;
