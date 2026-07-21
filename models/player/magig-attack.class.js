@@ -2,7 +2,7 @@
 
 export default class MagicAttack extends MovableObject {
 
-  speed = 6;
+  speed = 7;
   attackDamage = 5;
 
   SPRITE_ANIMATION = {
@@ -26,7 +26,7 @@ export default class MagicAttack extends MovableObject {
     this.loadImage("img/character/wizard/fire_magic.png");
     this.width = 120;
     this.height = 100;
-    this.speed = 4;
+    this.speed = 5;
     this.damage = 10;
     this.hitboxOffsetX = 18;
     this.hitboxOffsetY = 25;
