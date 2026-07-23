@@ -7,6 +7,7 @@ let world;
 let audioManager;
 let touchControlsInitialized = false;
 const nonPassivePointerOptions = { passive: false };
+const SOUND_ICON_ON_SRC = "./img/icons/sound_on.png";
 
 const touchButtonBindings = [
   { id: "move-left-btn", key: "LEFT" },
@@ -226,6 +227,120 @@ function togglePause() {
 window.togglePause = togglePause;
 
 /**
+ * Applies enabled/muted state visuals to a touch audio button.
+ * @param {HTMLButtonElement | null} button
+ * @param {boolean} isEnabled
+ * @returns {void}
+ */
+function setTouchAudioButtonState(button, isEnabled) {
+  if (!button) {
+    return;
+  }
+
+  const isMuted = !isEnabled;
+  button.classList.toggle("is-muted", isMuted);
+  button.setAttribute("aria-pressed", isMuted ? "true" : "false");
+}
+
+/**
+ * Updates touch audio controls from persisted storage values.
+ * @returns {void}
+ */
+function syncTouchAudioUi() {
+  const soundButton = document.getElementById("sound-btn");
+  const soundImage = soundButton?.querySelector("img");
+  const musicButton = document.getElementById("music-btn");
+  const sfxButton = document.getElementById("sfx-btn");
+
+  const isMusicEnabled = getStoredEnabledState("musicIsEnabled", true);
+  const isSoundEnabled = getStoredEnabledState("soundIsEnabled", true);
+  const isAnyAudioEnabled = isMusicEnabled || isSoundEnabled;
+
+  setTouchAudioButtonState(musicButton, isMusicEnabled);
+  setTouchAudioButtonState(sfxButton, isSoundEnabled);
+  setTouchAudioButtonState(soundButton, isAnyAudioEnabled);
+
+  if (soundImage) {
+    soundImage.src = SOUND_ICON_ON_SRC;
+    soundImage.alt = isAnyAudioEnabled ? "Sound on" : "Sound off";
+  }
+}
+
+/**
+ * Toggles music enabled state and persists it.
+ * @returns {void}
+ */
+function toggleTouchMusicPreference() {
+  const isEnabled = audioManager?.toggleMusic?.();
+  if (typeof isEnabled !== "boolean") {
+    return;
+  }
+
+  sessionStorage.setItem("musicIsEnabled", isEnabled ? "true" : "false");
+  const btnState = isEnabled ? "on" : "off";
+  sessionStorage.setItem("toggleMusicButtonState", btnState);
+  syncTouchAudioUi();
+}
+
+/**
+ * Toggles sound enabled state and persists it.
+ * @returns {void}
+ */
+function toggleTouchSoundPreference() {
+  const isEnabled = audioManager?.toggleSfx?.();
+  if (typeof isEnabled !== "boolean") {
+    return;
+  }
+
+  sessionStorage.setItem("soundIsEnabled", isEnabled ? "true" : "false");
+  syncTouchAudioUi();
+}
+
+/**
+ * Closes the touch audio panel.
+ * @returns {void}
+ */
+function closeTouchAudioPanel() {
+  const audioPanel = document.getElementById("audio-panel");
+  audioPanel?.classList.add("hidden-audio-panel");
+}
+
+/**
+ * Toggles visibility of the touch audio panel.
+ * @returns {void}
+ */
+function toggleTouchAudioPanel() {
+  const audioPanel = document.getElementById("audio-panel");
+  if (!audioPanel) {
+    return;
+  }
+
+  const isPaused = world?.pause || document.body?.classList.contains("is-game-paused");
+  if (isPaused) {
+    closeTouchAudioPanel();
+    return;
+  }
+
+  audioPanel.classList.toggle("hidden-audio-panel");
+}
+
+/**
+ * Handles touch audio actions.
+ * @param {"music" | "sound"} action
+ * @returns {void}
+ */
+function handleTouchAudioAction(action) {
+  unlockAudio();
+
+  if (action === "music") {
+    toggleTouchMusicPreference();
+    return;
+  }
+
+  toggleTouchSoundPreference();
+}
+
+/**
  * Sets a keyboard flag if world input is available.
  * @param {keyof import("../models/core/keyboard.class.js").default} key
  * @param {boolean} isPressed
@@ -317,8 +432,52 @@ function setupTouchControls() {
   const pauseButton = document.getElementById("pause-btn");
   pauseButton?.addEventListener("click", (event) => {
     event.preventDefault();
+    closeTouchAudioPanel();
     togglePause();
   });
+
+  const soundButton = document.getElementById("sound-btn");
+  soundButton?.addEventListener("click", (event) => {
+    event.preventDefault();
+    event.stopPropagation();
+    toggleTouchAudioPanel();
+  });
+
+  const musicButton = document.getElementById("music-btn");
+  musicButton?.addEventListener("click", (event) => {
+    event.preventDefault();
+    event.stopPropagation();
+    handleTouchAudioAction("music");
+  });
+
+  const sfxButton = document.getElementById("sfx-btn");
+  sfxButton?.addEventListener("click", (event) => {
+    event.preventDefault();
+    event.stopPropagation();
+    handleTouchAudioAction("sound");
+  });
+
+  document.addEventListener("click", (event) => {
+    const panel = document.getElementById("audio-panel");
+    if (!panel || panel.classList.contains("hidden-audio-panel")) {
+      return;
+    }
+
+    const target = event.target;
+    if (!(target instanceof Node)) {
+      return;
+    }
+
+    if (!panel.contains(target) && !soundButton?.contains(target)) {
+      closeTouchAudioPanel();
+    }
+  });
+
+  window.addEventListener("audio-settings-changed", () => {
+    syncTouchAudioUi();
+  });
+
+  syncTouchAudioUi();
 
   touchControlsInitialized = true;
 }
@@ -425,6 +584,7 @@ function setKeyboardStateForCode(code, isPressed) {
  */
 function handlePauseKeyDown(event) {
   if (event.code === "KeyP" && !event.repeat) {
+    closeTouchAudioPanel();
     world.handlePauseToggle();
   }
 }

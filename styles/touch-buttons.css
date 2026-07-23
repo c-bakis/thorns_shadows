@@ -2,6 +2,12 @@
 	position: relative;
 }
 
+#touch-control {
+	position: absolute;
+	inset: 0;
+	pointer-events: none;
+}
+
 .touch-button-container {
 	display: none;
 	position: absolute;
@@ -19,25 +25,59 @@
 .pause-btn,
 .move-btn,
 .action-btn {
-	position: absolute;
 	display: flex;
-	gap: 0px;
 	pointer-events: none;
 }
 
 .pause-btn {
+	position: absolute;
+}
+
+.move-btn,
+.action-btn {
+	position: fixed;
+	z-index: 30;
+}
+
+.move-btn,
+.action-btn {
+	display: none;
+}
+
+.move-btn, 
+.action-btn {
+	
+	gap: 0px;
+}
+
+.pause-btn {
 	top: 10px;
-	right: 10px;
+	right: 20px;
+	gap: 20px;
+}
+
+.audio-panel {
+	position: absolute;
+	top: 72px;
+	right: 0;
+	display: flex;
+	flex-direction: column;
+	gap: 10px;
+	pointer-events: auto;
+}
+
+.hidden-audio-panel {
+	display: none;
 }
 
 .move-btn {
 	left: 10px;
-	bottom: 10px;
+	bottom: max(8px, env(safe-area-inset-bottom));
 }
 
 .action-btn {
 	right: 10px;
-	bottom: 10px;
+	bottom: max(8px, env(safe-area-inset-bottom));
 }
 
 #move-left-btn img {
@@ -57,13 +97,13 @@
 
 #magic-attack-btn {
     position: absolute;
-    bottom: 70px;
+	bottom: 70px;
     right: 15px;
 }
 
 #jump-btn {
     position: absolute;
-    bottom: 30px;
+	bottom: 18px;
     right: 69px;
 }
 
@@ -98,18 +138,59 @@
 	-webkit-touch-callout: none;
 }
 
-body.is-game-active:not(.is-game-paused).is-touch-optimized .touch-button-container,
-body.is-game-active:not(.is-game-paused).is-input-hybrid.is-last-input-touch .touch-button-container {
+.audio-toggle-btn {
+	position: relative;
+	min-width: 88px;
+	min-height: 40px;
+	border-radius: 999px;
+	padding: 6px 12px;
+	font-size: 11px;
+	line-height: 1;
+}
+
+.audio-toggle-label {
+	display: inline-block;
+	letter-spacing: 0.5px;
+	pointer-events: none;
+}
+
+.audio-toggle-btn.is-muted {
+	background: rgba(80, 80, 80, 0.5);
+	opacity: 0.8;
+}
+
+.audio-toggle-btn.is-muted::after {
+	content: "";
+	position: absolute;
+	left: 20%;
+	top: 50%;
+	width: 60%;
+	height: 2px;
+	background: rgba(242, 231, 190, 0.95);
+	transform: rotate(-16deg);
+	box-shadow: 0 0 2px rgba(0, 0, 0, 0.45);
+}
+
+body.is-game-active .touch-button-container {
 	display: block;
 }
 
-body.is-desktop-optimized .touch-button-container {
-	display: none !important;
+body.is-game-active:not(.is-game-paused).is-touch-optimized .move-btn,
+body.is-game-active:not(.is-game-paused).is-touch-optimized .action-btn,
+body.is-game-active:not(.is-game-paused).is-input-hybrid.is-last-input-touch .move-btn,
+body.is-game-active:not(.is-game-paused).is-input-hybrid.is-last-input-touch .action-btn {
+	display: flex;
 }
 
 @media (hover: none) and (pointer: coarse) {
-	body.is-game-active:not(.is-game-paused) .touch-button-container {
-		display: block;
+	body.is-game-active:not(.is-game-paused) .move-btn,
+	body.is-game-active:not(.is-game-paused) .action-btn {
+		display: flex;
+	}
+
+	.move-btn,
+	.action-btn {
+		bottom: max(6px, env(safe-area-inset-bottom));
 	}
 
 	#attack-btn {

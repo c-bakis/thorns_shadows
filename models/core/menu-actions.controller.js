@@ -63,6 +63,7 @@ export default class MenuActionsController {
     sessionStorage.setItem("musicIsEnabled", isEnabled ? "true" : "false");
     const btnState = isEnabled ? "on" : "off";
     sessionStorage.setItem("toggleMusicButtonState", btnState);
+    window.dispatchEvent(new CustomEvent("audio-settings-changed"));
   }
 
   /**
@@ -72,6 +73,7 @@ export default class MenuActionsController {
   toggleSoundPreference() {
     const isEnabled = this.world?.audioManager?.toggleSfx?.();
     sessionStorage.setItem("soundIsEnabled", isEnabled ? "true" : "false");
+    window.dispatchEvent(new CustomEvent("audio-settings-changed"));
   }
 
   /**

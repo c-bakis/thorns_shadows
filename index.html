@@ -54,35 +54,45 @@
       </div>
 
       <canvas id="canvas"></canvas>
-    </section>
-    <section id="touch-control">
-      
-      <div class="touch-button-container touch-only-ui" aria-label="Touch controls">
-        <div class="pause-btn">
-          <button id="pause-btn" class="touch-button" type="button">
-            <img src="./img/icons/pause.png" alt="Pause" class="pause-img" />
-          </button>
+      <section id="touch-control">
+        <div class="touch-button-container touch-only-ui" aria-label="Touch controls">
+          <div class="pause-btn">
+            <button id="pause-btn" class="touch-button" type="button">
+              <img src="./img/icons/pause.png" alt="Pause" class="pause-img" />
+            </button>
+            <button id="sound-btn" class="touch-button" type="button">
+              <img src="./img/icons/sound_on.png" alt="Sound" class="sound-img" />
+            </button>
+            <div id="audio-panel" class="audio-panel hidden-audio-panel" aria-label="Audio controls">
+              <button id="music-btn" class="touch-button audio-toggle-btn" type="button" aria-pressed="false">
+                <span class="audio-toggle-label">MUSIC</span>
+              </button>
+              <button id="sfx-btn" class="touch-button audio-toggle-btn" type="button" aria-pressed="false">
+                <span class="audio-toggle-label">SOUND</span>
+              </button>
+            </div>
+          </div>
+          <div class="move-btn">
+            <button id="move-left-btn" class="touch-button" type="button">
+              <img src="./img/icons/arrow.png" alt="Move Left" class="move-left-img" />
+            </button>
+            <button id="move-right-btn" class="touch-button" type="button">
+              <img src="./img/icons/arrow.png" alt="Move Right" class="move-right-img" />
+            </button>
+          </div>
+          <div class="action-btn">
+            <button id="jump-btn" class="touch-button" type="button">
+              <img src="./img/icons/jump.png" alt="Jump" class="jump-img" />
+            </button>
+            <button id="attack-btn" class="touch-button" type="button">
+              <img src="./img/icons/attack.png" alt="Attack" class="attack-img" />
+            </button>
+            <button id="magic-attack-btn" class="touch-button" type="button">
+              <img src="./img/icons/fireball.png" alt="Magic Attack" class="pause-img" />
+            </button>
+          </div>
         </div>
-        <div class="move-btn">
-          <button id="move-left-btn" class="touch-button" type="button">
-                        <img src="./img/icons/arrow.png" alt="Move Left" class="pause-img" />
-          </button>
-          <button id="move-right-btn" class="touch-button" type="button">
-                        <img src="./img/icons/arrow.png" alt="Move Right" class="pause-img" />
-          </button>
-        </div>
-        <div class="action-btn">
-          <button id="jump-btn" class="touch-button" type="button">
-                        <img src="./img/icons/jump.png" alt="Jump" class="pause-img" />
-          </button>
-          <button id="attack-btn" class="touch-button" type="button">
-                        <img src="./img/icons/attack.png" alt="Attack" class="pause-img" />
-          </button>
-          <button id="magic-attack-btn" class="touch-button" type="button">
-                        <img src="./img/icons/fireball.png" alt="Magic Attack" class="pause-img" />
-          </button>
-        </div>
-      </div>
+      </section>
     </section>
 
     <section id="info-overlay" class="hidden">
